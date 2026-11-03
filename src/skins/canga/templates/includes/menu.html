@@ -1,0 +1,54 @@
+<div id="layout-menu" class="canga-menu" role="navigation" aria-label="Menu principal">
+	<div class="popover-header canga-brand">
+		<span class="canga-brand-icon">
+			<roundcube:object name="logo" src="/images/logo.svg" id="logo" alt="Logo" />
+		</span>
+		<span class="canga-brand-copy">
+			<span class="canga-brand-name"><roundcube:object name="plugin.userdisplayname" /></span>
+			<span class="canga-brand-user">
+				<span class="canga-status" aria-hidden="true"></span>
+				<roundcube:object name="username" />
+			</span>
+		</span>
+		<a class="button icon cancel"><span class="inner"><roundcube:label name="close" /></span></a>
+	</div>
+
+	<div id="taskmenu" class="menu toolbar">
+		<div class="canga-menu-nav">
+		<span class="action-buttons">
+			<a class="compose" href="?_task=mail&amp;_action=compose" onclick="return rcmail.command('compose','',this,event)">
+				<span class="inner">Novo e-mail</span>
+			</a>
+		</span>
+
+		<span class="canga-menu-label mail"><span class="inner">E-mail</span></span>
+		<ul class="canga-static-submenu">
+			<li><a class="inbox" href="?_task=mail&amp;_mbox=INBOX"><span class="canga-menu-text">Caixa de entrada</span></a></li>
+			<li><a class="sent" href="?_task=mail&amp;_mbox=Sent"><span class="canga-menu-text">Enviadas</span></a></li>
+			<li><a class="drafts" href="?_task=mail&amp;_mbox=Drafts"><span class="canga-menu-text">Rascunhos</span></a></li>
+			<li><a class="archive" href="?_task=mail&amp;_mbox=Archive"><span class="canga-menu-text">Arquivo</span></a></li>
+			<li><a class="junk" href="?_task=mail&amp;_mbox=Junk"><span class="canga-menu-text">Spam</span></a></li>
+			<li><a class="trash" href="?_task=mail&amp;_mbox=Trash"><span class="canga-menu-text">Lixeira</span></a></li>
+		</ul>
+
+		<span class="canga-menu-label contacts"><span class="inner">Contatos</span></span>
+		<ul class="canga-static-submenu">
+			<li><a class="contacts-all" href="?_task=addressbook"><span class="canga-menu-text">Todos os contatos</span></a></li>
+			<li><a class="personal" href="?_task=addressbook&amp;_source=0"><span class="canga-menu-text">Endereços pessoais</span></a></li>
+			<li><a class="collected" href="?_task=addressbook&amp;_source=1"><span class="canga-menu-text">Destinatários coletados</span></a></li>
+			<li><a class="groups" href="?_task=addressbook&amp;_source=0"><span class="canga-menu-text">Grupos</span></a></li>
+		</ul>
+
+		</div>
+
+		<span class="special-buttons">
+			<roundcube:if condition="config:dark_mode_support" />
+				<roundcube:add_label name="darkmode" />
+				<roundcube:add_label name="lightmode" />
+				<roundcube:button name="theme" label="darkmode" type="link" innerClass="inner" class="theme dark" />
+			</roundcube:if>
+			<roundcube:button name="about" label="about" type="link" class="about" innerClass="inner" onclick="UI.about_dialog(this)" />
+			<roundcube:button command="logout" label="logout" type="link" class="logout" innerClass="inner" />
+		</span>
+	</div>
+</div>

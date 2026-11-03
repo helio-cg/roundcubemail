@@ -1,0 +1,55 @@
+services:
+  mail:
+    image: docker.io/greenmail/standalone:2.1.15
+    container_name: ${PROJECT_NAME:-roundcube-dev}-mail
+    restart: always
+    environment:
+      GREENMAIL_OPTS: >-
+        -Dgreenmail.setup.test.all
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.auth.disabled
+        -Dgreenmail.preload.dir=/emails
+    volumes:
+      - ./docker/mail-demo:/emails:ro,z
+    ports:
+      - "${MAIL_IMAP_PORT:-3143}:3143"
+      - "${MAIL_SMTP_PORT:-3025}:3025"
+      - "${MAIL_POP3_PORT:-3110}:3110"
+
+  roundcube:
+    image: docker.io/roundcube/roundcubemail:1.7.5-apache
+    container_name: ${PROJECT_NAME:-roundcube-dev}-app
+    restart: always
+    entrypoint: ["/entrypoint-wrapper.sh"]
+    depends_on:
+      - mail
+    ports:
+      - "${ROUNDCUBE_PORT:-8000}:80"
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: sqlite
+      ROUNDCUBEMAIL_DEFAULT_HOST: mail
+      ROUNDCUBEMAIL_DEFAULT_PORT: 3143
+      ROUNDCUBEMAIL_SMTP_SERVER: mail
+      ROUNDCUBEMAIL_SMTP_PORT: 3025
+      ROUNDCUBEMAIL_SKIN: ${ROUNDCUBE_SKIN:-carius}
+      ROUNDCUBEMAIL_PLUGINS: archive,zipdownload,calendar,libcalendaring,libkolab,twofactor_gauthenticator,user
+      ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE: 25M
+    volumes:
+      - ./docker/entrypoint-wrapper.sh:/entrypoint-wrapper.sh:ro,z
+      - ./config:/var/roundcube/config:z
+      - ./src/skins/iguatu:/var/www/html/skins/iguatu:z
+      - ./src/skins/canga:/var/www/html/skins/canga:z
+      - ./src/skins/carius:/var/www/html/skins/carius:z
+      - ./src/plugins/calendar:/var/www/html/plugins/calendar:z
+      - ./src/plugins/libcalendaring:/var/www/html/plugins/libcalendaring:z
+      - ./src/plugins/libkolab:/var/www/html/plugins/libkolab:z
+      - ./src/plugins/twofactor_gauthenticator:/var/www/html/plugins/twofactor_gauthenticator:z
+      - ./src/plugins/user:/var/www/html/plugins/user:z
+      - ./vendor:/opt/roundcube-vendor:z
+      - ./docker/entrypoint-tasks:/entrypoint-tasks:z
+      - rc_db:/var/roundcube/db
+      - rc_temp:/tmp/roundcube-temp
+
+volumes:
+  rc_db:
+  rc_temp:

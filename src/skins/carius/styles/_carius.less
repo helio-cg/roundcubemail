@@ -1,0 +1,2593 @@
+@import (reference) "variables";
+@import (reference) "mixins";
+
+@um-primary:        #5561e6;
+@um-primary-dark:   #3f4ad3;
+@um-primary-deep:   #313bbd;
+@um-primary-soft:   #eceeff;
+@um-primary-softer: #f4f5ff;
+@um-topbar:         #4f5be0;
+@um-topbar-end:     #5b67ea;
+@um-canvas:         #f4f6fb;
+@um-sidebar:        #f7f8fd;
+@um-surface:        #ffffff;
+@um-border:         #e7eaf4;
+@um-border-soft:    #eff1f8;
+@um-text:           #232741;
+@um-text-soft:      #5c627e;
+@um-muted:          #8b90a8;
+@um-badge-bg:       #dfe3fb;
+@um-badge-text:     #4b57dd;
+@um-success:        #2fa46f;
+@um-danger:         #e05b5b;
+@um-radius:         14px;
+@um-radius-sm:      10px;
+@um-shadow:         0 18px 50px rgba(35, 39, 65, .10);
+@um-shadow-soft:    0 8px 24px rgba(35, 39, 65, .07);
+
+.um-icon-base() {
+    font-family: 'Icons';
+    font-style: normal;
+    font-weight: 900;
+    text-decoration: inherit;
+    text-align: center;
+    speak: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.um-icon-solid(@icon) {
+    .um-icon-base();
+    content: @icon;
+    font-weight: 900;
+}
+
+.um-icon-regular(@icon) {
+    .um-icon-base();
+    content: @icon;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'InterTheme';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Inter-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'InterTheme';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/Inter-Medium.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'InterTheme';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/Inter-SemiBold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'InterTheme';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/Inter-Bold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'InterTheme';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('../fonts/Inter-ExtraBold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'InterTheme';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Inter-Italic.ttf') format('truetype');
+}
+
+body,
+input,
+button,
+select,
+textarea,
+.ui-widget,
+.toolbar,
+.listing,
+.messagelist,
+.form-control {
+    font-family: 'InterTheme', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+    color: @um-text;
+    background: @um-canvas;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+a {
+    color: @um-primary;
+}
+
+::selection {
+    background: fade(@um-primary, 22);
+}
+
+#carius-app {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: @um-canvas;
+}
+
+#carius-app > #layout {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+}
+
+#layout-menu.carius-topbar {
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    width: 100% !important;
+    max-width: none;
+    height: 64px;
+    min-height: 64px;
+    padding: 0 18px;
+    margin: 0;
+    color: #fff;
+    background: linear-gradient(110deg, @um-topbar 0%, @um-topbar-end 100%);
+    border: 0;
+    border-radius: 0;
+    box-shadow: 0 6px 24px rgba(60, 70, 190, .18);
+    z-index: 20;
+}
+
+#layout-menu.carius-topbar,
+#layout-menu.carius-topbar.popover,
+#layout-menu.carius-topbar.hidden {
+    display: flex !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+}
+
+html.layout-phone #layout-menu.carius-topbar.hidden {
+    display: flex !important;
+}
+
+#layout-menu.carius-topbar .carius-brand {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 4px 8px 4px 0;
+    color: #fff;
+    text-decoration: none;
+}
+
+#layout-menu.carius-topbar .carius-brand:hover,
+#layout-menu.carius-topbar .carius-brand:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+#layout-menu.carius-topbar .carius-brand-mark {
+    display: flex;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+}
+
+#layout-menu.carius-topbar .carius-brand-mark #logo {
+    display: block;
+    width: 34px;
+    height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    padding: 0;
+    margin: 0;
+    filter: none;
+    opacity: 1;
+}
+
+#layout-menu.carius-topbar .carius-brand-name {
+    font-size: 1.28rem;
+    font-weight: 700;
+    letter-spacing: -.035em;
+    line-height: 1;
+}
+
+#layout-menu.carius-topbar #taskmenu {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    min-width: 0;
+    padding: 0;
+    margin: 0 0 0 12px;
+    overflow: visible;
+    background: transparent !important;
+}
+
+#layout-menu.carius-topbar #taskmenu > a {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    border: 0 !important;
+    border-radius: 12px;
+    color: @color-taskmenu-button;
+    background: transparent;
+    font-size: 1rem;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease;
+}
+
+#layout-menu.carius-topbar #taskmenu > a:hover,
+#layout-menu.carius-topbar #taskmenu > a:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, .13);
+    text-decoration: none;
+}
+
+#layout-menu.carius-topbar #taskmenu > a.selected,
+#layout-menu.carius-topbar #taskmenu > a.button-selected {
+    color: #fff;
+    background: rgba(255, 255, 255, .20);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10);
+}
+
+#layout-menu.carius-topbar #taskmenu > a:before {
+    float: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    font-size: 1.28rem;
+    line-height: 1;
+    text-align: center;
+}
+
+#layout-menu.carius-topbar #taskmenu > a .inner,
+#layout-menu.carius-topbar #taskmenu > a .button-inner {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+#layout-menu.carius-topbar #taskmenu > a.mail:before { .um-icon-solid(@fa-var-envelope); }
+#layout-menu.carius-topbar #taskmenu > a.contacts:before { .um-icon-regular(@fa-var-user); }
+#layout-menu.carius-topbar #taskmenu > a.settings:before { .um-icon-solid(@fa-var-cog); }
+#layout-menu.carius-topbar #taskmenu > a.button-calendar:before { .um-icon-regular(@fa-var-calendar-alt); }
+#layout-menu.carius-topbar #taskmenu > a.user-preferences:before { .um-icon-regular(@fa-var-palette); }
+
+#layout-menu.carius-topbar .carius-native-theme {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.carius-topbar-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.carius-icon-btn,
+.carius-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, .82);
+    background: transparent;
+    font-size: 1rem;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.carius-icon-btn:hover,
+.carius-icon-btn:focus,
+.carius-avatar:hover,
+.carius-avatar:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, .13);
+    outline: 0;
+}
+
+.carius-search:before {
+    .um-icon-solid(@fa-var-search);
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.carius-bell:before {
+    .um-icon-regular(@fa-var-bell);
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: 1.18rem;
+    line-height: 1;
+}
+
+.carius-bell-wrap {
+    position: relative;
+}
+
+.carius-bell-badge {
+    position: absolute;
+    top: 5px;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9px;
+    color: @um-topbar;
+    background: #fff;
+    font-size: .62rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 0 0 2px fade(@um-topbar, 85);
+}
+
+.carius-avatar {
+    width: 40px;
+    height: 40px;
+    margin-left: 6px;
+    border-radius: 50%;
+    color: #fff;
+    background: linear-gradient(135deg, #37c79a 0%, #1ea896 100%);
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .28);
+}
+
+.carius-avatar:hover,
+.carius-avatar:focus {
+    color: #fff;
+    background: linear-gradient(135deg, #32bd92 0%, #189a89 100%);
+}
+
+.carius-avatar-initial {
+    display: block;
+    font-size: .95rem;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.carius-account {
+    position: relative;
+}
+
+.carius-popover {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 100;
+    width: 268px;
+    padding: 8px;
+    color: @um-text;
+    background: @um-surface;
+    border: 1px solid @um-border;
+    border-radius: @um-radius;
+    box-shadow: @um-shadow;
+}
+
+.carius-popover[hidden] {
+    display: none !important;
+}
+
+.carius-popover-title {
+    display: block;
+    padding: 8px 10px 6px;
+    color: @um-text;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.carius-popover-link {
+    display: block;
+    padding: 9px 10px;
+    border-radius: 9px;
+    color: @um-primary;
+    font-size: .82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.carius-popover-link:hover {
+    background: @um-primary-softer;
+    text-decoration: none;
+}
+
+.carius-bell-text {
+    margin: 0;
+    padding: 0 10px 10px;
+    color: @um-muted;
+    font-size: .8rem;
+    line-height: 1.45;
+}
+
+.carius-bell-menu {
+    width: 282px;
+}
+
+.carius-account-menu {
+    width: 272px;
+}
+
+.carius-account-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid @um-border-soft;
+}
+
+.carius-account-avatar {
+    display: flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #fff;
+    background: linear-gradient(135deg, #37c79a 0%, #1ea896 100%);
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.carius-account-meta {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.carius-account-name,
+.carius-account-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.carius-account-name {
+    color: @um-text;
+    font-size: .84rem;
+    font-weight: 600;
+}
+
+.carius-account-email {
+    color: @um-muted;
+    font-size: .72rem;
+}
+
+.carius-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 9px;
+    color: @um-text-soft;
+    background: transparent;
+    font-family: inherit;
+    font-size: .82rem;
+    font-weight: 500;
+    line-height: 1.25;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.carius-menu-item:hover,
+.carius-menu-item:focus {
+    color: @um-primary-deep;
+    background: @um-primary-softer;
+    outline: 0;
+    text-decoration: none;
+}
+
+.carius-menu-item-icon {
+    display: inline-flex;
+    flex: 0 0 18px;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: @um-muted;
+    font-size: .88rem;
+}
+
+.carius-menu-item:hover .carius-menu-item-icon {
+    color: @um-primary;
+}
+
+.carius-i-settings:before { .um-icon-solid(@fa-var-sliders-h); float: none; width: auto; height: auto; margin: 0; line-height: 1; }
+.carius-i-moon:before { .um-icon-regular(@fa-var-moon); float: none; width: auto; height: auto; margin: 0; line-height: 1; }
+.carius-i-info:before { .um-icon-solid(@fa-var-info-circle); float: none; width: auto; height: auto; margin: 0; line-height: 1; }
+.carius-i-logout:before { .um-icon-solid(@fa-var-sign-out-alt); float: none; width: auto; height: auto; margin: 0; line-height: 1; }
+
+.carius-logout {
+    color: @um-danger;
+}
+
+.carius-logout .carius-menu-item-icon,
+.carius-logout:hover .carius-menu-item-icon {
+    color: @um-danger;
+}
+
+.carius-logout:hover,
+.carius-logout:focus {
+    color: @um-danger;
+    background: fade(@um-danger, 9);
+}
+
+html.dark-mode .carius-theme-toggle .carius-i-moon:before {
+    content: @fa-var-sun;
+}
+
+#layout {
+    background: @um-canvas;
+}
+
+#layout-sidebar,
+#layout-list,
+#layout-content {
+    border-color: @um-border;
+}
+
+#layout-sidebar {
+    flex: 0 0 252px;
+    width: 252px;
+    min-width: 224px;
+    max-width: 300px;
+    background: @um-sidebar;
+}
+
+#layout-list {
+    flex: 0 0 372px;
+    width: 372px;
+    min-width: 318px;
+    max-width: 460px;
+    background: @um-surface;
+}
+
+#layout-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    background: @um-canvas;
+}
+
+#layout-sidebar > .header,
+#layout-list > .header,
+#layout-content > .header {
+    border-bottom: 1px solid @um-border-soft;
+    background: @um-surface;
+    color: @um-text;
+}
+
+#layout > div > .footer {
+    border-top: 1px solid @um-border-soft;
+    background: @um-surface;
+}
+
+#layout-sidebar > .header {
+    height: 44px;
+    min-height: 44px;
+    padding: 0 14px;
+    justify-content: flex-end;
+    background: @um-sidebar;
+}
+
+#layout-sidebar > .header .header-title.username {
+    display: none;
+}
+
+#layout-sidebar > .header a.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    margin: 0;
+    border-radius: 8px;
+    color: @um-muted;
+}
+
+#layout-sidebar > .header a.button:hover {
+    color: @um-primary;
+    background: @um-primary-soft;
+}
+
+#layout-sidebar .scroller {
+    padding: 6px 8px 10px;
+}
+
+#layout-sidebar .listing li {
+    border-bottom: 0;
+}
+
+#layout-sidebar .listing li > a,
+#layout-sidebar .listing li a,
+#layout-sidebar .folderlist li > a {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 6px 10px;
+    margin: 1px 0;
+    border-radius: 9px;
+    color: @um-text-soft;
+    font-size: .82rem;
+    font-weight: 500;
+    line-height: 1.25;
+    text-decoration: none;
+}
+
+#layout-sidebar .listing li > a:hover,
+#layout-sidebar .listing li a:hover,
+#layout-sidebar .folderlist li > a:hover {
+    color: @um-text;
+    background: rgba(85, 97, 230, .055);
+}
+
+#layout-sidebar .listing li.selected > a,
+#layout-sidebar .folderlist li.selected > a,
+#layout-sidebar #settings-menu li.selected > a {
+    color: @um-primary-deep;
+    background: @um-primary-soft;
+    font-weight: 600;
+}
+
+#layout-sidebar .listing li.selected,
+#layout-sidebar .folderlist li.selected,
+#layout-sidebar #settings-menu li.selected {
+    background: transparent;
+}
+
+#layout-sidebar .listing li a:before,
+#layout-sidebar .folderlist li a:before {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0 10px 0 0;
+    color: @um-muted;
+    font-size: .9rem;
+    line-height: 18px;
+    text-align: center;
+}
+
+#layout-sidebar .listing li.selected a:before,
+#layout-sidebar .folderlist li.selected a:before {
+    color: @um-primary;
+}
+
+#layout-sidebar .listing .unreadcount,
+#layout-sidebar .folderlist .unreadcount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 6px;
+    margin-left: auto;
+    border-radius: 7px;
+    color: @um-badge-text;
+    background: @um-badge-bg;
+    font-size: .66rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+#layout-sidebar .listing li.selected .unreadcount {
+    color: #fff;
+    background: @um-primary;
+}
+
+#layout-sidebar .treelist li div.treetoggle:before {
+    color: @um-muted;
+}
+
+#layout-sidebar .folderlist .mailbox.virtual > a:before {
+    color: @um-primary;
+}
+
+#layout-sidebar > .footer,
+#layout-sidebar > .footer.small {
+    padding: 10px 14px;
+    border-top: 1px solid @um-border-soft;
+    background: @um-sidebar;
+    color: @um-muted;
+}
+
+#layout-sidebar .quota-widget,
+#quotadisplay {
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: @um-primary-soft;
+    color: @um-primary-deep;
+    font-size: .7rem;
+}
+
+#layout-sidebar .quota-widget .count,
+#quotadisplay .count {
+    color: @um-primary-deep;
+    font-weight: 600;
+}
+
+#layout-sidebar #calendarslist li,
+#layout-sidebar #calendarslist li .calendar {
+    background: transparent !important;
+    border-bottom: 0 !important;
+}
+
+#layout-sidebar #calendarslist li.selected,
+#layout-sidebar #calendarslist li.selected .calendar {
+    background: @um-primary-soft !important;
+}
+
+#layout-sidebar #calendarslist .calname {
+    color: @um-text-soft !important;
+    font-size: .82rem;
+}
+
+#layout-sidebar #calendarslist li.selected .calname {
+    color: @um-primary-deep !important;
+}
+
+#layout-sidebar #datepicker {
+    margin: 4px 10px 10px;
+}
+
+#layout-list > .header,
+#messagelist-header {
+    height: 62px;
+    min-height: 62px;
+    padding: 0 14px;
+    border-bottom: 1px solid @um-border-soft;
+    background: @um-surface;
+}
+
+body.task-mail #layout-list > .header,
+body.task-mail #messagelist-header {
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+#layout-list > .header > a.button,
+#layout-list > .header > .button {
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    margin: 0;
+    border-radius: 9px;
+    color: @um-muted;
+}
+
+#layout-list > .header > a.button:not(.toolbar-menu-button):not(.toolbar-list-button) {
+    display: inline-flex;
+}
+
+#layout-list > .header > a.button:hover {
+    color: @um-primary;
+    background: @um-primary-soft;
+}
+
+body.task-mail #layout-list > .header .toolbar,
+body.task-mail #messagelist-header .toolbar {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow: visible;
+}
+
+body.task-mail #layout-list > .header .toolbar > a,
+body.task-mail #layout-list > .header .toolbar > span,
+body.task-mail #messagelist-header .toolbar > a,
+body.task-mail #messagelist-header .toolbar > span,
+body.task-mail #messagelist-header .toolbar > .dropbutton {
+    flex: 0 0 auto;
+}
+
+#layout-list > .header .toolbar > a.options,
+#layout-list > .header .toolbar > a.refresh,
+#layout-list > .header .toolbar > a.threads,
+#layout-list > .header .toolbar > a.toolbar-menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: @um-text-soft;
+    background: transparent;
+}
+
+#layout-list > .header .toolbar > a.options:hover,
+#layout-list > .header .toolbar > a.refresh:hover,
+#layout-list > .header .toolbar > a.threads:hover {
+    color: @um-primary;
+    background: @um-primary-soft;
+}
+
+#layout-list > .header .toolbar > a:before {
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1;
+}
+
+.carius-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid @um-border;
+    border-radius: 19px;
+    color: @um-primary-deep;
+    background: @um-surface;
+    font-size: .79rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.carius-btn:hover,
+.carius-btn:focus {
+    color: @um-primary-deep;
+    background: @um-primary-softer;
+    border-color: #d9ddf7;
+    text-decoration: none;
+}
+
+.carius-btn:before {
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: .9rem;
+    line-height: 1;
+}
+
+.carius-btn-primary {
+    color: #fff;
+    background: @um-primary;
+    border-color: @um-primary;
+    box-shadow: 0 7px 16px fade(@um-primary, 26);
+}
+
+.carius-btn-primary:hover,
+.carius-btn-primary:focus {
+    color: #fff;
+    background: @um-primary-dark;
+    border-color: @um-primary-dark;
+}
+
+.carius-btn-icon {
+    width: 38px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.carius-btn .inner {
+    padding: 0;
+    font-size: inherit;
+    line-height: 1;
+}
+
+#layout-list .toolbar .compose.carius-btn-primary:before { .um-icon-solid(@fa-var-plus); }
+#layout-list .toolbar .select.carius-btn:before { .um-icon-regular(@fa-var-check); }
+#layout-list .toolbar .delete.carius-btn:before { .um-icon-regular(@fa-var-trash-alt); }
+#layout-list .toolbar .reply.carius-btn:before { .um-icon-regular(@fa-var-reply); }
+#layout-list .toolbar .forward.carius-btn:before { .um-icon-regular(@fa-var-share); }
+
+#layout-list .toolbar a.options:before { .um-icon-regular(@fa-var-filter); }
+#layout-list .toolbar a.refresh:before { .um-icon-solid(@fa-var-retweet); }
+#layout-list .toolbar a.toolbar-menu-button:before,
+#layout-list .toolbar a.more:before { .um-icon-solid(@fa-var-ellipsis-h); }
+#layout-list .toolbar a.threads:before { .um-icon-regular(@fa-var-comments); }
+
+#layout-list .toolbar .dropbutton {
+    display: inline-flex;
+    align-items: center;
+}
+
+#layout-list .toolbar .dropbutton > a.dropdown {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 38px;
+    padding: 0;
+    margin-left: -9px;
+    border: 0;
+    border-radius: 0 19px 19px 0;
+    color: @um-primary-deep;
+    background: transparent;
+}
+
+#layout-list .toolbar .dropbutton > a.dropdown:before {
+    .um-icon-solid(@fa-var-chevron-down);
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: .7rem;
+    line-height: 1;
+}
+
+.searchbar {
+    padding: 12px 14px;
+    border-bottom: 1px solid @um-border-soft;
+    background: @um-surface;
+}
+
+.searchbar form {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 42px;
+    padding: 0 14px 0 42px;
+    border: 1px solid @um-border;
+    border-radius: 12px;
+    background: #f6f7fc;
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+
+.searchbar form:before {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    display: block;
+    content: @fa-var-search;
+    float: none;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    color: @um-muted;
+    font-family: 'Icons';
+    font-size: .92rem;
+    font-weight: 900;
+    line-height: 18px;
+    transform: translateY(-50%);
+    text-align: center;
+}
+
+.searchbar form:focus-within {
+    border-color: fade(@um-primary, 55);
+    background: #fff;
+    box-shadow: 0 0 0 4px fade(@um-primary, 9);
+}
+
+.searchbar input,
+.searchbar .searchbox {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: @um-text;
+    background: transparent;
+    font-size: .82rem;
+}
+
+.searchbar input::placeholder {
+    color: @um-muted;
+}
+
+.searchbar a {
+    flex: 0 0 auto;
+    color: @um-muted;
+}
+
+.searchbar a:before {
+    font-size: 1rem;
+}
+
+#messagelist-content {
+    background: @um-surface;
+}
+
+#messagelist {
+    background: transparent;
+}
+
+#messagelist tbody tr {
+    background: transparent;
+}
+
+#messagelist tbody tr td {
+    padding: 10px 8px;
+    border-bottom: 1px solid @um-border-soft;
+    color: @um-text-soft;
+    font-size: .8rem;
+    vertical-align: middle;
+}
+
+#messagelist tbody tr td.subject {
+    padding: 11px 12px 11px 4px;
+}
+
+#messagelist tbody tr td.subject span.fromto {
+    flex: 1 1 auto;
+    padding-left: 0;
+    padding-right: 8px;
+    color: @um-text-soft;
+    font-size: .78rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+#messagelist tbody tr td.subject span.subject {
+    width: 100%;
+    padding-top: 3px;
+    color: @um-muted;
+    font-size: .74rem;
+    line-height: 1.35;
+}
+
+#messagelist tbody tr td.subject span.date {
+    flex: 0 0 auto;
+    padding-left: 8px;
+    color: @um-muted;
+    font-size: .66rem;
+    line-height: 1.25;
+}
+
+#messagelist tbody tr td.subject span.size {
+    color: @um-muted;
+    font-size: .66rem;
+}
+
+#messagelist tbody tr td.subject span.subject a {
+    color: inherit;
+}
+
+#messagelist tbody tr:hover td {
+    background: @um-primary-softer;
+}
+
+#messagelist tbody tr.selected td,
+#messagelist tbody tr.focused td {
+    background: @um-primary-soft;
+    color: @um-primary-deep;
+}
+
+#messagelist tbody tr.selected td:first-child {
+    box-shadow: inset 3px 0 0 @um-primary;
+}
+
+#messagelist tbody tr.unread td.subject span.fromto {
+    color: @um-text;
+    font-weight: 700;
+}
+
+#messagelist tbody tr.unread td.subject span.subject {
+    color: @um-text;
+    font-weight: 500;
+}
+
+#messagelist tbody tr.flagged td.subject span.fromto,
+#messagelist tbody tr.flagged td.subject span.date {
+    color: @um-danger;
+}
+
+#messagelist td.flags {
+    width: 26px;
+}
+
+#messagelist td.flags span.flag:before {
+    color: #c9cde0;
+    font-size: .95rem;
+}
+
+#messagelist tr.flagged td.flags span.flag:before {
+    color: #f0b429;
+}
+
+#messagelist td.selection {
+    width: 34px;
+    padding-right: 0;
+}
+
+#messagelist td.selection input {
+    accent-color: @um-primary;
+}
+
+#messagelist td.subject span.msgicon.status:before {
+    color: @um-primary;
+}
+
+#layout-list .pagenav {
+    border-top: 1px solid @um-border-soft;
+    background: @um-surface;
+    color: @um-muted;
+    font-size: .72rem;
+}
+
+html.iframe,
+body.task-mail.action-preview,
+body.task-mail.action-show {
+    background: @um-canvas;
+}
+
+#layout-content > .header {
+    height: 52px;
+    min-height: 52px;
+    padding: 0 14px;
+}
+
+#layout-content > .header .header-title {
+    text-align: left;
+    margin: 0;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+html.iframe #layout-content,
+body.task-mail.action-preview #layout-content,
+body.task-mail.action-show #layout-content {
+    background: @um-canvas;
+}
+
+html.iframe #layout-content > .header {
+    display: none;
+}
+
+#layout-content .content.frame-content,
+#layout-content > .content {
+    padding: 22px;
+    background: @um-canvas;
+}
+
+#message-header {
+    padding: 26px 28px 20px;
+    margin: 0 auto 16px;
+    max-width: 880px;
+    background: @um-surface;
+    border: 1px solid @um-border-soft;
+    border-radius: 18px 18px 0 0;
+    border-bottom: 0;
+    box-shadow: @um-shadow-soft;
+}
+
+#message-header h2.subject {
+    margin: 0 0 18px;
+    color: @um-text;
+    font-size: 1.34rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.35;
+}
+
+#message-header > .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#message-header .contactphoto {
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #37c79a 0%, #1ea896 100%);
+    overflow: hidden;
+}
+
+#message-header .contactphoto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#message-header .header-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#message-header .header-summary {
+    color: @um-text;
+    font-size: .88rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+#message-header .header-summary a {
+    color: @um-text;
+}
+
+#message-header .header-headers {
+    color: @um-muted;
+    font-size: .74rem;
+    line-height: 1.5;
+}
+
+#message-header .header-headers a {
+    color: @um-text-soft;
+}
+
+#message-header .header-links {
+    margin-top: 4px;
+    font-size: .72rem;
+}
+
+#message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 880px;
+    padding: 0 28px 32px;
+    margin: 0 auto 24px;
+    background: @um-surface;
+    border: 1px solid @um-border-soft;
+    border-top: 0;
+    border-radius: 0 0 18px 18px;
+    box-shadow: @um-shadow-soft;
+}
+
+#message-content .leftcol {
+    order: 2;
+}
+
+#message-content .rightcol {
+    order: 1;
+}
+
+#messagebody,
+#message-objects,
+#message-objects .message-htmlpart {
+    color: @um-text;
+    font-size: .92rem;
+    line-height: 1.68;
+}
+
+#messagebody a,
+#message-objects a {
+    color: @um-primary;
+}
+
+#messagebody blockquote {
+    border-left: 3px solid @um-primary-soft;
+    padding-left: 14px;
+    color: @um-muted;
+}
+
+#message-content .attachmentslist {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid @um-border-soft;
+}
+
+#layout-content .no-navbar {
+    padding: 0;
+}
+
+#layout-content .iframe-wrapper {
+    background: @um-canvas;
+}
+
+.form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+input[type="number"],
+select,
+textarea {
+    border-color: @um-border;
+    border-radius: 9px;
+    color: @um-text;
+    background-color: #fff;
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: fade(@um-primary, 60);
+    box-shadow: 0 0 0 4px fade(@um-primary, 10);
+    outline: 0;
+}
+
+.btn-primary,
+.button.primary,
+button.primary {
+    color: #fff;
+    background-color: @um-primary;
+    border-color: @um-primary;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: @um-primary-dark;
+    border-color: @um-primary-dark;
+}
+
+.btn-secondary {
+    border-radius: 10px;
+    border-color: @um-border;
+    background: #fff;
+    color: @um-text-soft;
+}
+
+.propform .row,
+.formcontent .row {
+    margin-bottom: .55rem;
+}
+
+#layout-content .header .toolbar a {
+    color: @um-text-soft;
+}
+
+#layout-content .header .toolbar a:hover {
+    color: @um-primary;
+    background: @um-primary-soft;
+}
+
+.listing li.selected,
+.listing tr.selected td {
+    background: @um-primary-soft;
+    color: @um-primary-deep;
+}
+
+.popover,
+.popupmenu {
+    border-color: @um-border;
+    border-radius: 12px;
+    box-shadow: @um-shadow-soft;
+}
+
+.popover .menu li a:hover,
+.popupmenu .menu li a:hover {
+    background: @um-primary-softer;
+    color: @um-primary-deep;
+}
+
+#compose-content {
+    background: @um-canvas;
+}
+
+#compose-content .mce-tinymce,
+#compose-content .editor {
+    border-radius: 12px;
+    border-color: @um-border;
+}
+
+#layout-content .formcontent {
+    padding: 18px 20px;
+}
+
+body.task-login {
+    background: radial-gradient(1200px 700px at 15% 10%, #6d78f2 0%, transparent 60%),
+                radial-gradient(1000px 700px at 85% 90%, #7a5cf0 0%, transparent 55%),
+                linear-gradient(135deg, @um-topbar 0%, #5b4fe0 100%);
+}
+
+body.task-login #carius-app {
+    background: transparent;
+}
+
+body.task-login #layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+body.task-login #layout-content {
+    width: 100%;
+    padding: 24px 16px;
+    text-align: center;
+    background: transparent;
+}
+
+body.task-login #logo {
+    position: static;
+    display: block;
+    width: 64px;
+    height: 64px;
+    max-height: 64px;
+    margin: 0 auto 18px;
+    top: auto;
+}
+
+body.task-login #login-form {
+    top: auto;
+    width: 100%;
+    max-width: 392px;
+    padding: 30px 30px 24px;
+    margin: 0 auto;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 30px 80px rgba(30, 25, 90, .28);
+    backdrop-filter: blur(8px);
+}
+
+body.task-login #login-form .form-group,
+body.task-login #login-form .row {
+    text-align: left;
+}
+
+body.task-login #login-form label {
+    color: @um-text-soft;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+body.task-login #rcmloginsubmit {
+    width: 100%;
+    height: 44px;
+    margin-top: 8px;
+    border: 0;
+    border-radius: 11px;
+    background: @um-primary;
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 600;
+    box-shadow: 0 10px 22px fade(@um-primary, 30);
+}
+
+body.task-login #login-footer {
+    margin-top: 16px;
+    color: @um-muted;
+    font-size: .72rem;
+}
+
+body.task-login #login-footer > div {
+    background: @um-primary-softer;
+    color: @um-muted;
+}
+
+body.task-login #login-footer a {
+    color: @um-primary;
+}
+
+.carius-login-head {
+    text-align: center;
+    margin: 0 0 18px;
+}
+
+.carius-login-head h2 {
+    margin: 0 0 4px;
+    color: @um-text;
+    font-size: 1.22rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+
+.carius-login-head p {
+    margin: 0;
+    color: @um-muted;
+    font-size: .8rem;
+}
+
+@media screen and (max-width: @screen-width-small) {
+    body.task-login #login-form {
+        padding: 24px 20px 18px;
+    }
+}
+
+#messagestack div {
+    border-radius: 10px;
+    font-family: 'InterTheme', Roboto, sans-serif;
+    font-size: .82rem;
+}
+
+@media screen and (max-width: @screen-width-large) {
+    #layout-sidebar {
+        flex-basis: 232px;
+        width: 232px;
+    }
+
+    #layout-list {
+        flex-basis: 344px;
+        width: 344px;
+    }
+}
+
+@media screen and (max-width: @screen-width-medium) {
+    #layout-menu.carius-topbar {
+        padding: 0 12px;
+        gap: 6px;
+    }
+
+    #layout-menu.carius-topbar #taskmenu {
+        margin-left: 4px;
+    }
+
+    #layout-menu.carius-topbar #taskmenu > a {
+        width: 42px;
+        height: 42px;
+    }
+
+    #layout-menu.carius-topbar .carius-brand-name {
+        display: none;
+    }
+
+    #layout-sidebar,
+    #layout-list {
+        width: auto !important;
+        flex: 3 !important;
+    }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1100px) {
+
+    #layout-sidebar.hidden {
+        display: flex !important;
+    }
+}
+
+@media screen and (max-width: @screen-width-small) {
+    #carius-app > #layout {
+        min-height: 0;
+    }
+
+    #layout-menu.carius-topbar {
+        height: 56px;
+        min-height: 56px;
+        padding: 0 8px;
+        gap: 2px;
+    }
+
+    #layout-menu.carius-topbar #taskmenu {
+        gap: 2px;
+        margin-left: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+    }
+
+    #layout-menu.carius-topbar #taskmenu::-webkit-scrollbar {
+        display: none;
+    }
+
+    #layout-menu.carius-topbar #taskmenu > a {
+        width: 40px;
+        height: 40px;
+    }
+
+    #layout-menu.carius-topbar #taskmenu > a:before {
+        font-size: 1.15rem;
+    }
+
+    #layout-menu.carius-topbar .carius-brand {
+        padding-right: 0;
+    }
+
+    #layout-menu.carius-topbar .carius-brand-mark,
+    #layout-menu.carius-topbar .carius-brand-mark #logo {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+    }
+
+    .carius-icon-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .carius-avatar {
+        width: 36px;
+        height: 36px;
+        margin-left: 2px;
+    }
+
+    #layout-list > .header,
+    #messagelist-header {
+        height: 56px;
+        min-height: 56px;
+        padding: 0 10px;
+    }
+
+    #layout-list > .header .toolbar,
+    #messagelist-header .toolbar {
+        gap: 6px;
+    }
+
+    .carius-btn {
+        height: 36px;
+        padding: 0 12px;
+        font-size: .74rem;
+    }
+
+    #layout-list .toolbar .carius-btn .inner {
+        display: none;
+    }
+
+    #layout-list .toolbar .carius-btn {
+        width: 36px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    #layout-list .toolbar .compose.carius-btn-primary {
+        width: 40px;
+    }
+
+    .searchbar {
+        padding: 8px 10px;
+    }
+
+    .searchbar form {
+        height: 38px;
+    }
+
+    #layout-content .content.frame-content,
+    #layout-content > .content {
+        padding: 12px;
+    }
+
+    #message-header {
+        padding: 18px 16px 14px;
+        border-radius: 14px 14px 0 0;
+    }
+
+    #message-content {
+        padding: 0 16px 22px;
+        border-radius: 0 0 14px 14px;
+    }
+
+    #message-header h2.subject {
+        font-size: 1.12rem;
+    }
+}
+
+@media screen and (max-width: 560px) {
+    #layout-menu.carius-topbar .carius-search {
+        display: none;
+    }
+
+    .carius-popover {
+        position: fixed;
+        top: 62px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+    }
+
+    .carius-bell-menu,
+    .carius-account-menu {
+        width: auto;
+    }
+}
+
+html.dark-mode {
+    body {
+        color: @color-dark-font;
+        background: @color-dark-background;
+    }
+
+    #carius-app,
+    #layout {
+        background: @color-dark-background;
+    }
+
+    #layout-menu.carius-topbar {
+        background: linear-gradient(110deg, #1c2033 0%, #242943 100%);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, .28);
+        border-bottom: 1px solid #2c3145;
+    }
+
+    #layout-sidebar {
+        background: #171a26;
+        border-color: #262b3c;
+    }
+
+    #layout-list,
+    #layout-content {
+        background: #1b1e2b;
+        border-color: #262b3c;
+    }
+
+    #layout-sidebar > .header,
+    #layout-list > .header,
+    #layout-content > .header,
+    #layout > div > .footer,
+    #messagelist-header {
+        background: #1b1e2b;
+        border-color: #262b3c;
+        color: @color-dark-font;
+    }
+
+    #layout-sidebar > .header,
+    #layout-sidebar > .footer,
+    #layout-sidebar > .footer.small {
+        background: #171a26;
+    }
+
+    #layout-sidebar .listing li > a,
+    #layout-sidebar .listing li a,
+    #layout-sidebar .folderlist li > a {
+        color: #aeb4ca;
+    }
+
+    #layout-sidebar .listing li > a:hover,
+    #layout-sidebar .listing li a:hover,
+    #layout-sidebar .folderlist li > a:hover {
+        color: @color-dark-font;
+        background: rgba(255, 255, 255, .045);
+    }
+
+    #layout-sidebar .listing li.selected > a,
+    #layout-sidebar .folderlist li.selected > a,
+    #layout-sidebar #settings-menu li.selected > a {
+        color: #fff;
+        background: #2b3050;
+    }
+
+    #layout-sidebar .listing li.selected,
+    #layout-sidebar .folderlist li.selected,
+    #layout-sidebar #settings-menu li.selected {
+        background: transparent;
+    }
+
+    #layout-sidebar .listing li.selected a:before {
+        color: @color-dark-main;
+    }
+
+    #layout-sidebar .listing .unreadcount,
+    #layout-sidebar .folderlist .unreadcount {
+        color: #c9cdff;
+        background: #333a5c;
+    }
+
+    #layout-sidebar .listing li.selected .unreadcount {
+        color: #fff;
+        background: @color-dark-main;
+    }
+
+    #layout-sidebar .quota-widget,
+    #quotadisplay {
+        background: #232842;
+        color: #c9cdff;
+    }
+
+    #layout-sidebar .quota-widget .count,
+    #quotadisplay .count {
+        color: #dfe2ff;
+    }
+
+    #layout-list,
+    #messagelist-content,
+    #messagelist,
+    .searchbar {
+        background: #1b1e2b;
+    }
+
+    .searchbar {
+        border-color: #262b3c;
+    }
+
+    .searchbar form {
+        border-color: #2c3145;
+        background: #222637;
+    }
+
+    .searchbar form:focus-within {
+        border-color: fade(@color-dark-main, 65);
+        background: #262b3c;
+        box-shadow: 0 0 0 4px fade(@color-dark-main, 12);
+    }
+
+    .searchbar input {
+        color: @color-dark-font;
+    }
+
+    #messagelist tbody tr td {
+        border-bottom-color: #262b3c;
+        color: #b7bdd2;
+    }
+
+    #messagelist tbody tr td.subject span.subject {
+        color: #8e94ad;
+    }
+
+    #messagelist tbody tr:hover td {
+        background: #232842;
+    }
+
+    #messagelist tbody tr.selected td,
+    #messagelist tbody tr.focused td {
+        background: #2b3050;
+        color: #eef0ff;
+    }
+
+    #messagelist tbody tr.unread td.subject span.fromto,
+    #messagelist tbody tr.unread td.subject span.subject {
+        color: #fff;
+    }
+
+    #layout-list .toolbar > a.options,
+    #layout-list .toolbar > a.refresh,
+    #layout-list .toolbar > a.threads {
+        color: #aeb4ca;
+    }
+
+    #layout-list .toolbar > a.options:hover,
+    #layout-list .toolbar > a.refresh:hover,
+    #layout-list .toolbar > a.threads:hover {
+        color: #fff;
+        background: #2b3050;
+    }
+
+    .carius-btn {
+        color: #c9cdff;
+        background: #222637;
+        border-color: #333a55;
+    }
+
+    .carius-btn:hover,
+    .carius-btn:focus {
+        color: #fff;
+        background: #2b3050;
+        border-color: #3d4568;
+    }
+
+    .carius-btn-primary {
+        color: #fff;
+        background: @color-dark-main;
+        border-color: @color-dark-main;
+        box-shadow: 0 7px 16px rgba(0, 0, 0, .3);
+    }
+
+    .carius-btn-primary:hover,
+    .carius-btn-primary:focus {
+        color: #fff;
+        background: #7c86ff;
+        border-color: #7c86ff;
+    }
+
+    .carius-popover {
+        color: @color-dark-font;
+        background: #1b1e2b;
+        border-color: #333852;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+    }
+
+    .carius-popover-title,
+    .carius-account-name {
+        color: @color-dark-font;
+    }
+
+    .carius-menu-item {
+        color: #b7bdd2;
+    }
+
+    .carius-menu-item:hover,
+    .carius-menu-item:focus {
+        color: #fff;
+        background: #2b3050;
+    }
+
+    .carius-menu-item-icon {
+        color: #8c93ac;
+    }
+
+    .carius-account-head {
+        border-color: #262b3c;
+    }
+
+    .carius-logout,
+    .carius-logout .carius-menu-item-icon,
+    .carius-logout:hover .carius-menu-item-icon {
+        color: #ef8080;
+    }
+
+    .carius-logout:hover,
+    .carius-logout:focus {
+        color: #ff9a9a;
+        background: fade(#e05b5b, 15);
+    }
+
+    .carius-bell-badge {
+        color: #1b1e2b;
+        background: #c9cdff;
+        box-shadow: 0 0 0 2px #242943;
+    }
+
+    #layout-content,
+    html.iframe,
+    body.task-mail.action-preview,
+    body.task-mail.action-show {
+        background: #14161f;
+    }
+
+    #message-header,
+    #message-content {
+        background: #1b1e2b;
+        border-color: #262b3c;
+        box-shadow: none;
+    }
+
+    #message-header h2.subject,
+    #message-header .header-summary,
+    #message-header .header-summary a {
+        color: @color-dark-font;
+    }
+
+    #message-header .header-headers,
+    #message-header .header-headers a {
+        color: #9aa0ba;
+    }
+
+    #messagebody,
+    #message-objects,
+    #message-objects .message-htmlpart {
+        color: @color-dark-font;
+    }
+
+    #messagebody a,
+    #message-objects a {
+        color: @color-dark-main;
+    }
+
+    #messagebody blockquote {
+        border-left-color: #333a5c;
+        color: #9aa0ba;
+    }
+
+    #message-content .attachmentslist {
+        border-top-color: #262b3c;
+    }
+
+
+    #layout-content > .content,
+    #layout-content > .fc,
+    #layout-content .content.frame-content {
+        background: @color-dark-background;
+        border-color: @color-dark-border;
+    }
+
+    body.task-calendar .fc-unthemed th,
+    body.task-calendar .fc-unthemed td,
+    body.task-calendar .fc-unthemed .fc-divider,
+    body.task-calendar .fc-unthemed .fc-row,
+    body.task-calendar .fc-unthemed .fc-content,
+    body.task-calendar .fc-unthemed .fc-list-view {
+        border-color: @color-dark-border;
+    }
+
+    body.task-calendar .fc-list-heading td {
+        background: #232842;
+        color: @color-dark-font;
+    }
+
+    body.task-calendar .fc-day.fc-today {
+        background: rgba(139, 149, 255, .12) !important;
+    }
+
+    .form-control,
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="search"],
+    input[type="number"],
+    select,
+    textarea {
+        color: @color-dark-font;
+        background-color: #1b1e2b;
+        border-color: #333a55;
+    }
+
+    .btn-secondary {
+        color: @color-dark-font;
+        background: #222637;
+        border-color: #333a55;
+    }
+
+    .popover,
+    .popupmenu {
+        color: @color-dark-font;
+        background: #1b1e2b;
+        border-color: #333852;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+    }
+
+    .popover .menu li a:hover,
+    .popupmenu .menu li a:hover {
+        color: #fff;
+        background: #2b3050;
+    }
+
+    #layout-sidebar #calendarslist .calname {
+        color: #b7bdd2 !important;
+    }
+
+    #layout-sidebar #calendarslist li.selected,
+    #layout-sidebar #calendarslist li.selected .calendar {
+        background: #2b3050 !important;
+    }
+
+    #layout-sidebar #calendarslist li.selected .calname {
+        color: #fff !important;
+    }
+
+    body.task-login {
+        background: radial-gradient(1000px 600px at 15% 10%, rgba(85, 97, 230, .28) 0%, transparent 60%),
+                    radial-gradient(900px 600px at 85% 90%, rgba(122, 92, 240, .22) 0%, transparent 55%),
+                    linear-gradient(135deg, #14161f 0%, #1b1e2b 100%);
+    }
+
+    body.task-login #login-form {
+        background: rgba(27, 30, 43, .96);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, .45);
+    }
+
+    body.task-login #login-form label {
+        color: #b7bdd2;
+    }
+
+    .carius-login-head h2 {
+        color: @color-dark-font;
+    }
+
+    body.task-login #login-footer,
+    body.task-login #login-footer > div {
+        color: #9aa0ba;
+        background: transparent;
+    }
+
+    body.task-login #login-footer a {
+        color: @color-dark-main;
+    }
+
+
+    #layout.carius-mail-layout > #layout-list > #messagelist-header,
+    #layout.carius-mail-layout > #layout-list > .searchbar,
+    #layout.carius-mail-layout > #layout-list > #messagelist-content,
+    #layout.carius-mail-layout > #layout-list > .pagenav {
+        background: #1b1e2b;
+        border-color: #262b3c;
+        color: @color-dark-font;
+    }
+
+    #layout.carius-mail-layout > #layout-content {
+        background: #14161f;
+    }
+
+    #layout.carius-mail-layout #messagelist-header > ul#toolbar-list-menu {
+        background: transparent;
+        border: 0;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a {
+        color: #c9cdff;
+        background: #222637;
+        border-color: #333a55 !important;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a:hover,
+    #layout.carius-mail-layout #toolbar-list-menu > li > a:focus {
+        color: #fff;
+        background: #2b3050;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose {
+        color: #fff !important;
+        background: @color-dark-main !important;
+        border-color: @color-dark-main !important;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose:hover,
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose:focus {
+        color: #fff !important;
+        background: #7c86ff !important;
+        border-color: #7c86ff !important;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.disabled {
+        opacity: .45;
+    }
+
+    #layout.carius-mail-layout .searchbar form {
+        border-color: #2c3145;
+        background: #222637;
+    }
+
+    #layout.carius-mail-layout .searchbar input {
+        color: @color-dark-font;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    #layout.carius-mail-layout {
+        display: grid;
+        grid-template-columns: 252px 372px minmax(0, 1fr);
+        grid-template-rows: 58px 66px minmax(0, 1fr) auto;
+        grid-template-areas:
+            "sidebar globalbar globalbar"
+            "sidebar listsearch content"
+            "sidebar listcontent content"
+            "sidebar pagenav content";
+        align-items: stretch;
+        background: @um-canvas;
+    }
+
+    #layout.carius-mail-layout > #layout-sidebar {
+        display: flex !important;
+        grid-area: sidebar;
+        width: auto !important;
+        max-width: none;
+        min-width: 0;
+        height: auto;
+        min-height: 0;
+        border-right: 1px solid @um-border;
+    }
+
+    #layout.carius-mail-layout > #layout-list {
+        display: contents;
+    }
+
+    #layout.carius-mail-layout > #layout-list.hidden {
+        display: contents !important;
+    }
+
+    #layout.carius-mail-layout > #layout-list > #messagelist-header {
+        display: flex;
+        grid-area: globalbar;
+        height: 58px;
+        min-height: 58px;
+        padding: 0 18px;
+        border-bottom: 1px solid @um-border-soft;
+        border-right: 0;
+        background: @um-surface;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar {
+        grid-area: listsearch;
+        height: 66px;
+        padding: 12px 14px;
+        border-right: 1px solid @um-border-soft;
+        border-bottom: 1px solid @um-border-soft;
+        background: @um-surface;
+    }
+
+    #layout.carius-mail-layout > #layout-list > #messagelist-content {
+        grid-area: listcontent;
+        height: auto;
+        min-height: 0;
+        overflow: auto;
+        border-right: 1px solid @um-border-soft;
+        background: @um-surface;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .pagenav {
+        grid-area: pagenav;
+        border-top: 1px solid @um-border-soft;
+        border-right: 1px solid @um-border-soft;
+        background: @um-surface;
+    }
+
+    #layout.carius-mail-layout > #layout-content {
+        grid-area: content;
+        display: flex;
+        width: auto;
+        min-width: 0;
+        min-height: 0;
+        border: 0;
+        background: @um-canvas;
+    }
+
+    #layout.carius-mail-layout > #layout-content > .header {
+        display: none;
+    }
+
+    #layout.carius-mail-layout .column-resizer,
+    #layout.carius-mail-layout a.task-menu-button,
+    #layout.carius-mail-layout a.back-sidebar-button,
+    #layout.carius-mail-layout a.back-list-button,
+    #layout.carius-mail-layout a.toolbar-list-button {
+        display: none !important;
+    }
+
+    #layout.carius-mail-layout #messagelist-header .header-title {
+        display: none !important;
+    }
+
+
+    #layout.carius-mail-layout #messagelist-header > ul#toolbar-list-menu {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        list-style: none;
+        white-space: normal;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li {
+        display: flex;
+        float: none;
+        align-items: center;
+        width: auto;
+        height: auto;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        list-style: none;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li.spacer {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 8px;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        height: 38px;
+        padding: 0 16px;
+        border: 1px solid @um-border !important;
+        border-radius: 19px;
+        color: @um-primary-deep;
+        background: @um-surface;
+        font-size: .79rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a:hover,
+    #layout.carius-mail-layout #toolbar-list-menu > li > a:focus {
+        color: @um-primary-deep;
+        background: @um-primary-softer;
+        text-decoration: none;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a:before {
+        float: none !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        font-size: .92rem;
+        line-height: 1;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a .inner {
+        display: inline;
+        padding: 0;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: 1;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose {
+        color: #fff !important;
+        background: @um-primary !important;
+        border-color: @um-primary !important;
+        box-shadow: 0 7px 16px fade(@um-primary, 26);
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose:hover,
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose:focus {
+        color: #fff !important;
+        background: @um-primary-dark !important;
+        border-color: @um-primary-dark !important;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.compose:before {
+        content: @fa-var-plus;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.select:before {
+        content: @fa-var-check;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.delete:before {
+        content: @fa-var-trash-alt;
+        font-family: 'Icons';
+        font-weight: 400;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.reply:before {
+        content: @fa-var-reply;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.options,
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.refresh {
+        width: 38px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.options .inner,
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.refresh .inner {
+        display: none;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.options:before {
+        content: @fa-var-filter;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.refresh:before {
+        content: @fa-var-retweet;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.toolbar-menu-button {
+        width: 38px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.toolbar-menu-button .inner {
+        display: none;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.toolbar-menu-button:before {
+        content: @fa-var-ellipsis-h;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.disabled {
+        opacity: .45;
+    }
+}
+
+@media screen and (min-width: 1000px) and (max-width: 1199px) {
+    #layout.carius-mail-layout {
+        grid-template-columns: 232px 330px minmax(0, 1fr);
+    }
+}
+
+@media screen and (max-width: 999px) {
+    #layout-list > #messagelist-header {
+        gap: 4px;
+        padding: 0 10px;
+    }
+
+    #layout-list > #messagelist-header > ul#toolbar-list-menu {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: 4px;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        list-style: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        white-space: nowrap;
+    }
+
+    #layout-list > #messagelist-header > ul#toolbar-list-menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    #layout-list #toolbar-list-menu > li {
+        display: flex;
+        flex: 0 0 auto;
+        float: none;
+        align-items: center;
+        width: auto;
+        height: auto;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        list-style: none;
+    }
+
+    #layout-list #toolbar-list-menu > li.spacer {
+        display: none;
+    }
+
+    #layout-list #toolbar-list-menu > li > a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        min-width: 0;
+        max-width: none;
+        padding: 0;
+        border: 0 !important;
+        border-radius: 50%;
+        color: @um-text-soft;
+        background: transparent;
+        font-size: .95rem;
+        line-height: 1;
+        text-align: center;
+    }
+
+    #layout-list #toolbar-list-menu > li > a:hover,
+    #layout-list #toolbar-list-menu > li > a:focus {
+        color: @um-primary;
+        background: @um-primary-soft;
+        text-decoration: none;
+    }
+
+    #layout-list #toolbar-list-menu > li > a .inner {
+        display: none;
+    }
+
+    #layout-list #toolbar-list-menu > li > a:before {
+        float: none !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    #layout-list #toolbar-list-menu > li > a.compose {
+        color: #fff !important;
+        background: @um-primary !important;
+        box-shadow: 0 6px 14px fade(@um-primary, 26);
+    }
+
+    #layout-list #toolbar-list-menu > li > a.compose:before {
+        content: @fa-var-plus;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout-list #toolbar-list-menu > li > a.select:before {
+        content: @fa-var-check;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout-list #toolbar-list-menu > li > a.delete:before {
+        content: @fa-var-trash-alt;
+        font-family: 'Icons';
+        font-weight: 400;
+    }
+
+    #layout-list #toolbar-list-menu > li > a.reply:before {
+        content: @fa-var-reply;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout-list #toolbar-list-menu > li > a.options:before {
+        content: @fa-var-filter;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout-list #toolbar-list-menu > li > a.refresh:before {
+        content: @fa-var-retweet;
+        font-family: 'Icons';
+        font-weight: 900;
+    }
+
+    #layout-list > #messagelist-header > a.toolbar-list-button {
+        display: none !important;
+    }
+}
+
+html.dark-mode #layout-list #toolbar-list-menu > li > a {
+    color: #b7bdd2;
+}
+
+html.dark-mode #layout-list #toolbar-list-menu > li > a:hover,
+html.dark-mode #layout-list #toolbar-list-menu > li > a:focus {
+    color: #fff;
+    background: #2b3050;
+}
+
+html.dark-mode #layout-list #toolbar-list-menu > li > a.compose {
+    color: #fff !important;
+    background: @color-dark-main !important;
+}
+
+.carius-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+a.task-menu-button {
+    display: none !important;
+}
+
+@media screen and (min-width: (@screen-width-small + 1px)) {
+    body.task-mail.action-none #layout-content > .header {
+        display: none;
+    }
+}

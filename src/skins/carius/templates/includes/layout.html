@@ -1,0 +1,126 @@
+<roundcube:add_label name="back" />
+<roundcube:add_label name="errortitle" />
+<roundcube:add_label name="options" />
+<roundcube:add_label name="plaintoggle" />
+<roundcube:add_label name="htmltoggle" />
+<roundcube:add_label name="previous" />
+<roundcube:add_label name="next" />
+<roundcube:add_label name="select" />
+<roundcube:add_label name="close" />
+<roundcube:add_label name="browse" />
+<roundcube:add_label name="choosefile" />
+<roundcube:add_label name="choosefiles" />
+<roundcube:object name="doctype" value="html5" />
+<roundcube:if condition="!env:framed || env:extwin" />
+<html>
+<roundcube:else />
+<html class="iframe">
+<roundcube:endif />
+<head>
+	<roundcube:object name="meta" />
+	<roundcube:object name="links" />
+	<roundcube:link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+	<link rel="stylesheet" href="/deps/bootstrap.min.css">
+	<roundcube:if condition="config:devel_mode" />
+		<link rel="stylesheet/less" href="/styles/styles.less">
+		<roundcube:link rel="stylesheet/less" href="/styles/print.less" condition="env:action == 'print'" />
+		<script src="/deps/less.min.js" data-env="development"></script>
+	<roundcube:else />
+		<link rel="stylesheet" href="/styles/styles.css">
+		<roundcube:link rel="stylesheet" href="/styles/print.css" condition="env:action == 'print'" />
+	<roundcube:endif />
+	<roundcube:if condition="env:action != 'print' && !config:devel_mode && config:dark_mode_support" />
+		<script>
+		try {
+			if (document.cookie.indexOf('colorMode=dark') > -1
+				|| (document.cookie.indexOf('colorMode=light') === -1 && window.matchMedia('(prefers-color-scheme: dark)').matches)
+			) {
+				document.documentElement.className += ' dark-mode';
+			}
+		} catch (e) { }
+		</script>
+	<roundcube:endif />
+</head>
+<body class="task-<roundcube:exp expression="env:error_task ?: env:task ?: 'error'"> action-<roundcube:exp expression="asciiwords(env:action, true, '-') ?: 'none'"> carius">
+	<roundcube:if condition="!env:framed || env:extwin" />
+		<div id="carius-app">
+		<roundcube:if condition="env:action != 'print' && env:task != 'login'">
+			<div id="layout-menu" class="carius-topbar" role="banner">
+				<a class="carius-brand" href="?_task=mail" aria-label="Carius">
+					<span class="carius-brand-mark">
+						<roundcube:object name="logo" src="/images/logo.svg" id="logo" alt="Carius" />
+					</span>
+					<span class="carius-brand-name">Carius</span>
+				</a>
+
+				<div id="taskmenu" class="menu toolbar carius-tasknav" role="navigation" aria-label="Menu principal">
+					<roundcube:button command="mail" label="mail" type="link" innerClass="inner"
+						class="mail" classSel="mail selected" />
+					<roundcube:container name="taskbar" id="taskmenu-taskbar" />
+					<roundcube:button command="addressbook" label="contacts" type="link" innerClass="inner"
+						class="contacts" classSel="contacts selected" />
+					<roundcube:button command="settings" label="settings" type="link" innerClass="inner"
+						class="settings" classSel="settings selected" />
+					<span class="carius-native-theme" aria-hidden="true">
+						<roundcube:if condition="config:dark_mode_support" />
+							<roundcube:add_label name="darkmode" />
+							<roundcube:add_label name="lightmode" />
+							<roundcube:button name="theme" label="darkmode" type="link" innerClass="inner" class="theme dark" />
+						<roundcube:endif />
+					</span>
+				</div>
+
+				<div class="carius-topbar-actions">
+					<a href="#search" class="carius-icon-btn carius-search" role="button" aria-label="Pesquisar" title="Pesquisar">
+						<span class="carius-sr-only">Pesquisar</span>
+					</a>
+					<div class="carius-bell-wrap">
+						<a href="#notifications" class="carius-icon-btn carius-bell" role="button"
+							aria-haspopup="true" aria-expanded="false" aria-label="Notificações" title="Notificações">
+							<span class="carius-bell-badge" hidden>0</span>
+						</a>
+						<div class="carius-popover carius-bell-menu" hidden>
+							<strong class="carius-popover-title">Notificações</strong>
+							<p class="carius-bell-text">Tudo em dia por aqui.</p>
+							<a href="?_task=mail&amp;_mbox=INBOX" class="carius-popover-link">Abrir caixa de entrada</a>
+						</div>
+					</div>
+					<div class="carius-account">
+						<button type="button" class="carius-avatar" aria-haspopup="true" aria-expanded="false" aria-label="Conta">
+							<span class="carius-avatar-initial">?</span>
+						</button>
+						<div class="carius-popover carius-account-menu" hidden>
+							<div class="carius-account-head">
+								<span class="carius-account-avatar"><span class="carius-avatar-initial">?</span></span>
+								<span class="carius-account-meta">
+									<strong class="carius-account-name"><roundcube:object name="username" /></strong>
+									<span class="carius-account-email" data-email="<roundcube:object name="username" />"><roundcube:object name="username" /></span>
+								</span>
+							</div>
+							<a class="carius-menu-item" href="?_task=settings">
+								<span class="carius-menu-item-icon carius-i-settings"></span>
+								<span>Configurações</span>
+							</a>
+							<a class="carius-menu-item" href="?_task=settings&amp;_action=plugin.user">
+								<span class="carius-menu-item-icon carius-i-settings"></span>
+								<span>Preferências</span>
+							</a>
+							<button type="button" class="carius-menu-item carius-theme-toggle">
+								<span class="carius-menu-item-icon carius-i-moon"></span>
+								<span class="carius-theme-label">Modo escuro</span>
+							</button>
+							<button type="button" class="carius-menu-item carius-about">
+								<span class="carius-menu-item-icon carius-i-info"></span>
+								<span>Sobre</span>
+							</button>
+							<button type="button" class="carius-menu-item carius-logout">
+								<span class="carius-menu-item-icon carius-i-logout"></span>
+								<span>Sair</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		<roundcube:endif />
+		<div id="<roundcube:exp expression="env:action == 'print' ? 'print-' : ''">layout" class="<roundcube:exp expression="env:task == 'mail' && !env:action && (!env:framed || env:extwin) ? 'carius-mail-layout' : ''">">
+	<roundcube:endif />

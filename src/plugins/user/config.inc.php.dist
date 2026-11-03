@@ -1,0 +1,4 @@
+<?php
+
+// Enable the skin color customization controls and color injection.
+$config['user_enable_skin_colors'] = true;

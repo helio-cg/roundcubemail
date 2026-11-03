@@ -1,0 +1,13 @@
+#taskmenu a.user-preferences:before {
+    content: "\f53f" !important;
+    font-family: 'Icons' !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+}
+
+.canga-topbar-dropdown a.user-preferences:before {
+    content: "\f4fe" !important;
+    font-family: 'Icons' !important;
+    font-style: normal !important;
+    font-weight: 900 !important;
+}

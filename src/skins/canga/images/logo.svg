@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Email">
+  <defs>
+    <linearGradient id="bg" x1="6" y1="2" x2="58" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8f6bff"/>
+      <stop offset="1" stop-color="#5433dc"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="14" y1="22" x2="50" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eae4ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#3b1fae" flood-opacity=".25"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#bg)"/>
+  <rect x="12" y="21" width="40" height="27" rx="7" fill="url(#paper)" filter="url(#shadow)"/>
+  <path d="m16.5 26 15.5 11.5L47.5 26" fill="none" stroke="#6b4cf1" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="50.5" cy="14" r="7" fill="#ffffff"/>
+  <circle cx="50.5" cy="14" r="3.2" fill="#6b4cf1"/>
+</svg>

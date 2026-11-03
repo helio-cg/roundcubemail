@@ -1,0 +1,5 @@
+domains:
+  - roundcube
+secured: true
+proxy:
+  port: 8000

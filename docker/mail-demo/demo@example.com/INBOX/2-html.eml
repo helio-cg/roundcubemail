@@ -1,0 +1,24 @@
+From: Equipe Dev <dev@example.net>
+To: demo@example.net
+Subject: Teste de HTML
+Date: Mon, 02 Nov 2026 10:36:32 +0000
+Message-ID: <2-html.eml@dev.local>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="===============6203455910229815924=="
+
+--===============6203455910229815924==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Versao texto. Abra em um cliente com suporte a HTML.
+
+--===============6203455910229815924==
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<h1 style=3D"color:#2563eb">Ola!</h1><p>Este e-mail testa a renderizacao de H=
+TML no skin <b>meutema</b>.</p>
+
+--===============6203455910229815924==--

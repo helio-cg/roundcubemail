@@ -1,0 +1,259 @@
+#twofactor_gauthenticator-form .settingsbox,
+#twofactor_gauthenticator-form .boxcontent {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#twofactor_gauthenticator-form .settingsbox h3 {
+    margin: 0 0 6px;
+    color: @rc-ink;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+#twofactor_gauthenticator-form .boxcontent {
+    color: @rc-muted;
+    font-size: .9rem;
+}
+
+#twofactor_gauthenticator-form table {
+    width: 100%;
+    margin: 12px 0;
+}
+
+#twofactor_gauthenticator-form td {
+    padding: 6px 0;
+    vertical-align: top;
+}
+
+#twofactor_gauthenticator-form td.title {
+    padding: 10px 14px 10px 0;
+    color: @rc-muted;
+    font-size: .8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+#twofactor_gauthenticator-form input[type=text],
+#twofactor_gauthenticator-form input[type=password] {
+    width: 100%;
+    max-width: 440px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #e4e1ee;
+    border-radius: 9px;
+    background: #f8f7fc;
+    color: @rc-ink;
+}
+
+#twofactor_gauthenticator-form input[type=text]:focus,
+#twofactor_gauthenticator-form input[type=password]:focus {
+    outline: 0;
+    border-color: @rc-purple;
+    background: #fff;
+    box-shadow: 0 0 0 .2rem fadeout(@rc-purple, 85);
+}
+
+#twofactor_gauthenticator-form .button.mainaction,
+#twofactor_gauthenticator-form input[type=button] {
+    height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    background: @rc-purple;
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+#twofactor_gauthenticator-form .button.mainaction:hover,
+#twofactor_gauthenticator-form input[type=button]:hover {
+    background: @rc-purple-dark;
+}
+
+#twofactor_gauthenticator-form [id="2FA_qr_code"] {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 9px;
+    background: #fff;
+    width: fit-content;
+}
+
+#twofactor_gauthenticator-form .boxcontent br + br {
+    display: none;
+}
+
+html.dark-mode #twofactor_gauthenticator-form .settingsbox h3,
+html.dark-mode #twofactor_gauthenticator-form .boxcontent {
+    color: #f2f1f7;
+}
+
+html.dark-mode #twofactor_gauthenticator-form td.title {
+    color: #9a98a8;
+}
+
+html.dark-mode #twofactor_gauthenticator-form input[type=text],
+html.dark-mode #twofactor_gauthenticator-form input[type=password] {
+    border-color: #3a3748;
+    background: #2a2735;
+    color: #f2f1f7;
+}
+
+html.dark-mode #twofactor_gauthenticator-form input[type=text]:focus,
+html.dark-mode #twofactor_gauthenticator-form input[type=password]:focus {
+    border-color: @rc-purple;
+    background: #2f2b3d;
+}
+
+html.dark-mode #twofactor_gauthenticator-form [id="2FA_qr_code"] {
+    background: #fff;
+}
+
+@media screen and (max-width: @screen-width-small) {
+    #twofactor_gauthenticator-form table,
+    #twofactor_gauthenticator-form tbody,
+    #twofactor_gauthenticator-form tr,
+    #twofactor_gauthenticator-form td {
+        display: block;
+        width: 100%;
+    }
+
+    #twofactor_gauthenticator-form td.title {
+        padding: 10px 0 4px;
+        white-space: normal;
+    }
+
+    #twofactor_gauthenticator-form input[type=text],
+    #twofactor_gauthenticator-form input[type=password] {
+        max-width: none;
+    }
+}
+
+#twofactor_gauthenticator-form .boxcontent > p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+#twofactor_gauthenticator-form .boxcontent > p br {
+    display: none;
+}
+
+#twofactor_gauthenticator-form .boxcontent > p [id="2FA_code_to_check"] {
+    width: 110px;
+    max-width: 110px;
+}
+
+#twofactor_gauthenticator-form [id="2FA_setup_fields"] {
+    height: auto;
+    padding: 8px 14px;
+    line-height: 1.2;
+    white-space: normal;
+    text-align: left;
+}
+
+body.task-settings.action-plugin-twofactor-gauthenticator #settingstabplugintwofactor_gauthenticator > a,
+body.task-settings.action-plugin-twofactor_gauthenticator #settingstabplugintwofactor_gauthenticator > a {
+    background: @rc-purple;
+    color: #fff;
+}
+
+#twofactor_gauthenticator-form input[name="2FA_recovery_codes[]"] {
+    width: 245px;
+    max-width: 245px;
+    display: inline-block;
+    margin: 0 6px 6px 0;
+}
+
+#twofactor_gauthenticator-form [id="2FA_code_to_check"] {
+    width: 160px;
+    max-width: 160px;
+}
+
+#twofactor_gauthenticator-form .button[disabled],
+#twofactor_gauthenticator-form input[type="button"][disabled] {
+    opacity: .42;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+body.task-login #login-form td.title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 2px 0 14px;
+    padding: 11px 12px;
+    border: 1px solid #e4e1ee;
+    border-radius: 9px;
+    background: #f8f7fc;
+    color: @rc-muted;
+    font-size: .82rem;
+    line-height: 1.25;
+    box-sizing: border-box;
+}
+
+body.task-login #login-form td.title label {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+body.task-login #login-form #remember_2FA {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    border: 1.5px solid #d7d2e4;
+    border-radius: 5px;
+    background: #fff;
+    cursor: pointer;
+    position: relative;
+    transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+
+body.task-login #login-form #remember_2FA:checked {
+    border-color: @rc-purple;
+    background: @rc-purple;
+}
+
+body.task-login #login-form #remember_2FA:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1.5px;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+body.task-login #login-form #remember_2FA:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 .2rem fadeout(@rc-purple, 80);
+}
+
+html.dark-mode body.task-login #login-form td.title {
+    border-color: #35323f;
+    background: #262330;
+    color: #c9c6d6;
+}
+
+html.dark-mode body.task-login #login-form #remember_2FA {
+    border-color: #4a465c;
+    background: #201f28;
+}
+
+html.dark-mode body.task-login #login-form #remember_2FA:checked {
+    border-color: @rc-purple;
+    background: @rc-purple;
+}

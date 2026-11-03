@@ -1,0 +1,23 @@
+From: Equipe Dev <dev@example.net>
+To: demo@example.net
+Subject: Teste de anexo
+Date: Mon, 02 Nov 2026 11:06:36 +0000
+Message-ID: <3-anexo@dev.local>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============6276493927377062994=="
+
+--===============6276493927377062994==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Mensagem com um anexo de texto para testar a visualizacao no tema.
+
+--===============6276493927377062994==
+Content-Type: text/plain
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="teste.txt"
+MIME-Version: 1.0
+
+Y29udGV1ZG8gZG8gYW5leG8gZGUgdGVzdGUK
+
+--===============6276493927377062994==--
