@@ -32,6 +32,7 @@ services:
       ROUNDCUBEMAIL_SMTP_SERVER: mail
       ROUNDCUBEMAIL_SMTP_PORT: 3025
       ROUNDCUBEMAIL_SKIN: ${ROUNDCUBE_SKIN:-carius}
+      ROUNDCUBE_DEVEL_MODE: ${ROUNDCUBE_DEVEL_MODE:-0}
       ROUNDCUBEMAIL_PLUGINS: archive,zipdownload,calendar,libcalendaring,libkolab,twofactor_gauthenticator,user
       ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE: 25M
     volumes:

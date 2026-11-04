@@ -84,19 +84,22 @@ nao lidas e o modo escuro estao em `_carius.less` e `ui-carius.js`.
 
 As skins dos plugins (calendar e libkolab) tambem foram copiadas para `carius`.
 
-O **Aurora** (`src/skins/aurora`) e a skin nova, criada diretamente sobre o skin
-oficial **Elastic 1.7.5**: a navegacao fica numa trilha vertical de icones a esquerda,
-com a barra de pastas e o botao verde "Criar email" ao lado, lista de mensagens com
-remetente e previa em duas linhas e painel de leitura amplo. A paleta azul-céu, os
-cartoes arredondados, a fonte Inter e o modo escuro estao em
-`src/skins/aurora/styles/_variables.less` e `_styles.less`; nenhum template do
-Elastic foi reescrito, entao o comportamento e a acessibilidade sao os originais.
+O **Aurora** (`src/skins/aurora`) e a skin criada diretamente sobre o skin oficial
+**Elastic 1.7.5**: navegacao em trilha vertical de icones a esquerda, barra de pastas
+e botao verde "Criar email" ao lado, lista de mensagens em duas linhas e painel de
+leitura amplo. A paleta azul-ceu, os cartoes, a fonte Inter, o modo escuro e o rail
+que acompanha a paleta do usuario estao em `src/skins/aurora/styles/_variables.less`
+e `_styles.less`. As skins dos plugins (calendar e libkolab) tambem foram copiadas
+para `aurora`, e o plugin `user` tem a paleta Aurora.
 
-As skins dos plugins (calendar e libkolab) tambem foram copiadas para `aurora`, e o
-plugin `user` ganhou a paleta Aurora.
+O `devel_mode` fica **desligado** por padrao (`ROUNDCUBE_DEVEL_MODE=0` no `.env`):
+cada pagina usa o CSS ja compilado (`styles.min.css`), o que elimina a compilacao
+do LESS no navegador e deixa a navegacao bem mais rapida. Depois de alterar os
+arquivos `.less`, recompile com `scripts/build-skins.sh`.
 
-O `devel_mode` esta ligado em `config/roundcube.dev.inc.php`: o LESS e compilado no
-navegador, entao basta salvar os arquivos e recarregar a pagina.
+Para editar o LESS com recarga instantanea, defina `ROUNDCUBE_DEVEL_MODE=1` no
+`.env` e rode `podman-compose up -d --force-recreate`. Nesse modo o LESS e
+compilado no navegador (mais lento e com um pequeno flash entre paginas).
 
 Temas disponiveis: **Carius** (padrao), **Aurora**, **Iguatu**, **Canga** e o
 **Elastic** original. Para trocar depois de autenticado, use:
@@ -107,8 +110,10 @@ Temas disponiveis: **Carius** (padrao), **Aurora**, **Iguatu**, **Canga** e o
 - `https://roundcube.test/?_task=mail&skin=canga`
 - `https://roundcube.test/?skin=elastic`
 
-A troca por `?skin=` fica salva nas preferencias do usuario. Para mudar o padrao de
-novos logins, altere `ROUNDCUBE_SKIN` no `.env` e rode
+A troca por `?skin=` fica salva nas preferencias do usuario e funciona no modo de
+desenvolvimento (`ROUNDCUBE_DEVEL_MODE=1`). Com o modo padrao (devel desligado),
+troque a skin pela tela **Configuracoes > Interface de usuario**. Para mudar o
+padrao de novos logins, altere `ROUNDCUBE_SKIN` no `.env` e rode
 `podman-compose up -d --force-recreate`.
 
 Para criar outro tema:

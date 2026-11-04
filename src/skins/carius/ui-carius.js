@@ -90,9 +90,23 @@
         return { inbox: inbox, total: total };
     }
 
+    function ensureMailBadge() {
+        var mail = document.querySelector('#taskmenu > a.mail');
+
+        if (mail && !mail.querySelector('.carius-mail-badge')) {
+            var badge = document.createElement('span');
+            badge.className = 'carius-mail-badge';
+            badge.hidden = true;
+            mail.appendChild(badge);
+        }
+    }
+
     function updateUnread() {
+        ensureMailBadge();
+
         var counts = unreadCounts();
         var badge = $('.carius-bell-badge');
+        var mailBadge = $('.carius-mail-badge');
         var text = $('.carius-bell-text');
         var count = counts.total > 0 ? counts.total : counts.inbox;
         var number = count > 99 ? '99+' : String(count);
@@ -100,6 +114,11 @@
         if (badge) {
             badge.textContent = number;
             badge.hidden = count <= 0;
+        }
+
+        if (mailBadge) {
+            mailBadge.textContent = number;
+            mailBadge.hidden = count <= 0;
         }
 
         if (text) {
@@ -145,6 +164,28 @@
         label.textContent = document.documentElement.classList.contains('dark-mode')
             ? 'Modo claro'
             : 'Modo escuro';
+    }
+
+    function syncListToolbar() {
+        var list = document.getElementById('layout-list');
+        var header = document.getElementById('messagelist-header');
+        var searchbar = list ? $('.searchbar', list) : null;
+
+        if (!list || !header || !searchbar || !document.getElementById('toolbar-list-menu')) {
+            return;
+        }
+
+        if (window.matchMedia('(min-width: 1000px)').matches) {
+            if (header.parentNode !== searchbar) {
+                searchbar.insertBefore(header, searchbar.firstChild);
+            }
+            searchbar.classList.add('carius-list-searchbar');
+        } else {
+            if (header.parentNode === searchbar) {
+                list.insertBefore(header, searchbar);
+            }
+            searchbar.classList.remove('carius-list-searchbar');
+        }
     }
 
     function bind() {
@@ -247,6 +288,8 @@
                 closePopovers();
             }
         });
+
+        window.addEventListener('resize', syncListToolbar);
     }
 
     function refresh() {
@@ -254,12 +297,20 @@
         setInitials();
         updateUnread();
         updateThemeLabel();
+        syncListToolbar();
+        setTimeout(syncListToolbar, 50);
     }
 
     if (window.rcmail) {
         rcmail.addEventListener('init', refresh);
-        rcmail.addEventListener('afterlist', updateUnread);
-        rcmail.addEventListener('listupdate', updateUnread);
+        rcmail.addEventListener('afterlist', function () {
+            updateUnread();
+            syncListToolbar();
+        });
+        rcmail.addEventListener('listupdate', function () {
+            updateUnread();
+            syncListToolbar();
+        });
     }
 
     if (document.readyState === 'loading') {

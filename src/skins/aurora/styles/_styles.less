@@ -81,16 +81,15 @@ a {
 /* ------------------------------------------------------------------ */
 
 html:not(.iframe) body:not(.task-login) {
-    background:
-        radial-gradient(120% 120% at 0% 0%, #59b8e7 0%, #2f9fdd 42%, #2089c6 100%);
-    padding: 22px;
+    background: @au-surface;
+    padding: 0;
 }
 
 html:not(.iframe) body:not(.task-login) #layout {
     width: 100%;
     height: 100%;
-    border-radius: @au-radius;
-    box-shadow: @au-shadow;
+    border-radius: 0;
+    box-shadow: none;
     background-color: @au-surface;
     overflow: hidden;
 }
@@ -105,14 +104,20 @@ html.iframe #layout {
 /* ------------------------------------------------------------------ */
 
 #layout-menu {
-    background: @au-surface !important;
+    background: var(--user-menu, @au-surface) !important;
     border-right: 1px solid @au-border;
     box-shadow: none;
     z-index: 25;
 }
 
+/* Anchor the bottom action buttons to the rail so they span its full width.
+   The phone layout turns the menu into a popover, hence the :not(). */
+#layout-menu:not(.popover) {
+    position: relative;
+}
+
 #layout-menu .popover-header {
-    background: @au-surface !important;
+    background: var(--user-menu, @au-surface) !important;
     border-bottom: 1px solid @au-border-soft;
     display: flex;
     align-items: center;
@@ -136,12 +141,12 @@ html.iframe #layout {
     align-items: center;
     justify-content: center;
     gap: 3px;
-    width: 100%;
+    width: auto;
     min-height: 62px;
     padding: .55rem .2rem;
-    margin: 2px 8px;
+    margin: 2px 4px;
     color: @au-muted;
-    font-size: .68rem;
+    font-size: .64rem;
     font-weight: 500;
     line-height: 1.1;
     text-align: center;
@@ -160,22 +165,21 @@ html.iframe #layout {
     span.inner {
         display: block !important;
         padding: 0;
-        font-size: .68rem;
-        letter-spacing: .01em;
+        font-size: .64rem;
+        letter-spacing: 0;
     }
 
-    &:hover {
-        color: @au-blue;
-        background-color: @au-blue-softer;
+    &:hover,
+    &.selected {
+        color: var(--user-text, @au-blue) !important;
+        background-color: var(--user-selection, @au-blue-soft) !important;
     }
 
     &.selected {
-        color: @au-blue;
-        background-color: @au-blue-soft;
         font-weight: 600;
 
         &:before {
-            color: @au-blue;
+            color: var(--user-text, @au-blue) !important;
         }
     }
 
@@ -187,6 +191,19 @@ html.iframe #layout {
             background-color: @au-green-soft;
         }
     }
+}
+
+/* Use the user palette variables with enough specificity to override the
+   per-user color rules that target #layout-menu #taskmenu > a. */
+#layout-menu #taskmenu a:hover:not(.compose),
+#layout-menu #taskmenu a.selected:not(.compose) {
+    color: var(--user-text, @au-blue) !important;
+    background-color: var(--user-selection, @au-blue-soft) !important;
+}
+
+#layout-menu #taskmenu a:hover:not(.compose):before,
+#layout-menu #taskmenu a.selected:not(.compose):before {
+    color: var(--user-text, @au-blue) !important;
 }
 
 #taskmenu .action-buttons {
@@ -234,9 +251,11 @@ html.iframe #layout {
 }
 
 #taskmenu .special-buttons {
-    background: @au-surface !important;
+    background: var(--user-menu, @au-surface) !important;
     border-top: 1px solid @au-border-soft;
     padding: .35rem 0;
+    left: 0;
+    right: 0;
 }
 
 #taskmenu .special-buttons a {
@@ -984,15 +1003,6 @@ select {
 }
 
 @media screen and (max-width: @screen-width-small) {
-    html:not(.iframe) body:not(.task-login) {
-        padding: 0;
-    }
-
-    html:not(.iframe) #layout {
-        border-radius: 0;
-        box-shadow: none;
-    }
-
     #layout-menu {
         border-radius: 0;
     }
@@ -1032,9 +1042,17 @@ select {
 }
 
 & when (@dark-mode-enabled = true) {
-    html.dark-mode:not(.iframe) body:not(.task-login),
+    html.dark-mode:not(.iframe) body:not(.task-login) {
+        background: @color-dark-background !important;
+    }
+
     html.dark-mode body.task-login {
         background: radial-gradient(120% 120% at 0% 0%, #1b2b3b 0%, #121820 55%, #0d1218 100%) !important;
+    }
+
+    html.dark-mode #layout {
+        border-radius: 0;
+        box-shadow: none;
     }
 
     html.dark-mode {
@@ -1057,8 +1075,16 @@ select {
             border-color: @color-dark-border !important;
         }
 
+        #layout-menu {
+            background-color: var(--user-menu, @color-dark-background) !important;
+        }
+
+        #taskmenu .special-buttons {
+            background-color: var(--user-menu, @color-dark-background) !important;
+        }
+
         #layout-menu .popover-header {
-            background: @color-dark-background !important;
+            background: var(--user-menu, @color-dark-background) !important;
             border-bottom-color: @color-dark-border !important;
         }
 
@@ -1066,9 +1092,15 @@ select {
             color: @color-dark-hint;
         }
 
-        #taskmenu a.selected {
-            color: @color-dark-main;
-            background-color: #1d2a36;
+        #layout-menu #taskmenu a:hover:not(.compose),
+        #layout-menu #taskmenu a.selected:not(.compose) {
+            color: var(--user-text, @color-dark-main) !important;
+            background-color: var(--user-selection, #1d2a36) !important;
+        }
+
+        #layout-menu #taskmenu a:hover:not(.compose):before,
+        #layout-menu #taskmenu a.selected:not(.compose):before {
+            color: var(--user-text, @color-dark-main) !important;
         }
 
         #taskmenu .action-buttons a.compose {
@@ -1134,4 +1166,218 @@ select {
 #datepicker .ui-datepicker td span {
     display: block;
     padding: .2em 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Toolbar buttons: icon and label on the same line                   */
+/* ------------------------------------------------------------------ */
+
+@media screen and (min-width: (@screen-width-large + 1px)) {
+    #messagelist-header .toolbar a:not(.dropdown),
+    #messagelist-header > a.refresh,
+    #layout-list > .header .toolbar a:not(.dropdown),
+    #layout-list > .header > a.refresh,
+    #layout-content > .header .toolbar a:not(.dropdown),
+    #layout-content > .header > a.refresh {
+        display: inline-flex;
+        align-items: center;
+        align-self: center;
+        justify-content: center;
+        gap: 6px;
+        float: none;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        height: 34px;
+        min-height: 34px;
+        padding: 0 12px;
+        color: @au-text-soft;
+        font-size: .8rem;
+        font-weight: 500;
+        line-height: 1;
+        white-space: nowrap;
+        border-radius: 17px;
+        background: transparent;
+    }
+
+    #messagelist-header .toolbar a:not(.dropdown):before,
+    #messagelist-header > a.refresh:before,
+    #layout-list > .header .toolbar a:not(.dropdown):before,
+    #layout-list > .header > a.refresh:before,
+    #layout-content > .header .toolbar a:not(.dropdown):before,
+    #layout-content > .header > a.refresh:before {
+        float: none;
+        width: auto;
+        height: auto;
+        margin: 0;
+        font-size: .95rem;
+        line-height: 1;
+    }
+
+    #messagelist-header .toolbar a:not(.dropdown) span.inner,
+    #messagelist-header > a.refresh span.inner,
+    #layout-list > .header .toolbar a:not(.dropdown) span.inner,
+    #layout-list > .header > a.refresh span.inner,
+    #layout-content > .header .toolbar a:not(.dropdown) span.inner,
+    #layout-content > .header > a.refresh span.inner {
+        display: inline !important;
+        padding: 0;
+        font-size: .8rem;
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    #messagelist-header .toolbar a:not(.dropdown):hover,
+    #messagelist-header > a.refresh:hover,
+    #layout-list > .header .toolbar a:not(.dropdown):hover,
+    #layout-list > .header > a.refresh:hover,
+    #layout-content > .header .toolbar a:not(.dropdown):hover,
+    #layout-content > .header > a.refresh:hover {
+        color: @au-blue;
+        background: @au-blue-softer;
+    }
+}
+
+html.dark-mode #messagelist-header .toolbar a:not(.dropdown),
+html.dark-mode #messagelist-header > a.refresh,
+html.dark-mode #layout-list > .header .toolbar a:not(.dropdown),
+html.dark-mode #layout-list > .header > a.refresh,
+html.dark-mode #layout-content > .header .toolbar a:not(.dropdown),
+html.dark-mode #layout-content > .header > a.refresh {
+    color: @color-dark-hint;
+}
+
+html.dark-mode #messagelist-header .toolbar a:not(.dropdown):hover,
+html.dark-mode #messagelist-header > a.refresh:hover,
+html.dark-mode #layout-list > .header .toolbar a:not(.dropdown):hover,
+html.dark-mode #layout-list > .header > a.refresh:hover,
+html.dark-mode #layout-content > .header .toolbar a:not(.dropdown):hover,
+html.dark-mode #layout-content > .header > a.refresh:hover {
+    color: @color-dark-main;
+    background: #1d2a36;
+}
+
+/* The refresh button is a direct child of the list header (outside the
+   converted toolbar list), so give it the same pill treatment. */
+@media screen and (min-width: (@screen-width-large + 1px)) {
+    #messagelist-header > a.button.refresh,
+    #messagelist-header > a.toolbar-button.refresh {
+        color: @au-text-soft;
+        font-weight: 500;
+    }
+
+    #messagelist-header > a.button.refresh span.inner,
+    #messagelist-header > a.toolbar-button.refresh span.inner {
+        color: inherit;
+        font-weight: 500;
+    }
+
+    #messagelist-header > a.button.refresh:hover,
+    #messagelist-header > a.toolbar-button.refresh:hover {
+        color: @au-blue;
+    }
+}
+
+/* Dark mode: selected items in every sidebar (settings, contacts, calendar)
+   and the compose surfaces. */
+html.dark-mode #layout-sidebar .listing li.selected,
+html.dark-mode #layout-sidebar .listing li.selected > a,
+html.dark-mode #layout-sidebar .listing li > a.selected {
+    color: @color-dark-main !important;
+    background-color: #1d2a36 !important;
+}
+
+html.dark-mode #compose-content,
+html.dark-mode #compose-head,
+html.dark-mode #compose-form,
+html.dark-mode #composeoptions,
+html.dark-mode #composetoolbar,
+html.dark-mode #layout-content > .content,
+html.dark-mode #layout-content > .formcontent {
+    background-color: @color-dark-background !important;
+    border-color: @color-dark-border !important;
+    color: @color-dark-font;
+}
+
+html.dark-mode #compose-content .form-control,
+html.dark-mode #compose-content .custom-select,
+html.dark-mode #compose-content textarea,
+html.dark-mode #compose-content input {
+    background-color: #1a222c;
+    border-color: @color-dark-border;
+    color: @color-dark-font;
+}
+
+html.dark-mode #messagelist-header > a.button.refresh,
+html.dark-mode #messagelist-header > a.toolbar-button.refresh {
+    color: @color-dark-hint !important;
+}
+
+/* Dark mode: dialogs and framed forms (contact edit, etc.) */
+html.dark-mode body,
+html.dark-mode body.formcontainer,
+html.dark-mode .formcontainer {
+    background-color: @color-dark-background !important;
+    color: @color-dark-font !important;
+}
+
+html.dark-mode .ui-dialog,
+html.dark-mode .ui-widget-content,
+html.dark-mode .ui-dialog .ui-dialog-content,
+html.dark-mode .ui-dialog .ui-dialog-buttonpane {
+    background-color: @color-dark-popover-background !important;
+    border-color: @color-dark-border !important;
+    color: @color-dark-font !important;
+}
+
+html.dark-mode .ui-dialog .ui-dialog-titlebar {
+    background-color: @color-dark-background !important;
+    border-bottom-color: @color-dark-border !important;
+    color: @color-dark-font !important;
+}
+
+html.dark-mode .ui-dialog .ui-dialog-title {
+    color: @color-dark-font !important;
+}
+
+html.dark-mode .ui-dialog .ui-dialog-titlebar-close {
+    color: @color-dark-font !important;
+}
+
+html.dark-mode .ui-dialog .ui-dialog-buttonpane a.btn-link {
+    color: @color-dark-font !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Smoother page loads/navigation                                      */
+/* ------------------------------------------------------------------ */
+
+html {
+    background-color: @au-surface;
+}
+
+html.dark-mode {
+    background-color: @color-dark-background;
+}
+
+@keyframes aurora-page-in {
+    from { opacity: 0; }
+}
+
+html:not(.iframe) body {
+    animation: aurora-page-in .12s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:not(.iframe) body {
+        animation: none;
+    }
+}
+
+/* Keep the primary compose action readable when a user palette sets a
+   global link colour. */
+#layout-sidebar .aurora-compose-button,
+#layout-sidebar .aurora-compose-button:hover,
+#layout-sidebar .aurora-compose-button:focus {
+    color: #fff !important;
 }

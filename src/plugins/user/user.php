@@ -756,8 +756,8 @@ class user extends rcube_plugin
         ], $prefix);
 
         $linkSelectors = $this->scoped_selectors([
-            'a',
-            '#layout-content a',
+            'a:not(.fc-event)',
+            '#layout-content a:not(.fc-event)',
             '.listing a:hover',
         ], $prefix);
 
@@ -1331,9 +1331,9 @@ class user extends rcube_plugin
         return $containers . '{background:' . $colors['background'] . ' !important;'
             . 'color:' . $colors['text'] . ' !important;}'
             . $containerText . '{color:' . $colors['text'] . ' !important;}'
-            . $dialogHeader . '{background:' . $colors['menu'] . ' !important;'
-            . 'color:' . $menuText . ' !important;}'
-            . $dialogHeaderText . '{color:' . $menuText . ' !important;}'
+            . $dialogHeader . '{background:' . $colors['selection'] . ' !important;'
+            . 'color:' . $colors['text'] . ' !important;}'
+            . $dialogHeaderText . '{color:' . $colors['text'] . ' !important;}'
             . $calendarSurface . '{background:' . $colors['background'] . ' !important;'
             . 'color:' . $colors['text'] . ' !important;}'
             . $calendarText . '{color:' . $colors['text'] . ' !important;}'

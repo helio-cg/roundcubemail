@@ -2167,10 +2167,9 @@ html.dark-mode {
     #layout.carius-mail-layout {
         display: grid;
         grid-template-columns: 252px 372px minmax(0, 1fr);
-        grid-template-rows: 58px 66px minmax(0, 1fr) auto;
+        grid-template-rows: 66px minmax(0, 1fr) auto;
         grid-template-areas:
-            "sidebar globalbar globalbar"
-            "sidebar listsearch content"
+            "sidebar listsearch listsearch"
             "sidebar listcontent content"
             "sidebar pagenav content";
         align-items: stretch;
@@ -2196,14 +2195,16 @@ html.dark-mode {
         display: contents !important;
     }
 
-    #layout.carius-mail-layout > #layout-list > #messagelist-header {
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar {
         display: flex;
-        grid-area: globalbar;
-        height: 58px;
-        min-height: 58px;
+        grid-area: listsearch;
+        align-items: center;
+        gap: 8px;
+        height: 66px;
+        min-height: 66px;
         padding: 0 18px;
-        border-bottom: 1px solid @um-border-soft;
         border-right: 0;
+        border-bottom: 1px solid @um-border-soft;
         background: @um-surface;
     }
 
@@ -2214,6 +2215,77 @@ html.dark-mode {
         border-right: 1px solid @um-border-soft;
         border-bottom: 1px solid @um-border-soft;
         background: @um-surface;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header {
+        display: contents;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > ul#toolbar-list-menu {
+        display: flex;
+        flex: 0 1 auto;
+        align-items: center;
+        gap: 8px;
+        height: auto;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        list-style: none;
+        white-space: nowrap;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar #toolbar-list-menu > li.spacer {
+        display: none;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > a.refresh,
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > a.toolbar-menu-button {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        border-radius: 50%;
+        color: @um-text-soft;
+        background: transparent;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > a.refresh:hover,
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > a.toolbar-menu-button:hover {
+        color: @um-primary;
+        background: @um-primary-soft;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > a.refresh:before {
+        .um-icon-solid(@fa-var-retweet);
+        float: none;
+        width: auto;
+        height: auto;
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar > #messagelist-header > a.toolbar-menu-button:before {
+        .um-icon-solid(@fa-var-ellipsis-h);
+        float: none;
+        width: auto;
+        height: auto;
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    #layout.carius-mail-layout > #layout-list > .searchbar.carius-list-searchbar form {
+        flex: 1 1 300px;
+        width: auto;
+        max-width: 420px;
+        margin-left: auto;
     }
 
     #layout.carius-mail-layout > #layout-list > #messagelist-content {
@@ -2672,4 +2744,35 @@ a.task-menu-button {
 #datepicker .ui-datepicker td span {
     display: block;
     padding: .2em 0;
+}
+
+/* Unread message counter on the mail task icon (visible on every task,
+   including mobile where the folder list is hidden). */
+#layout-menu.carius-topbar #taskmenu > a.mail {
+    position: relative;
+}
+
+.carius-mail-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9px;
+    color: #fff;
+    background: @um-danger;
+    box-shadow: 0 0 0 2px var(--user-menu, @um-topbar);
+    font-size: .6rem;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.carius-mail-badge[hidden] {
+    display: none !important;
 }
