@@ -1,7 +1,7 @@
 <?php
 
 $rcDeployPlugins = ['libcalendaring', 'libkolab', 'calendar', 'twofactor_gauthenticator', 'user'];
-$rcDeploySkins = ['carius', 'iguatu', 'canga'];
+$rcDeploySkins = ['carius', 'aurora', 'iguatu', 'canga'];
 
 $config['plugins'] = isset($config['plugins']) && is_array($config['plugins']) ? $config['plugins'] : [];
 foreach ($rcDeployPlugins as $rcDeployPlugin) {

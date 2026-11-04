@@ -2591,3 +2591,85 @@ a.task-menu-button {
         display: none;
     }
 }
+
+/* ------------------------------------------------------------------ */
+/* UI fixes: header toolbar and tablet layout                         */
+/* ------------------------------------------------------------------ */
+
+/* The refresh action is icon-only; hide the label that Roundcube shows
+   for toolbar buttons on wide screens (it was being clipped). */
+#messagelist-header .toolbar a.refresh .inner,
+#layout-list > .header .toolbar a.refresh .inner,
+#messagelist-header .toolbar a.options .inner,
+#layout-list > .header .toolbar a.options .inner {
+    display: none !important;
+}
+
+/* On tablet/small-desktop widths the list column is narrower than the
+   full action toolbar. Drop the (empty) title and the secondary actions
+   so compose/select/options/refresh stay inside the visible header. */
+@media screen and (min-width: (@screen-width-small + 1px)) and (max-width: @screen-width-large) {
+    #messagelist-header .header-title,
+    #layout-list > .header .header-title {
+        display: none !important;
+        margin: 0 !important;
+        flex: 0 0 0 !important;
+    }
+
+    #messagelist-header .toolbar,
+    #layout-list > .header .toolbar {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    #messagelist-header .toolbar a.delete,
+    #messagelist-header .toolbar a.reply,
+    #layout-list > .header .toolbar a.delete,
+    #layout-list > .header .toolbar a.reply {
+        display: none !important;
+    }
+
+    #messagelist-header .toolbar .carius-btn,
+    #layout-list > .header .toolbar .carius-btn {
+        width: 36px;
+        min-width: 36px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    #messagelist-header .toolbar .compose.carius-btn-primary,
+    #layout-list > .header .toolbar .compose.carius-btn-primary {
+        width: 40px;
+        min-width: 40px;
+    }
+
+    #messagelist-header .toolbar a.options,
+    #messagelist-header .toolbar a.refresh,
+    #layout-list > .header .toolbar a.options,
+    #layout-list > .header .toolbar a.refresh {
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+    }
+}
+
+/* Keep the sidebar mini calendar inside its column. The datepicker table
+   is wider than the sidebar on tablet/small desktop widths. */
+#datepicker .ui-datepicker table,
+#datepicker.calendar-datepicker .ui-datepicker table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+#datepicker .ui-datepicker th,
+#datepicker .ui-datepicker td {
+    padding: 0;
+}
+
+#datepicker .ui-datepicker td a,
+#datepicker .ui-datepicker td span {
+    display: block;
+    padding: .2em 0;
+}

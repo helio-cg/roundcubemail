@@ -6,7 +6,7 @@ conta, domínio, Exim, Dovecot ou Postfix é lido ou alterado.
 
 ## O que o deploy altera
 
-- `/var/lib/roundcube/skins/{carius,iguatu,canga}`
+- `/var/lib/roundcube/skins/{carius,aurora,iguatu,canga}`
 - `/var/lib/roundcube/plugins/{calendar,libcalendaring,libkolab,twofactor_gauthenticator,user}`
 - `/etc/roundcube/rc-deploy.inc.php` (novo include de configuração)
 - um bloco marcado `BEGIN rc-deploy` no fim de `/etc/roundcube/config.inc.php`
@@ -162,7 +162,7 @@ ALLOW_STALE_CSS=1 ./deploy/deploy.sh
 
 ## Skins e escolha do tema
 
-O tema padrão de novos acessos é `carius` (`RC_SKIN`). As três skins ficam
+O tema padrão de novos acessos é `carius` (`RC_SKIN`). As quatro skins ficam
 disponíveis para os usuários escolherem, junto com `elastic`, que não é alterada.
 
 ## 2FA

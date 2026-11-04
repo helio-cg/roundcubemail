@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PAYLOAD="$ROOT/.build/payload"
-SKINS="${RC_SKINS:-carius iguatu canga}"
+SKINS="${RC_SKINS:-carius aurora iguatu canga}"
 ALLOW_STALE_CSS="${ALLOW_STALE_CSS:-0}"
 
 LESS_CMD=(npx --yes -p less -p less-plugin-clean-css lessc "--clean-css=--s1 --advanced")

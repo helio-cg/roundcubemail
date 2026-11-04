@@ -1,0 +1,1137 @@
+/**
+ * Aurora skin - visual layer on top of the official Elastic skin
+ *
+ * Licensed under Creative Commons Attribution-ShareAlike 3.0.
+ */
+
+@import (reference) "variables";
+@import (reference) "mixins";
+
+/* ------------------------------------------------------------------ */
+/* Typography                                                          */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+    font-family: 'AuroraSans';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Inter-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'AuroraSans';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/Inter-Medium.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'AuroraSans';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/Inter-SemiBold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'AuroraSans';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/Inter-Bold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'AuroraSans';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Inter-Italic.ttf') format('truetype');
+}
+
+body,
+button,
+input,
+optgroup,
+select,
+textarea,
+.ui-widget,
+.toolbar,
+.listing,
+.messagelist,
+.form-control,
+.popover {
+    font-family: 'AuroraSans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+    color: @au-text;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+a {
+    color: @color-link;
+}
+
+::selection {
+    background: fade(@au-blue, 22);
+}
+
+/* ------------------------------------------------------------------ */
+/* Canvas + application card                                           */
+/* ------------------------------------------------------------------ */
+
+html:not(.iframe) body:not(.task-login) {
+    background:
+        radial-gradient(120% 120% at 0% 0%, #59b8e7 0%, #2f9fdd 42%, #2089c6 100%);
+    padding: 22px;
+}
+
+html:not(.iframe) body:not(.task-login) #layout {
+    width: 100%;
+    height: 100%;
+    border-radius: @au-radius;
+    box-shadow: @au-shadow;
+    background-color: @au-surface;
+    overflow: hidden;
+}
+
+html.iframe body,
+html.iframe #layout {
+    background: @au-surface;
+}
+
+/* ------------------------------------------------------------------ */
+/* Left rail (task menu)                                               */
+/* ------------------------------------------------------------------ */
+
+#layout-menu {
+    background: @au-surface !important;
+    border-right: 1px solid @au-border;
+    box-shadow: none;
+    z-index: 25;
+}
+
+#layout-menu .popover-header {
+    background: @au-surface !important;
+    border-bottom: 1px solid @au-border-soft;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    #logo {
+        max-height: 42px;
+        max-width: 46px;
+        padding: 0;
+    }
+}
+
+#taskmenu {
+    padding-top: .35rem;
+}
+
+#taskmenu a {
+    position: relative;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    min-height: 62px;
+    padding: .55rem .2rem;
+    margin: 2px 8px;
+    color: @au-muted;
+    font-size: .68rem;
+    font-weight: 500;
+    line-height: 1.1;
+    text-align: center;
+    border: 0;
+    border-radius: @au-radius-sm;
+    transition: background-color .15s ease, color .15s ease;
+
+    &:before {
+        float: none !important;
+        width: auto !important;
+        margin: 0 !important;
+        font-size: 1.25rem;
+        line-height: 1.2;
+    }
+
+    span.inner {
+        display: block !important;
+        padding: 0;
+        font-size: .68rem;
+        letter-spacing: .01em;
+    }
+
+    &:hover {
+        color: @au-blue;
+        background-color: @au-blue-softer;
+    }
+
+    &.selected {
+        color: @au-blue;
+        background-color: @au-blue-soft;
+        font-weight: 600;
+
+        &:before {
+            color: @au-blue;
+        }
+    }
+
+    &.compose {
+        color: @au-green;
+
+        &:hover {
+            color: @au-green-dark;
+            background-color: @au-green-soft;
+        }
+    }
+}
+
+#taskmenu .action-buttons {
+    display: flex;
+    justify-content: center;
+    padding: 2px 0 4px;
+}
+
+#taskmenu .action-buttons a.compose {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px !important;
+    height: 44px;
+    min-height: 44px;
+    margin: 2px auto 8px;
+    padding: 0;
+    color: #fff !important;
+    background: linear-gradient(180deg, #52c78a 0%, @au-green 100%);
+    border-radius: 50%;
+    box-shadow: 0 8px 18px fade(@au-green, 34%);
+
+    &:before {
+        float: none !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        color: #fff !important;
+        background: transparent !important;
+        box-shadow: none;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    span.inner {
+        display: none !important;
+    }
+
+    &:hover,
+    &:focus {
+        color: #fff !important;
+        background: linear-gradient(180deg, @au-green 0%, @au-green-dark 100%);
+        box-shadow: 0 10px 22px fade(@au-green, 42%);
+    }
+}
+
+#taskmenu .special-buttons {
+    background: @au-surface !important;
+    border-top: 1px solid @au-border-soft;
+    padding: .35rem 0;
+}
+
+#taskmenu .special-buttons a {
+    margin: 2px 8px;
+    min-height: 44px;
+
+    span.inner {
+        display: none !important;
+    }
+
+    &:before {
+        font-size: 1.05rem;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar (folders)                                                   */
+/* ------------------------------------------------------------------ */
+
+#layout-sidebar {
+    background: @au-sidebar;
+    border-right: 1px solid @au-border;
+    min-width: 236px;
+    max-width: 280px;
+}
+
+#layout-sidebar > .header {
+    background: transparent;
+    border-bottom: 0;
+    padding: 14px 14px 8px;
+    height: auto;
+    min-height: 0;
+    line-height: normal;
+
+    .header-title {
+        flex: 1;
+        margin: 0;
+        text-align: left;
+        font-size: .95rem;
+        font-weight: 600;
+        color: @au-text;
+    }
+
+    a.button {
+        color: @au-muted;
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.aurora-compose-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 14px 14px 10px;
+    padding: 12px 16px;
+    color: #fff !important;
+    font-size: .92rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    background: linear-gradient(180deg, #55c98d 0%, @au-green 100%);
+    border-radius: @au-radius-sm;
+    box-shadow: 0 10px 22px fade(@au-green, 30%);
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+
+    &:before {
+        &:extend(.font-icon-class);
+        content: @fa-var-plus;
+        float: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .22);
+        font-size: .7rem;
+    }
+
+    &:hover,
+    &:focus {
+        color: #fff;
+        background: linear-gradient(180deg, @au-green 0%, @au-green-dark 100%);
+        box-shadow: 0 12px 26px fade(@au-green, 40%);
+        transform: translateY(-1px);
+    }
+}
+
+#folderlist-content {
+    padding: 0 10px 12px;
+}
+
+#layout-sidebar .listing {
+    li {
+        border-bottom: 0;
+        margin: 1px 0;
+    }
+
+    li > a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 38px;
+        line-height: 38px;
+        padding: 0 10px;
+        color: @au-text-soft;
+        font-size: .88rem;
+        font-weight: 500;
+        border-radius: @au-radius-sm;
+        transition: background-color .12s ease, color .12s ease;
+
+        &:before {
+            &:extend(.font-icon-class);
+            float: none;
+            width: 18px;
+            min-width: 18px;
+            margin: 0;
+            color: @au-muted;
+            font-size: .95rem;
+            text-align: center;
+        }
+
+        &:hover {
+            color: @au-text;
+            background-color: #eef5fb;
+        }
+    }
+
+    li.selected > a,
+    li > a.selected {
+        color: @au-blue-deep;
+        font-weight: 600;
+        background-color: @au-blue-soft;
+
+        &:before {
+            color: @au-blue;
+        }
+    }
+
+    .unreadcount {
+        margin-left: auto;
+        min-width: 20px;
+        padding: 1px 7px;
+        color: @au-blue-deep;
+        font-size: .72rem;
+        font-weight: 700;
+        line-height: 18px;
+        text-align: center;
+        background: #dcecfb;
+        border-radius: 20px;
+    }
+}
+
+#layout-sidebar .mailbox-list li > a:before {
+    .font-icon-regular(@fa-var-folder);
+}
+
+#layout-sidebar .mailbox-list li.mailbox.inbox > a:before {
+    content: @fa-var-inbox;
+}
+
+#layout-sidebar .mailbox-list li.mailbox.drafts > a:before {
+    .font-icon-regular(@fa-var-file-alt);
+}
+
+#layout-sidebar .mailbox-list li.mailbox.sent > a:before {
+    .font-icon-regular(@fa-var-paper-plane);
+}
+
+#layout-sidebar .mailbox-list li.mailbox.junk > a:before {
+    content: @fa-var-exclamation-triangle;
+}
+
+#layout-sidebar .mailbox-list li.mailbox.trash > a:before {
+    .font-icon-regular(@fa-var-trash-alt);
+}
+
+#layout-sidebar .footer {
+    background: transparent;
+    border-top: 1px solid @au-border;
+    color: @au-muted;
+}
+
+#quotadisplay {
+    padding: 0 18px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Message list                                                        */
+/* ------------------------------------------------------------------ */
+
+#layout-list {
+    background: @au-surface;
+    border-right: 1px solid @au-border;
+}
+
+#layout-list > .header,
+#layout-content > .header {
+    background: @au-surface;
+    border-bottom: 1px solid @au-border-soft;
+    color: @au-text;
+    padding: 0 14px;
+
+    .header-title {
+        font-size: .95rem;
+        font-weight: 600;
+        color: @au-text;
+        text-align: left;
+        margin: 0;
+    }
+
+    a.button {
+        color: @au-muted;
+        border-radius: @au-radius-sm;
+
+        &:hover {
+            color: @au-blue;
+            background-color: @au-blue-softer;
+        }
+    }
+}
+
+#layout-list > .header .header-title {
+    text-align: left;
+}
+
+#layout-list .searchbar {
+    margin: 10px 14px 4px;
+    height: 42px;
+    min-height: 42px;
+    line-height: 42px;
+    background: #f4f8fb;
+    border: 1px solid @au-border;
+    border-radius: 22px;
+
+    form:before {
+        color: @au-muted;
+        margin: 0 0 0 14px;
+    }
+
+    input {
+        padding: .5rem .75rem;
+        font-size: .88rem;
+    }
+
+    a {
+        color: @au-muted;
+    }
+}
+
+#messagelist-content {
+    padding: 4px 8px 10px;
+}
+
+.messagelist {
+    border-collapse: separate;
+    border-spacing: 0;
+
+    tbody tr {
+        cursor: pointer;
+    }
+
+    tbody td {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid @au-border-soft;
+        vertical-align: middle;
+        transition: background-color .12s ease;
+    }
+
+    tbody tr:hover td {
+        background-color: #f8fbfe;
+    }
+
+    tbody tr:first-child td:first-child {
+        border-top-left-radius: @au-radius-sm;
+    }
+
+    tbody tr:first-child td:last-child {
+        border-top-right-radius: @au-radius-sm;
+    }
+
+    tbody tr:last-child td:first-child {
+        border-bottom-left-radius: @au-radius-sm;
+    }
+
+    tbody tr:last-child td:last-child {
+        border-bottom-right-radius: @au-radius-sm;
+    }
+
+    tbody tr.selected td {
+        background-color: @au-blue-soft;
+    }
+
+    td.subject {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1px;
+        padding-left: .35rem;
+        padding-right: .75rem;
+        line-height: 1.35;
+
+        span.fromto {
+            order: 1;
+            width: auto;
+            max-width: 100%;
+            padding-left: 0;
+            color: @au-text;
+            font-size: .9rem;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        span.subject {
+            order: 2;
+            width: 100%;
+            color: @au-text-soft;
+            font-size: .82rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        span.date {
+            order: 3;
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            color: @au-muted;
+            font-size: .72rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        span.size {
+            display: none;
+        }
+
+        span.msgicon {
+            order: 0;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    }
+
+    td.subject {
+        position: relative;
+        padding-left: 26px;
+    }
+
+    tr.unread td.subject span.subject {
+        color: @au-text;
+        font-weight: 600;
+    }
+
+    td.subject span.msgicon.status:before {
+        color: transparent;
+        font-size: .4rem;
+    }
+
+    td.subject span.msgicon.status.unread:before {
+        color: @au-blue;
+        font-size: .5rem;
+    }
+
+    tr.unread td {
+        background-color: #fbfdff;
+    }
+
+    td.flags {
+        width: 1.6em;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reading pane                                                        */
+/* ------------------------------------------------------------------ */
+
+#layout-content {
+    background: @au-surface;
+}
+
+#layout-content > .header {
+    border-bottom: 1px solid @au-border-soft;
+}
+
+#layout-content > .header .header-title {
+    color: @au-text;
+}
+
+#messagecontframe {
+    background: @au-surface;
+}
+
+.frame-content,
+#layout-content > .content {
+    padding: 0;
+}
+
+#message-header {
+    padding: 26px 30px 0;
+
+    & > .subject {
+        margin: 0 0 .85rem;
+        color: @au-text;
+        font-size: 1.65rem;
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: -.01em;
+    }
+
+    & > .header img.contactphoto {
+        width: 46px;
+        height: 46px;
+        margin-right: 14px;
+        border-radius: 50%;
+        background: @au-blue-soft;
+    }
+
+    .header-content {
+        min-height: 46px;
+    }
+
+    .header-summary {
+        margin-top: 0;
+        color: @au-text-soft;
+        font-size: .9rem;
+
+        .name {
+            color: @au-text;
+            font-weight: 600;
+        }
+    }
+
+    .header-links a {
+        color: @au-muted;
+        font-size: .8rem;
+
+        &:hover {
+            color: @au-blue;
+        }
+    }
+}
+
+#message-content {
+    padding: 0 30px 30px;
+
+    .leftcol {
+        float: none;
+        width: auto;
+        padding: 0;
+    }
+
+    .rightcol {
+        margin: 0;
+    }
+}
+
+#messagebody {
+    padding-top: 18px;
+    color: @au-text;
+    font-size: .95rem;
+    line-height: 1.65;
+}
+
+.message-part div.pre,
+#messagebody div.pre {
+    font-family: 'AuroraSans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: .95rem;
+    line-height: 1.65;
+}
+
+.attachmentslist {
+    margin: 18px 0 6px;
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 10px 10px 0;
+        padding: 10px 14px;
+        color: @au-text;
+        font-size: .82rem;
+        font-weight: 500;
+        text-decoration: none !important;
+        background: #f4f8fc;
+        border: 1px solid @au-border;
+        border-radius: @au-radius-sm;
+
+        &:before {
+            &:extend(.font-icon-class);
+            content: @fa-var-file-alt;
+            color: @au-blue;
+            font-size: 1.15rem;
+        }
+
+        .attachment-name {
+            display: block;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .attachment-size {
+            display: block;
+            color: @au-muted;
+            font-size: .72rem;
+            font-weight: 400;
+        }
+
+        &:hover {
+            background: @au-blue-softer;
+            border-color: #cfe5f7;
+        }
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons, forms and widgets                                          */
+/* ------------------------------------------------------------------ */
+
+.btn {
+    border-radius: @au-radius-sm;
+    font-weight: 600;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: @au-blue;
+    border-color: @au-blue;
+
+    &:hover,
+    &:focus {
+        background-color: @au-blue-dark;
+        border-color: @au-blue-dark;
+    }
+}
+
+.btn-secondary {
+    background-color: #fff;
+    border-color: @au-border;
+    color: @au-text-soft;
+
+    &:hover {
+        background-color: @au-blue-softer;
+        border-color: #cfe5f7;
+        color: @au-blue-dark;
+    }
+}
+
+a.button.icon {
+    border-radius: @au-radius-sm;
+}
+
+.form-control,
+.custom-select,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+textarea,
+select {
+    border-radius: @au-radius-sm;
+}
+
+.form-control:focus {
+    border-color: @au-blue;
+    box-shadow: 0 0 0 .2rem fade(@au-blue, 18%);
+}
+
+.popupmenu,
+.popover {
+    border: 1px solid @au-border;
+    border-radius: @au-radius-md;
+    box-shadow: @au-shadow-soft;
+    overflow: hidden;
+}
+
+.popupmenu .listing li > a {
+    color: @au-text-soft;
+    border-radius: 6px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+    color: @au-text;
+    background: @au-surface;
+    border-bottom: 1px solid @au-border;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+    background: #f8fbfe;
+    border-top: 1px solid @au-border;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compose window                                                      */
+/* ------------------------------------------------------------------ */
+
+#compose-head,
+#compose-content {
+    background: @au-surface;
+}
+
+#compose-content {
+    padding: 12px 18px 18px;
+}
+
+#compose-form .form-control {
+    border-radius: @au-radius-sm;
+}
+
+#composetoolbar {
+    background: @au-surface;
+    border-top: 1px solid @au-border;
+}
+
+#composeoptions .btn {
+    border-radius: @au-radius-sm;
+}
+
+/* ------------------------------------------------------------------ */
+/* Settings and address book                                           */
+/* ------------------------------------------------------------------ */
+
+#layout-content > .content,
+#layout-content > .formcontent {
+    padding: 22px 28px;
+}
+
+#settings-menu,
+#addressbook-menu {
+    .listing li > a {
+        border-radius: @au-radius-sm;
+    }
+}
+
+#settings-menu .listing li.selected > a {
+    color: @au-blue-deep;
+    background: @au-blue-soft;
+}
+
+/* ------------------------------------------------------------------ */
+/* Login                                                               */
+/* ------------------------------------------------------------------ */
+
+.task-login {
+    background:
+        radial-gradient(120% 120% at 0% 0%, #59b8e7 0%, #2f9fdd 42%, #2089c6 100%);
+    color: @au-text;
+
+    #layout-content {
+        background: transparent;
+        width: 100%;
+        display: block;
+    }
+
+    #logo {
+        top: 14vh;
+        max-height: 84px;
+    }
+}
+
+#login-form {
+    top: 20vh;
+    max-width: 380px;
+    padding: 30px 30px 26px;
+    background: @au-surface;
+    border-radius: @au-radius;
+    box-shadow: @au-shadow;
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .input-group-text {
+        background: #f4f8fb;
+        border-color: @au-border;
+        border-radius: @au-radius-sm 0 0 @au-radius-sm;
+        color: @au-muted;
+    }
+
+    .form-control {
+        height: 44px;
+        border-color: @au-border;
+        background: #f8fbfe;
+    }
+
+    .form-control:focus {
+        background: #fff;
+    }
+
+    #rcmloginsubmit {
+        height: 44px;
+        margin-top: 6px;
+        font-weight: 600;
+        border-radius: @au-radius-sm;
+        background: @au-blue;
+        border-color: @au-blue;
+    }
+
+    a {
+        color: @au-blue-dark;
+        font-size: .85rem;
+    }
+}
+
+#login-footer {
+    color: @au-muted;
+
+    & > div {
+        background: rgba(255, 255, 255, .7);
+        border-radius: @au-radius-sm;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+@media screen and (min-width: (@screen-width-xs + 1px)) and (max-width: @screen-width-medium) {
+    #taskmenu a {
+        min-height: 48px;
+        padding: 0;
+        margin: 2px 4px;
+
+        span.inner {
+            display: none !important;
+        }
+
+        &:before {
+            font-size: 1.15rem;
+        }
+    }
+
+    #taskmenu .action-buttons a.compose {
+        width: 40px !important;
+        height: 40px;
+        min-height: 40px;
+        margin: 4px auto 8px;
+    }
+}
+
+@media screen and (max-width: @screen-width-small) {
+    html:not(.iframe) body:not(.task-login) {
+        padding: 0;
+    }
+
+    html:not(.iframe) #layout {
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    #layout-menu {
+        border-radius: 0;
+    }
+}
+
+@media screen and (max-width: @screen-width-xs) {
+    #taskmenu a {
+        display: block !important;
+        min-height: 0;
+        margin: 0;
+        padding: 0 .75em;
+        text-align: left;
+
+        span.inner {
+            display: inline !important;
+            font-size: 1rem;
+        }
+
+        &:before {
+            float: left !important;
+            width: 1.4em !important;
+            margin-right: .5rem !important;
+            font-size: 1.1rem;
+        }
+    }
+
+    #taskmenu .action-buttons a.compose:before {
+        width: 1.4em !important;
+        height: 1.4em;
+        border-radius: 50%;
+        box-shadow: none;
+    }
+
+    .aurora-compose-button {
+        margin: 10px;
+    }
+}
+
+& when (@dark-mode-enabled = true) {
+    html.dark-mode:not(.iframe) body:not(.task-login),
+    html.dark-mode body.task-login {
+        background: radial-gradient(120% 120% at 0% 0%, #1b2b3b 0%, #121820 55%, #0d1218 100%) !important;
+    }
+
+    html.dark-mode {
+        #layout,
+        #layout-menu,
+        #layout-list,
+        #layout-content,
+        #taskmenu .special-buttons,
+        #layout-list > .header,
+        #layout-content > .header,
+        .searchbar,
+        .popupmenu,
+        .popover {
+            background-color: @color-dark-background !important;
+            border-color: @color-dark-border !important;
+        }
+
+        #layout-sidebar {
+            background-color: #161e27 !important;
+            border-color: @color-dark-border !important;
+        }
+
+        #layout-menu .popover-header {
+            background: @color-dark-background !important;
+            border-bottom-color: @color-dark-border !important;
+        }
+
+        #taskmenu a {
+            color: @color-dark-hint;
+        }
+
+        #taskmenu a.selected {
+            color: @color-dark-main;
+            background-color: #1d2a36;
+        }
+
+        #taskmenu .action-buttons a.compose {
+            color: #fff !important;
+        }
+
+        #folderlist-content .listing li > a:hover,
+        .messagelist tbody tr:hover td {
+            background-color: #1a242f !important;
+        }
+
+        #folderlist-content .listing li.selected > a,
+        #folderlist-content .listing li > a.selected,
+        .messagelist tbody tr.selected td {
+            color: @color-dark-main;
+            background-color: #1d2a36 !important;
+        }
+
+        .messagelist tbody tr.unread td,
+        .messagelist tbody tr td {
+            background-color: transparent !important;
+        }
+
+        .messagelist tbody tr.selected td {
+            background-color: #1d2a36 !important;
+        }
+
+        #layout-sidebar .listing li > a,
+        #layout-sidebar > .header .header-title,
+        #layout-sidebar .username,
+        .messagelist td.subject span.fromto,
+        #layout-list > .header .header-title,
+        #layout-content > .header .header-title,
+        #message-header > .subject {
+            color: @color-dark-font !important;
+        }
+
+        .messagelist td.subject span.subject,
+        #message-header .header-summary {
+            color: @color-dark-hint !important;
+        }
+
+        #login-form {
+            background: @color-dark-background;
+        }
+    }
+}
+
+/* Keep the sidebar mini calendar inside its column. The datepicker table
+   is wider than the sidebar on tablet/small desktop widths. */
+#datepicker .ui-datepicker table,
+#datepicker.calendar-datepicker .ui-datepicker table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+#datepicker .ui-datepicker th,
+#datepicker .ui-datepicker td {
+    padding: 0;
+}
+
+#datepicker .ui-datepicker td a,
+#datepicker .ui-datepicker td span {
+    display: block;
+    padding: .2em 0;
+}

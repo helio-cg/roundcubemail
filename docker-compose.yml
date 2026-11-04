@@ -40,6 +40,7 @@ services:
       - ./src/skins/iguatu:/var/www/html/skins/iguatu:z
       - ./src/skins/canga:/var/www/html/skins/canga:z
       - ./src/skins/carius:/var/www/html/skins/carius:z
+      - ./src/skins/aurora:/var/www/html/skins/aurora:z
       - ./src/plugins/calendar:/var/www/html/plugins/calendar:z
       - ./src/plugins/libcalendaring:/var/www/html/plugins/libcalendaring:z
       - ./src/plugins/libkolab:/var/www/html/plugins/libkolab:z

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Aurora Mail">
+  <rect x="2" y="2" width="44" height="44" rx="13" fill="#2f9fdd"/>
+  <rect x="12" y="16" width="24" height="17" rx="4" fill="#ffffff"/>
+  <path d="M14 19l10 7 10-7" fill="none" stroke="#2f9fdd" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

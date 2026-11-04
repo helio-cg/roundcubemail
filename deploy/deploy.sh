@@ -29,7 +29,7 @@ fail() { printf '[deploy] erro: %s\n' "$*" >&2; exit 1; }
     printf 'RC_CONFIG_DIR=%s\n' "${RC_CONFIG_DIR:-/etc/roundcube}"
     printf 'RC_OWNER=%s\n' "${RC_OWNER:-hestiamail:www-data}"
     printf 'RC_SKIN=%s\n' "${RC_SKIN:-carius}"
-    printf 'RC_SKINS=%s\n' "${RC_SKINS:-carius iguatu canga}"
+    printf 'RC_SKINS=%s\n' "${RC_SKINS:-carius aurora iguatu canga}"
     printf 'RC_PLUGINS=%s\n' "${RC_PLUGINS:-calendar libcalendaring libkolab twofactor_gauthenticator user}"
     printf 'RC_VERSION_PREFIX=%s\n' "${RC_VERSION_PREFIX:-1.7.}"
     printf 'RC_ALLOW_VERSION_MISMATCH=%s\n' "${RC_ALLOW_VERSION_MISMATCH:-0}"

@@ -84,14 +84,25 @@ nao lidas e o modo escuro estao em `_carius.less` e `ui-carius.js`.
 
 As skins dos plugins (calendar e libkolab) tambem foram copiadas para `carius`.
 
+O **Aurora** (`src/skins/aurora`) e a skin nova, criada diretamente sobre o skin
+oficial **Elastic 1.7.5**: a navegacao fica numa trilha vertical de icones a esquerda,
+com a barra de pastas e o botao verde "Criar email" ao lado, lista de mensagens com
+remetente e previa em duas linhas e painel de leitura amplo. A paleta azul-céu, os
+cartoes arredondados, a fonte Inter e o modo escuro estao em
+`src/skins/aurora/styles/_variables.less` e `_styles.less`; nenhum template do
+Elastic foi reescrito, entao o comportamento e a acessibilidade sao os originais.
+
+As skins dos plugins (calendar e libkolab) tambem foram copiadas para `aurora`, e o
+plugin `user` ganhou a paleta Aurora.
+
 O `devel_mode` esta ligado em `config/roundcube.dev.inc.php`: o LESS e compilado no
 navegador, entao basta salvar os arquivos e recarregar a pagina.
 
-Temas disponiveis: **Carius** (padrao), **Iguatu**, **Canga** e o **Elastic**
-original. O compose monta as tres skins locais. Para trocar depois de autenticado,
-use:
+Temas disponiveis: **Carius** (padrao), **Aurora**, **Iguatu**, **Canga** e o
+**Elastic** original. Para trocar depois de autenticado, use:
 
 - `https://roundcube.test/?_task=mail&skin=carius`
+- `https://roundcube.test/?_task=mail&skin=aurora`
 - `https://roundcube.test/?_task=mail&skin=iguatu`
 - `https://roundcube.test/?_task=mail&skin=canga`
 - `https://roundcube.test/?skin=elastic`

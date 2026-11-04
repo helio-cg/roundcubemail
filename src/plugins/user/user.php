@@ -91,6 +91,22 @@ class user extends rcube_plugin
                 'selection' => '#1f3a2a',
             ],
         ],
+        'aurora' => [
+            'light' => [
+                'accent' => '#2f9fdd',
+                'menu' => '#ffffff',
+                'background' => '#ffffff',
+                'text' => '#26303d',
+                'selection' => '#e8f4fd',
+            ],
+            'dark' => [
+                'accent' => '#5cb9ea',
+                'menu' => '#121820',
+                'background' => '#121820',
+                'text' => '#e4ebf3',
+                'selection' => '#1d2a36',
+            ],
+        ],
     ];
 
     private const PRESETS = [

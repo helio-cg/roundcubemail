@@ -2034,3 +2034,90 @@ html.dark-mode body.task-calendar #calendar.fc-unthemed .fc-bg .fc-today,
 html.dark-mode body.task-calendar #calendar.fc-unthemed .fc-state-highlight {
     background: #2b2440 !important;
 }
+
+/* ------------------------------------------------------------------ */
+/* UI fixes: search actions and long list subjects                    */
+/* ------------------------------------------------------------------ */
+
+/* The reset (X) and submit (magnifier) actions must only appear while a
+   search is active; the skin's generic link rule was displaying both. */
+#layout-list > .searchbar.menu a.search,
+#layout-content > .searchbar.menu a.search,
+#layout-sidebar > .searchbar.menu a.search,
+#layout-list > .searchbar.menu a.reset,
+#layout-content > .searchbar.menu a.reset,
+#layout-sidebar > .searchbar.menu a.reset {
+    display: none !important;
+}
+
+#layout-list > .searchbar.menu.active a.reset,
+#layout-content > .searchbar.menu.active a.reset,
+#layout-sidebar > .searchbar.menu.active a.reset {
+    display: inline-flex !important;
+}
+
+/* The subject row is a flex item with a fixed 100% basis; make it
+   shrinkable so the ellipsis actually appears instead of clipping. */
+#messagelist-content .messagelist td.subject {
+    min-width: 0;
+}
+
+#messagelist-content .messagelist td.subject span.subject {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+#messagelist-content .messagelist td.subject span.subject a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#messagelist-content .messagelist td.subject span.subject > a,
+#messagelist-content .messagelist td.subject span.subject > a > span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Keep the unread dot and the subject on one line inside a shrinkable
+   flex row, so the text can ellipsize before touching the card edge. */
+#messagelist-content .messagelist td.subject span.subject {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+#messagelist-content .messagelist td.subject span.subject > .msgicon {
+    flex: 0 0 auto;
+}
+
+#messagelist-content .messagelist td.subject span.subject > a {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Keep the sidebar mini calendar inside its column. The datepicker table
+   is wider than the sidebar on tablet/small desktop widths. */
+#datepicker .ui-datepicker table,
+#datepicker.calendar-datepicker .ui-datepicker table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+#datepicker .ui-datepicker th,
+#datepicker .ui-datepicker td {
+    padding: 0;
+}
+
+#datepicker .ui-datepicker td a,
+#datepicker .ui-datepicker td span {
+    display: block;
+    padding: .2em 0;
+}

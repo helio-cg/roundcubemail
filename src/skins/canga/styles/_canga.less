@@ -372,7 +372,7 @@ body.task-mail #layout-menu.canga-mail-menu {
 }
 
 .canga-mail-nav a:before {
-    .font-icon-class;
+    .font-icon-class();
     .font-icon-regular(@fa-var-folder);
     float: none;
     flex: 0 0 16px;
@@ -614,7 +614,7 @@ body.task-mail #layout-list .pagenav {
 
     body.task-mail .canga-mobile-menu:before {
         content: @fa-var-bars;
-        .font-icon-class;
+        .font-icon-class();
         float: none;
         width: 1.1rem;
         height: 1.1rem;
@@ -762,7 +762,7 @@ body.task-mail #layout-list .pagenav {
 }
 
 .canga-mail-special a:before {
-    .font-icon-class;
+    .font-icon-class();
     float: none;
     flex: 0 0 16px;
     width: 16px;
@@ -1135,7 +1135,7 @@ body.task-settings #layout-menu.canga-menu #taskmenu > a.settings:before {
 }
 
 #layout-menu.canga-menu #taskmenu > .canga-static-submenu a:before {
-    .font-icon-class;
+    .font-icon-class();
     float: none;
     flex: 0 0 14px;
     width: 14px;
@@ -1215,7 +1215,7 @@ body.task-settings #layout-menu.canga-menu #taskmenu > a.settings:before {
 }
 
 #layout-menu.canga-menu #taskmenu > .canga-menu-label:before {
-    .font-icon-class;
+    .font-icon-class();
     float: none;
     flex: 0 0 18px;
     width: 18px;
@@ -1736,7 +1736,7 @@ body.task-settings #layout-menu.canga-menu #taskmenu > .canga-static-submenu a.p
 }
 
 .canga-menu-nav > .canga-static-submenu a:before {
-    .font-icon-class;
+    .font-icon-class();
     float: none;
     flex: 0 0 20px;
     width: 20px;
@@ -1820,7 +1820,7 @@ body.task-settings #layout-menu.canga-menu .canga-menu-nav > .canga-static-subme
 }
 
 .canga-menu-nav > .action-buttons a.compose:before {
-    .font-icon-class;
+    .font-icon-class();
     .font-icon-solid(@fa-var-pencil-alt);
     position: absolute;
     top: 50%;
@@ -3907,7 +3907,7 @@ html.dark-mode #layout-list .scroller {
 }
 
 .canga-topbar-trigger.calendar-all .canga-topbar-icon:before {
-    .font-icon-class;
+    .font-icon-class();
     .font-icon-regular(@fa-var-calendar-alt);
     float: none;
     width: auto;
@@ -3917,7 +3917,7 @@ html.dark-mode #layout-list .scroller {
 }
 
 .canga-topbar-settings .canga-topbar-icon:before {
-    .font-icon-class;
+    .font-icon-class();
     .font-icon-solid(@fa-var-cog);
     float: none;
     width: auto;
@@ -3935,7 +3935,7 @@ html.dark-mode #layout-list .scroller {
 }
 
 .canga-topbar-caret:before {
-    .font-icon-class;
+    .font-icon-class();
     .font-icon-solid(@fa-var-angle-down);
     float: none;
     width: auto;
@@ -4008,7 +4008,7 @@ html.dark-mode #layout-list .scroller {
 }
 
 .canga-topbar-dropdown a:before {
-    .font-icon-class;
+    .font-icon-class();
     float: none;
     flex: 0 0 16px;
     width: 16px;
@@ -4128,4 +4128,369 @@ body #layout-menu.canga-menu .popover-header.canga-brand {
 /* Dark mode: the workspace surface must stay dark behind the cards. */
 html.dark-mode body:not(.task-login):not(.task-error-login) #layout {
     background: #0b141a;
+}
+
+/* ------------------------------------------------------------------ */
+/* UI fixes: search actions, mobile page header, narrow mail toolbar  */
+/* ------------------------------------------------------------------ */
+
+/* Show the reset (X) and submit (magnifier) only when a search is active. */
+body:not(.task-login) #layout-list .searchbar a.search,
+body:not(.task-login) #layout-content .searchbar a.search,
+body:not(.task-login) #layout-sidebar .searchbar a.search,
+body:not(.task-login) #layout-list .searchbar a.reset,
+body:not(.task-login) #layout-content .searchbar a.reset,
+body:not(.task-login) #layout-sidebar .searchbar a.reset {
+    display: none !important;
+}
+
+body:not(.task-login) #layout-list .searchbar.active a.reset,
+body:not(.task-login) #layout-content .searchbar.active a.reset,
+body:not(.task-login) #layout-sidebar .searchbar.active a.reset {
+    display: flex !important;
+}
+
+/* The content toolbar can carry many actions; on normal/tablet widths
+   the labels made it overflow out of the reading pane. */
+@media screen and (max-width: @screen-width-large) {
+    #toolbar-menu {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    #toolbar-menu a .inner,
+    #toolbar-menu .dropbutton a .inner {
+        display: none !important;
+    }
+
+    #toolbar-menu li > a,
+    #toolbar-menu li .dropbutton > a:first-child,
+    #toolbar-menu li .dropbutton > a.dropdown {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        min-width: 34px;
+        max-width: 34px;
+        padding: 0;
+    }
+
+    #toolbar-menu li.spacer {
+        display: none;
+    }
+}
+
+/* On phones the page header holds the title plus up to four actions.
+   Keep the actions compact and icon-only so the title is not clipped. */
+@media screen and (max-width: @screen-width-small) {
+    .canga-pageheader {
+        height: auto;
+        min-height: 58px;
+        padding: 6px 10px;
+        gap: 8px;
+    }
+
+    .canga-pageheader-copy {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .canga-pageheader-title {
+        font-size: 1rem;
+    }
+
+    .canga-pageheader-actions {
+        flex: 0 0 auto;
+        gap: 4px;
+    }
+
+    #messagelist-header.canga-header-toolbar {
+        gap: 4px;
+    }
+
+    #messagelist-header.canga-header-toolbar .toolbar.menu a,
+    #messagelist-header.canga-header-toolbar > .toolbar-button,
+    #messagelist-header.canga-header-toolbar > a.task-menu-button,
+    #messagelist-header.canga-header-toolbar > a.toolbar-menu-button,
+    #messagelist-header.canga-header-toolbar > a.toolbar-list-button {
+        width: 34px !important;
+        min-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+    }
+
+    #messagelist-header.canga-header-toolbar .toolbar.menu a .inner,
+    #messagelist-header.canga-header-toolbar > .toolbar-button .inner,
+    #messagelist-header.canga-header-toolbar > a.task-menu-button .inner,
+    #messagelist-header.canga-header-toolbar > a.toolbar-menu-button .inner,
+    #messagelist-header.canga-header-toolbar > a.toolbar-list-button .inner {
+        display: none !important;
+    }
+
+    #messagelist-header.canga-header-toolbar .toolbar.menu a:before,
+    #messagelist-header.canga-header-toolbar > .toolbar-button:before,
+    #messagelist-header.canga-header-toolbar > a.task-menu-button:before,
+    #messagelist-header.canga-header-toolbar > a.toolbar-menu-button:before,
+    #messagelist-header.canga-header-toolbar > a.toolbar-list-button:before {
+        height: auto;
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: @screen-width-xs) {
+    .canga-pageheader-subtitle {
+        display: none;
+    }
+}
+
+@media screen and (max-width: @screen-width-small) {
+    /* The list-menu and toolbar-menu buttons duplicate the Options action
+       on phones; dropping them leaves room for the page title. */
+    #messagelist-header.canga-header-toolbar > a.toolbar-menu-button,
+    #messagelist-header.canga-header-toolbar > a.toolbar-list-button {
+        display: none !important;
+    }
+
+    .canga-pageheader-actions {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    #messagelist-header.canga-header-toolbar {
+        min-width: 0;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Login: card matching the Canga surfaces                            */
+/* ------------------------------------------------------------------ */
+
+body.task-login {
+    background: @canga-list-bg;
+}
+
+body.task-login #layout {
+    padding: 0;
+    gap: 0;
+    background: @canga-list-bg;
+    align-items: center;
+    justify-content: center;
+}
+
+body.task-login #layout-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+}
+
+body.task-login #logo {
+    position: static;
+    top: auto;
+    max-height: 72px;
+    margin: 0 0 28px;
+}
+
+body.task-login #login-form {
+    position: static;
+    top: auto;
+    width: 100%;
+    max-width: 380px;
+    margin: 0;
+    padding: 30px 28px 22px;
+    background: #fff;
+    border: 1px solid @canga-menu-border;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(27, 43, 36, .10);
+    text-align: left;
+}
+
+body.task-login #login-form:before {
+    content: "Acesse sua conta";
+    display: block;
+    margin-bottom: 22px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: @canga-green-dark;
+}
+
+body.task-login #login-form table,
+body.task-login #login-form tbody,
+body.task-login #login-form tr {
+    display: block;
+    width: 100%;
+}
+
+body.task-login #login-form td.input {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: 14px;
+    border: 1px solid @canga-menu-border;
+    border-radius: 9px;
+    background: #f8f8f3;
+    overflow: hidden;
+}
+
+body.task-login #login-form .input-group-prepend {
+    display: flex;
+    align-items: center;
+    background: transparent;
+}
+
+body.task-login #login-form .input-group-text.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    background: transparent;
+    color: @canga-menu-muted;
+}
+
+body.task-login #login-form .form-control {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: @canga-menu-text;
+}
+
+body.task-login #login-form td.input .form-control {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+body.task-login #login-form td.input:focus-within {
+    border-color: @canga-green;
+    box-shadow: 0 0 0 .2rem fadeout(@canga-green, 85);
+    background: #fff;
+}
+
+body.task-login #rcmloginsubmit {
+    width: 100%;
+    height: 46px;
+    margin-top: 6px;
+    border: 0;
+    border-radius: 9px;
+    background: @canga-green;
+    color: #fff;
+    font-size: .95rem;
+    font-weight: 700;
+}
+
+body.task-login #rcmloginsubmit:hover {
+    background: @canga-green-dark;
+}
+
+body.task-login #login-footer {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid @canga-menu-border;
+    background: transparent;
+    color: @canga-menu-muted;
+    font-size: .8rem;
+    text-align: center;
+}
+
+body.task-login #login-footer > div {
+    margin-top: 0;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Calendar: keep the calendar list visible next to the grid          */
+/* ------------------------------------------------------------------ */
+
+@media screen and (min-width: (@screen-width-small + 1px)) {
+    body.task-calendar #layout > #layout-sidebar {
+        display: flex !important;
+        flex: 0 0 240px;
+        width: 240px;
+        max-width: 240px;
+        min-width: 0;
+        height: calc(100% - 158px);
+        margin: 142px 0 16px 16px;
+        padding: 0;
+        border: 1px solid @canga-menu-border;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(27, 43, 36, .05);
+        overflow: hidden;
+    }
+
+    body.task-calendar #layout > #layout-sidebar > .header {
+        background: transparent;
+        border-bottom: 1px solid @canga-menu-border;
+        color: @canga-green-dark;
+        padding: 0 12px;
+    }
+
+    body.task-calendar #layout > #layout-sidebar .scroller {
+        padding: 6px;
+    }
+
+    body.task-calendar #layout > #layout-sidebar .listing li > a {
+        border-radius: 8px;
+    }
+
+    body.task-calendar #layout > #layout-sidebar .footer {
+        background: transparent;
+        border-top: 1px solid @canga-menu-border;
+    }
+
+    body.task-calendar #layout-content {
+        margin-left: 8px;
+    }
+}
+
+/* Below desktop width the calendar grid needs the full row; the calendar
+   list is kept on large screens only (as before on tablets/phones). */
+@media screen and (max-width: @screen-width-medium) {
+    body.task-calendar #layout > #layout-sidebar {
+        display: none !important;
+    }
+
+    body.task-calendar #layout-content {
+        margin-left: 16px;
+    }
+}
+
+/* Keep the sidebar mini calendar inside its column. The datepicker table
+   is wider than the sidebar on tablet/small desktop widths. */
+#datepicker .ui-datepicker table,
+#datepicker.calendar-datepicker .ui-datepicker table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+#datepicker .ui-datepicker th,
+#datepicker .ui-datepicker td {
+    padding: 0;
+}
+
+#datepicker .ui-datepicker td a,
+#datepicker .ui-datepicker td span {
+    display: block;
+    padding: .2em 0;
 }

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Aurora Mail">
+  <defs>
+    <linearGradient id="auroraLogo" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#59b8e7"/>
+      <stop offset="1" stop-color="#238ac7"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="17" fill="url(#auroraLogo)"/>
+  <rect x="16" y="21" width="32" height="23" rx="5" fill="#ffffff"/>
+  <path d="M18 25.5 32 35l14-9.5" fill="none" stroke="#2f9fdd" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
