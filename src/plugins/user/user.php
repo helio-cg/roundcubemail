@@ -93,18 +93,18 @@ class user extends rcube_plugin
         ],
         'canga' => [
             'light' => [
-                'accent' => '#0f5132',
-                'menu' => '#0d566d',
-                'background' => '#fbfcf8',
-                'text' => '#26342c',
-                'selection' => '#e1eee2',
+                'accent' => '#5c41d0',
+                'menu' => '#ffffff',
+                'background' => '#ecedf2',
+                'text' => '#1c1b22',
+                'selection' => '#ece7ff',
             ],
             'dark' => [
-                'accent' => '#6fbf8f',
-                'menu' => '#083f52',
-                'background' => '#0d1411',
-                'text' => '#dce9df',
-                'selection' => '#1f3a2a',
+                'accent' => '#a99bff',
+                'menu' => '#17171f',
+                'background' => '#131319',
+                'text' => '#e8e6f0',
+                'selection' => '#2a2450',
             ],
         ],
         'aurora' => [
@@ -3191,8 +3191,32 @@ class user extends rcube_plugin
     {
         $topbar = $this->scoped_selectors([
             '#canga-topbar',
+            '.canga-topbar',
+        ], $prefix);
+
+        $sidenav = $this->scoped_selectors([
             '#layout-menu.canga-menu',
         ], $prefix);
+
+        // Canga draws white cards on a tinted canvas, so surfaces cannot
+        // reuse the palette background directly. Keep it scoped to Canga:
+        // these selectors are generic and must not leak into other skins.
+        $surface = $prefix === '' ? '#ffffff' : '#1b1b23';
+        $surfaceSelectors = $this->current_skin() === 'canga'
+            ? $this->scoped_selectors([
+                '#layout-content',
+                '#layout-list',
+                '#layout-sidebar',
+                '.message-content',
+                '#messagebody',
+                '.message-part',
+                '.message-htmlpart',
+                '.listing',
+                '.scroller',
+                '.iframe-wrapper',
+                '.boxcontent',
+            ], $prefix)
+            : '';
 
         $topbarText = $this->scoped_selectors([
             '#canga-topbar',
@@ -3275,20 +3299,24 @@ class user extends rcube_plugin
         $staticMenuActiveBackground = $this->scoped_selectors($staticMenuActiveBackground, $prefix);
         $staticMenuActiveContent = $this->scoped_selectors($staticMenuActiveContent, $prefix);
 
-        return $topbar . '{background:' . $colors['menu'] . ' !important;}'
+        return $topbar . '{background:' . $colors['background'] . ' !important;}'
+            . $sidenav . '{background:' . $colors['menu'] . ' !important;}'
+            . ($surfaceSelectors !== ''
+                ? $surfaceSelectors . '{background-color:' . $surface . ' !important;}'
+                : '')
             . $topbarText . '{color:' . $menuText . ' !important;}'
             . $topbarHover . '{background:' . $colors['selection'] . ' !important;'
             . 'color:' . $selectionText . ' !important;}'
-            . $dropdown . '{background:' . $colors['background'] . ' !important;'
+            . $dropdown . '{background:' . $surface . ' !important;'
             . 'border-color:rgba(128,128,128,.35) !important;}'
             . $dropdownText . '{color:' . $colors['text'] . ' !important;}'
             . $dropdownIcon . '{color:' . $colors['accent'] . ' !important;}'
             . $dropdownHover . '{background:' . $colors['selection'] . ' !important;'
             . 'color:' . $selectionText . ' !important;}'
             . $dropdownHoverIcon . '{color:' . $selectionText . ' !important;}'
-            . $pageheader . '{background:' . $colors['selection'] . ' !important;'
+            . $pageheader . '{background:' . $colors['background'] . ' !important;'
             . 'color:' . $colors['text'] . ' !important;'
-            . 'border-bottom-color:rgba(128,128,128,.3) !important;}'
+            . 'border-bottom-color:transparent !important;}'
             . $pageheaderTitle . '{color:' . $colors['text'] . ' !important;}'
             . $pageheaderSubtitle . '{color:' . $colors['text'] . ' !important;opacity:.72;}'
             . $staticMenuHoverBackground . '{background:' . $colors['selection'] . ' !important;'
@@ -3476,6 +3504,63 @@ class user extends rcube_plugin
             'body.task-mail #messagelist-header .toolbar.menu a:hover:before',
         ], $prefix);
 
+        // Canga keeps white cards on a tinted canvas, so plugin surfaces,
+        // dialogs and the inbox must use the card colour, not the canvas.
+        $canga = $this->current_skin() === 'canga';
+        $cangaSurface = $prefix === '' ? '#ffffff' : '#1b1b23';
+        $cangaInputSurface = $prefix === '' ? '#f5f4fa' : '#232331';
+        $cangaContainers = $canga
+            ? $this->scoped_selectors([
+                '.formcontainer',
+                '.formcontent',
+                '.settingsbox',
+                '.boxcontent',
+                '.boxtitle',
+                '.propform',
+                '.ui-dialog',
+                '.ui-dialog-content',
+                '.ui-widget-content',
+                '#compose-content',
+                '#composebody',
+                '.message-partheaders',
+                '.attachmentslist',
+                '.twofactor-2fa',
+            ], $pluginPrefix)
+            : '';
+        $cangaInboxSurfaces = $canga
+            ? $this->scoped_selectors([
+                'body.task-mail #layout-list',
+                'body.task-mail #messagelist-content',
+                'body.task-mail #messagelist',
+                'body.task-mail #messagelist-header',
+                'body.task-mail .canga-inbox-tabs',
+                'body.task-mail .pagenav',
+                'body.task-mail .searchbar',
+                'body.task-mail #messagelist tbody tr td',
+                'body.action-compose #layout > #layout-sidebar',
+                'body.task-calendar #layout-content #calendar',
+                'body.task-calendar #layout-content #calendartoolbar',
+                'body.task-calendar #layout-content .fc',
+                'body.task-calendar #layout-content .fc-widget-header',
+                'body.task-calendar #layout-content .fc-widget-content',
+                'body.task-calendar #layout-content .fc-head-container',
+                'body.task-calendar #layout-content .fc-body',
+                'body.task-calendar #layout-content .fc-row',
+                'body.task-calendar #layout-content .fc-day',
+                'body.task-calendar #layout-content .fc-axis',
+                'body.task-calendar #layout-content .fc-view',
+                'body.task-calendar #layout-content .fc-toolbar',
+                'body.task-calendar #layout-content .fc-list-view',
+                'body.task-calendar #layout-content .fc-list-heading td',
+                'body.task-calendar #layout-content .fc-list-item',
+            ], $prefix)
+            : '';
+        $cangaInboxInputs = $canga
+            ? $this->scoped_selectors([
+                'body.task-mail .searchbar input',
+            ], $prefix)
+            : '';
+
         $twofactorCard = $this->scoped_selectors(['.twofactor-2fa'], $prefix);
         $twofactorText = $this->scoped_selectors([
             '.twofactor-2fa',
@@ -3539,7 +3624,12 @@ class user extends rcube_plugin
             . 'color:' . $colors['text'] . ' !important;}'
             . $inboxToolbarButton . '{color:' . $colors['text'] . ' !important;}'
             . $inboxToolbarButtonHover . '{background:' . $colors['selection'] . ' !important;'
-            . 'color:' . $selectionText . ' !important;}';
+            . 'color:' . $selectionText . ' !important;}'
+            . ($cangaInboxSurfaces !== ''
+                ? $cangaContainers . '{background-color:' . $cangaSurface . ' !important;}'
+                    . $cangaInboxSurfaces . '{background-color:' . $cangaSurface . ' !important;}'
+                    . $cangaInboxInputs . '{background-color:' . $cangaInputSurface . ' !important;}'
+                : '');
     }
 
     /**

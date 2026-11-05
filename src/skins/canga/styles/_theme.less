@@ -1,0 +1,1489 @@
+/**
+ * Canga — "Polygon" dashboard theme
+ *
+ * Re-skins every Canga page (mail, address book, calendar, settings,
+ * dialogs and login) with the reference look: light grey canvas, white
+ * rounded cards, soft shadows and a vivid violet accent, with a deep
+ * slate contrast surface. Only this skin imports this file.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Palette                                                            */
+/* ------------------------------------------------------------------ */
+
+@canga-purple:      #5c41d0;
+@canga-purple-600:  #4c33bc;
+@canga-purple-700:  #3f2b9e;
+@canga-lilac:       #ece7ff;
+@canga-lilac-soft:  #f5f2ff;
+@canga-ink:         #1c1b22;
+@canga-muted:       #76747f;
+@canga-bg:          #ecedf2;
+@canga-border:      #e8e6f0;
+@canga-surface:     #ffffff;
+@canga-surface-alt: #f5f4fa;
+@canga-slate:       #23252d;
+@canga-radius:      18px;
+@canga-radius-sm:   12px;
+@canga-shadow:      0 12px 34px rgba(28, 26, 60, .07);
+@canga-shadow-sm:   0 4px 14px rgba(28, 26, 60, .05);
+
+/* Recolour the Canga-specific variables used across _canga.less.
+   Less uses the last definition in scope, so this repaints every
+   reference made earlier in the file. */
+@canga-green:               @canga-purple;
+@canga-green-dark:          @canga-purple-700;
+@canga-menu-bg:             @canga-surface;
+@canga-menu-text:           #34323c;
+@canga-menu-muted:          @canga-muted;
+@canga-menu-border:         @canga-border;
+@canga-list-bg:             @canga-surface;
+@canga-list-active:         @canga-lilac;
+@canga-submenu-background:  @canga-surface-alt;
+@canga-submenu-border:      @canga-border;
+@canga-submenu-text:        #34323c;
+@canga-submenu-muted:       @canga-muted;
+
+/* ------------------------------------------------------------------ */
+/* Typography and canvas                                              */
+/* ------------------------------------------------------------------ */
+
+body,
+button,
+input,
+optgroup,
+select,
+textarea,
+.popover,
+.ui-dialog,
+.popupmenu {
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+    background: @canga-bg;
+}
+
+body {
+    color: @canga-ink;
+}
+
+body:not(.task-login):not(.task-error-login) #layout,
+body.task-mail #layout,
+body.task-calendar #layout,
+body.task-addressbook #layout,
+body.task-settings #layout {
+    background: @canga-bg !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Left navigation                                                    */
+/* ------------------------------------------------------------------ */
+
+html body #layout-menu.canga-menu {
+    background: @canga-surface !important;
+    background-image: none !important;
+    color: @canga-ink !important;
+    border-right: 1px solid @canga-border !important;
+    box-shadow: none !important;
+}
+
+html body #layout-menu.canga-menu .popover-header,
+html body #layout-menu.canga-menu .popover-header.canga-brand {
+    background: transparent !important;
+    border-bottom: 1px solid @canga-border !important;
+}
+
+html body #layout-menu.canga-menu .canga-brand-name {
+    color: @canga-ink !important;
+}
+
+html body #layout-menu.canga-menu .canga-brand-user {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu .canga-status {
+    background: #35c07f !important;
+    box-shadow: 0 0 0 2px rgba(53, 192, 127, .2) !important;
+}
+
+html body #layout-menu.canga-menu .canga-brand-icon {
+    background: transparent !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu,
+html body #layout-menu.canga-menu .canga-menu-nav {
+    background: transparent !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .canga-menu-label,
+html body #layout-menu.canga-menu .canga-menu-nav > .canga-menu-label {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu .canga-menu-nav > .canga-menu-label::after {
+    background: linear-gradient(90deg, @canga-border, transparent) !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a,
+html body #layout-menu.canga-menu#layout-menu #taskmenu > .canga-static-submenu a {
+    color: #34323c !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a:before,
+html body #layout-menu.canga-menu#layout-menu #taskmenu > .canga-static-submenu a:before {
+    color: #9a98a6 !important;
+}
+
+/* Hover/focus */
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a:hover,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a:focus {
+    background: @canga-lilac-soft !important;
+    color: @canga-purple !important;
+    box-shadow: none !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a:hover:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a:focus:before {
+    color: @canga-purple !important;
+}
+
+/* Active item (and the task shortcut, only while it is the active one) */
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.inbox,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.contacts-all,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.calendar-all,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.preferences {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+    box-shadow: inset 3px 0 0 @canga-purple !important;
+    font-weight: 600 !important;
+    transform: none !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.inbox:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.contacts-all:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.calendar-all:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.active.preferences:before {
+    color: @canga-purple !important;
+    transform: none !important;
+}
+
+/* Non-active task shortcuts must stay neutral */
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.inbox:not(.active),
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.contacts-all:not(.active),
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.calendar-all:not(.active),
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.preferences:not(.active) {
+    background: transparent !important;
+    color: #34323c !important;
+    font-weight: 400 !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.inbox:not(.active):before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.contacts-all:not(.active):before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.calendar-all:not(.active):before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .canga-static-submenu a.preferences:not(.active):before {
+    color: #9a98a6 !important;
+}
+
+html body #layout-menu.canga-menu .canga-nav-count {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu .canga-static-submenu a.active .canga-nav-count {
+    color: @canga-purple !important;
+}
+
+/* Compose button */
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose,
+html body #layout-menu.canga-menu#layout-menu #taskmenu > .action-buttons a.compose {
+    background: @canga-purple !important;
+    background-image: none !important;
+    border: 1px solid @canga-purple !important;
+    color: #fff !important;
+    box-shadow: 0 10px 22px rgba(92, 65, 208, .28) !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose:hover,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose:focus {
+    background: @canga-purple-600 !important;
+    background-image: none !important;
+    color: #fff !important;
+    box-shadow: 0 12px 26px rgba(92, 65, 208, .34) !important;
+    transform: translateY(-1px) !important;
+}
+
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose:hover:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose:focus:before,
+html body #layout-menu.canga-menu#layout-menu .canga-menu-nav > .action-buttons a.compose .inner {
+    color: #fff !important;
+}
+
+/* Footer actions (theme, about, logout) */
+html body #layout-menu.canga-menu #taskmenu > .special-buttons {
+    border-top: 1px solid @canga-border !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.theme,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.about {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a:before,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.theme:before,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.about:before {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a:hover,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a:focus,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.theme:hover,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.about:hover {
+    background: @canga-lilac-soft !important;
+    color: @canga-purple !important;
+    transform: none !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a:hover:before,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a:focus:before,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.theme:hover:before,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.about:hover:before {
+    color: @canga-purple !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout {
+    border: 1px solid @canga-border !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: @canga-muted !important;
+    box-shadow: none !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout:before {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout:hover,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout:focus {
+    background: #fdecef !important;
+    color: @color-error !important;
+    transform: none !important;
+}
+
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout:hover:before,
+html body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout:focus:before {
+    color: @color-error !important;
+}
+
+/* Nested submenu (folders, settings tabs, calendars) */
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu {
+    background: @canga-surface-alt !important;
+    border-color: @canga-border !important;
+    color: #34323c !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .header,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .header {
+    background: transparent !important;
+    border-color: @canga-border !important;
+    color: #34323c !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .header .header-title,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .header .header-title {
+    color: #34323c !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .header a.button,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .header a.button {
+    color: @canga-muted !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li a,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .listing li a {
+    color: #34323c !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li a:before,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .listing li a:before {
+    color: #9a98a6 !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li.selected,
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li.selected > a,
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu #settings-menu li.selected,
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu #settings-menu li.selected > a,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .listing li.selected > a {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li.selected a:before,
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu #settings-menu li.selected a:before,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .listing li.selected a:before {
+    color: @canga-purple !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing .unreadcount,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .listing .unreadcount {
+    background: @canga-purple !important;
+    color: #fff !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li.selected .unreadcount {
+    background: @canga-purple !important;
+    color: #fff !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu #calendarslist li.selected,
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu #calendarslist li.selected .calendar {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu #calendarslist li.selected .calname,
+html body #layout-sidebar #calendarslist li.selected .calname {
+    background: transparent !important;
+    color: @canga-purple !important;
+}
+
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .footer,
+html body #layout-menu.canga-menu #layout-sidebar.canga-submenu .footer.small,
+html body .canga-mail-menu #layout-sidebar.canga-mail-submenu .footer {
+    border-color: @canga-border !important;
+    color: @canga-muted !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Top bar and page heading                                           */
+/* ------------------------------------------------------------------ */
+
+.canga-topbar {
+    background: @canga-bg !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    color: @canga-ink !important;
+}
+
+.canga-topbar-trigger {
+    color: @canga-ink !important;
+}
+
+.canga-topbar-trigger:hover,
+.canga-topbar-trigger:focus,
+.canga-topbar-trigger:active,
+.canga-topbar-trigger.active,
+.canga-topbar-trigger.is-active {
+    background: @canga-surface !important;
+    color: @canga-purple !important;
+    box-shadow: @canga-shadow-sm;
+}
+
+.canga-topbar-trigger[aria-expanded="true"] {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+.canga-topbar-icon,
+.canga-topbar-caret:before {
+    color: @canga-muted !important;
+}
+
+.canga-topbar-trigger:hover .canga-topbar-icon,
+.canga-topbar-trigger:focus .canga-topbar-icon,
+.canga-topbar-trigger:active .canga-topbar-icon,
+.canga-topbar-trigger.active .canga-topbar-icon,
+.canga-topbar-trigger.is-active .canga-topbar-icon,
+.canga-topbar-trigger[aria-expanded="true"] .canga-topbar-icon {
+    color: @canga-purple !important;
+}
+
+.canga-topbar-trigger[aria-expanded="true"] .canga-topbar-caret:before {
+    color: @canga-purple !important;
+}
+
+.canga-topbar-dropdown {
+    border: 1px solid @canga-border !important;
+    background: @canga-surface !important;
+    box-shadow: 0 18px 42px rgba(28, 26, 60, .16) !important;
+}
+
+.canga-topbar-dropdown a {
+    color: #34323c !important;
+}
+
+.canga-topbar-dropdown a:hover,
+.canga-topbar-dropdown a:focus {
+    background: @canga-lilac-soft !important;
+    color: @canga-purple !important;
+}
+
+.canga-topbar-dropdown a.active {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+.canga-topbar-dropdown a:before {
+    color: @canga-muted !important;
+}
+
+.canga-topbar-dropdown a:hover:before,
+.canga-topbar-dropdown a:focus:before,
+.canga-topbar-dropdown a.active:before {
+    color: @canga-purple !important;
+}
+
+.canga-pageheader {
+    background: @canga-bg !important;
+    border-bottom: 0 !important;
+    color: @canga-ink !important;
+}
+
+.canga-pageheader-title {
+    color: @canga-ink !important;
+    font-size: 1.45rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -.03em !important;
+}
+
+.canga-pageheader-title .canga-breadcrumb-section {
+    color: @canga-purple !important;
+}
+
+.canga-pageheader-title .canga-breadcrumb-sep,
+.canga-pageheader-title .canga-breadcrumb-current {
+    color: @canga-muted !important;
+}
+
+.canga-pageheader-subtitle {
+    color: @canga-muted !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards / workspace surfaces                                         */
+/* ------------------------------------------------------------------ */
+
+body:not(.task-login):not(.task-error-login) #layout-list,
+body:not(.task-login):not(.task-error-login) #layout-content,
+body.task-mail #layout-list.canga-inbox-list,
+body.task-mail #layout-content {
+    border: 1px solid @canga-border !important;
+    border-radius: @canga-radius !important;
+    background: @canga-surface !important;
+    box-shadow: @canga-shadow !important;
+}
+
+body #layout-list > .header,
+body #layout-content > .header {
+    border-bottom: 1px solid @canga-border !important;
+    background: @canga-surface !important;
+    color: @canga-ink !important;
+}
+
+body #layout-list > .header a.button,
+body #layout-content > .header a.button {
+    color: @canga-muted !important;
+}
+
+body #layout-list > .footer,
+body #layout-content > .footer {
+    border-top: 1px solid @canga-border !important;
+    background: @canga-surface !important;
+    color: @canga-muted !important;
+}
+
+/* Settings pages use the full card without the old title bars. */
+body.task-settings #layout-list > .header,
+body.task-settings #layout-content > .header {
+    display: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header toolbars (inbox actions, content actions)                   */
+/* ------------------------------------------------------------------ */
+
+#messagelist-header.canga-header-toolbar .toolbar.menu a,
+#messagelist-header.canga-header-toolbar > .toolbar-button,
+#messagelist-header.canga-header-toolbar > a.task-menu-button,
+#messagelist-header.canga-header-toolbar > a.toolbar-menu-button,
+#messagelist-header.canga-header-toolbar > a.toolbar-list-button,
+.canga-header-toolbar .toolbar.menu a,
+.canga-header-toolbar > .toolbar-button,
+.canga-header-toolbar > a.task-menu-button,
+.canga-header-toolbar > a.toolbar-menu-button,
+.canga-header-toolbar > a.toolbar-list-button {
+    border: 1px solid @canga-border !important;
+    border-radius: @canga-radius-sm !important;
+    background: @canga-surface !important;
+    color: @canga-ink !important;
+    box-shadow: @canga-shadow-sm;
+}
+
+#messagelist-header.canga-header-toolbar .toolbar.menu a:hover,
+#messagelist-header.canga-header-toolbar > .toolbar-button:hover,
+#messagelist-header.canga-header-toolbar > a.task-menu-button:hover,
+#messagelist-header.canga-header-toolbar > a.toolbar-menu-button:hover,
+#messagelist-header.canga-header-toolbar > a.toolbar-list-button:hover,
+.canga-header-toolbar .toolbar.menu a:hover,
+.canga-header-toolbar > .toolbar-button:hover,
+.canga-header-toolbar > a.task-menu-button:hover,
+.canga-header-toolbar > a.toolbar-menu-button:hover,
+.canga-header-toolbar > a.toolbar-list-button:hover {
+    border-color: @canga-purple !important;
+    background: @canga-lilac-soft !important;
+    color: @canga-purple !important;
+}
+
+#messagelist-header.canga-header-toolbar .toolbar.menu a:before,
+#messagelist-header.canga-header-toolbar > .toolbar-button:before,
+#messagelist-header.canga-header-toolbar > a.task-menu-button:before,
+#messagelist-header.canga-header-toolbar > a.toolbar-menu-button:before,
+#messagelist-header.canga-header-toolbar > a.toolbar-list-button:before,
+.canga-header-toolbar .toolbar.menu a:before,
+.canga-header-toolbar > .toolbar-button:before,
+.canga-header-toolbar > a.task-menu-button:before,
+.canga-header-toolbar > a.toolbar-menu-button:before,
+.canga-header-toolbar > a.toolbar-list-button:before {
+    color: @canga-muted !important;
+}
+
+#messagelist-header.canga-header-toolbar .toolbar.menu a:hover:before,
+#messagelist-header.canga-header-toolbar > .toolbar-button:hover:before,
+.canga-header-toolbar .toolbar.menu a:hover:before,
+.canga-header-toolbar > .toolbar-button:hover:before {
+    color: @canga-purple !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Search                                                             */
+/* ------------------------------------------------------------------ */
+
+body:not(.task-login) #layout-list .searchbar,
+body:not(.task-login) #layout-content .searchbar,
+body:not(.task-login) #layout-sidebar .searchbar,
+body.task-mail #layout-list .searchbar {
+    border-bottom: 1px solid @canga-border !important;
+    background: @canga-surface !important;
+}
+
+body:not(.task-login) #layout-list .searchbar input,
+body:not(.task-login) #layout-content .searchbar input,
+body:not(.task-login) #layout-sidebar .searchbar input,
+body.task-mail #layout-list .searchbar input {
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    background: @canga-surface-alt !important;
+    color: @canga-ink !important;
+}
+
+body:not(.task-login) #layout-list .searchbar input:focus,
+body:not(.task-login) #layout-content .searchbar input:focus,
+body:not(.task-login) #layout-sidebar .searchbar input:focus,
+body.task-mail #layout-list .searchbar input:focus {
+    border-color: @canga-purple !important;
+    box-shadow: 0 0 0 3px rgba(92, 65, 208, .14) !important;
+    background: @canga-surface !important;
+}
+
+body:not(.task-login) #layout-list .searchbar .button,
+body:not(.task-login) #layout-content .searchbar .button,
+body:not(.task-login) #layout-sidebar .searchbar .button {
+    color: @canga-muted !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Lists, message rows and badges                                     */
+/* ------------------------------------------------------------------ */
+
+body.task-mail #messagelist tbody tr td,
+body #layout-list .listing tbody tr td,
+body #layout-content .listing tbody tr td,
+body #layout-list .listing li,
+body #layout-content .listing li {
+    border-color: @canga-border !important;
+    color: #34323c !important;
+}
+
+body.task-mail #messagelist tbody tr:hover td,
+body #layout-list .listing tbody tr:hover td,
+body #layout-content .listing tbody tr:hover td {
+    background: @canga-lilac-soft !important;
+}
+
+body.task-mail #messagelist tbody tr.selected td,
+body.task-mail #messagelist tbody tr.focused td,
+body #layout-list .listing tbody tr.selected td,
+body #layout-content .listing tbody tr.selected td,
+body #layout-list .listing li.selected,
+body #layout-content .listing li.selected {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+body.task-mail #messagelist tbody tr.unread td.subject {
+    color: @canga-ink !important;
+    font-weight: 600 !important;
+}
+
+body.task-mail #messagelist tbody tr td.date {
+    color: @canga-muted !important;
+}
+
+body.task-mail #layout-list .pagenav {
+    border-top-color: @canga-border !important;
+    background: @canga-surface !important;
+    color: @canga-muted !important;
+}
+
+.canga-inbox-tabs {
+    border-bottom-color: @canga-border !important;
+    background: @canga-surface !important;
+}
+
+.canga-inbox-tabs > a:not(.canga-mobile-menu) {
+    color: @canga-muted !important;
+}
+
+.canga-inbox-tabs > a:not(.canga-mobile-menu).active {
+    border-bottom-color: @canga-purple !important;
+    color: @canga-purple !important;
+}
+
+.canga-inbox-tab-count,
+span.unreadcount,
+.unreadcount,
+.listing .count {
+    border-radius: 999px !important;
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+    font-weight: 600 !important;
+}
+
+.listing li.selected span.unreadcount,
+.listing tr.selected span.unreadcount,
+.listing li.selected .count,
+.listing tr.selected .count {
+    background: @canga-purple !important;
+    color: #fff !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons, forms and links                                           */
+/* ------------------------------------------------------------------ */
+
+a {
+    color: @canga-purple;
+}
+
+a:hover {
+    color: @canga-purple-600;
+}
+
+.btn-primary,
+input.btn-primary {
+    border-color: @canga-purple !important;
+    background-color: @canga-purple !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+    border-color: @canga-purple-600 !important;
+    background-color: @canga-purple-600 !important;
+}
+
+.btn-secondary {
+    border-color: @canga-border !important;
+    background-color: @canga-surface-alt !important;
+    color: #34323c !important;
+}
+
+.form-control:focus,
+.custom-select:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: @canga-purple !important;
+    box-shadow: 0 0 0 .2rem rgba(92, 65, 208, .14) !important;
+}
+
+input[type="checkbox"]:checked,
+.custom-control-input:checked ~ .custom-control-label::before {
+    border-color: @canga-purple !important;
+    background-color: @canga-purple !important;
+}
+
+.custom-control-input:focus ~ .custom-control-label::before {
+    box-shadow: 0 0 0 .2rem rgba(92, 65, 208, .14) !important;
+}
+
+/* Popovers, menus and dialogs share the card look */
+.popupmenu,
+.popover,
+.ui-menu,
+.ui-dialog,
+.ui-datepicker {
+    border-color: @canga-border !important;
+    border-radius: 14px !important;
+    box-shadow: 0 18px 42px rgba(28, 26, 60, .14) !important;
+}
+
+.popover-header {
+    border-bottom-color: @canga-border !important;
+}
+
+.ui-menu-item .ui-menu-item-wrapper.ui-state-active,
+.popupmenu .listing li:not(.disabled):hover,
+.popupmenu .listing tr:not(.disabled):hover {
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+.ui-datepicker .ui-state-active,
+.ui-datepicker .ui-state-highlight {
+    border-color: @canga-purple !important;
+    background: @canga-purple !important;
+    color: #fff !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compose                                                            */
+/* ------------------------------------------------------------------ */
+
+body.action-compose #layout > #layout-sidebar {
+    border: 1px solid @canga-border !important;
+    border-radius: @canga-radius !important;
+    background: @canga-surface !important;
+    box-shadow: @canga-shadow !important;
+}
+
+body.action-compose #layout-sidebar > .header {
+    border-bottom-color: @canga-border !important;
+    background: @canga-surface-alt !important;
+    color: @canga-purple !important;
+}
+
+body.action-compose .attach,
+body.action-compose #layout-sidebar .btn {
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    background: @canga-lilac !important;
+    color: @canga-purple !important;
+}
+
+body.action-compose .attach:hover,
+body.action-compose #layout-sidebar .btn:hover {
+    background: darken(@canga-lilac, 3%) !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Login                                                              */
+/* ------------------------------------------------------------------ */
+
+body.task-login,
+body.task-error-login {
+    background: @canga-bg !important;
+}
+
+body.task-login #layout {
+    background: @canga-bg !important;
+}
+
+body.task-login #login-form {
+    border: 1px solid @canga-border !important;
+    border-radius: 20px !important;
+    background: @canga-surface !important;
+    box-shadow: 0 26px 64px rgba(28, 26, 60, .12) !important;
+}
+
+body.task-login #login-form:before {
+    color: @canga-ink !important;
+}
+
+body.task-login #login-form td.input {
+    border-color: @canga-border !important;
+    background: @canga-surface-alt !important;
+}
+
+body.task-login #login-form td.input:focus-within {
+    border-color: @canga-purple !important;
+    box-shadow: 0 0 0 3px rgba(92, 65, 208, .14) !important;
+    background: @canga-surface !important;
+}
+
+body.task-login #login-form .form-control {
+    color: @canga-ink !important;
+}
+
+body.task-login #rcmloginsubmit {
+    border-radius: 12px !important;
+    background: @canga-purple !important;
+    box-shadow: 0 10px 22px rgba(92, 65, 208, .28);
+}
+
+body.task-login #rcmloginsubmit:hover {
+    background: @canga-purple-600 !important;
+}
+
+body.task-login #login-footer {
+    border-top-color: @canga-border !important;
+    color: @canga-muted !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Calendar and address book side panels                              */
+/* ------------------------------------------------------------------ */
+
+@media screen and (min-width: (@screen-width-small + 1px)) {
+    body.task-calendar #layout > #layout-sidebar,
+    body.task-addressbook.canga-show-groups #layout > #layout-sidebar {
+        border: 1px solid @canga-border !important;
+        border-radius: @canga-radius !important;
+        background: @canga-surface !important;
+        box-shadow: @canga-shadow !important;
+    }
+
+    body.task-calendar #layout > #layout-sidebar > .header,
+    body.task-addressbook.canga-show-groups #layout > #layout-sidebar > .header {
+        border-bottom-color: @canga-border !important;
+        background: @canga-surface-alt !important;
+        color: @canga-purple !important;
+    }
+
+    body.task-addressbook.canga-show-groups #layout > #layout-sidebar > .header {
+        background: @canga-surface-alt !important;
+    }
+
+    body.task-calendar #layout > #layout-sidebar .listing li > a:hover {
+        background: @canga-lilac-soft !important;
+        color: @canga-purple !important;
+    }
+
+    body.task-calendar #layout > #layout-sidebar .footer {
+        border-top-color: @canga-border !important;
+    }
+}
+
+/* Datepicker inside the calendar sidebar */
+#datepicker .ui-datepicker,
+#datepicker.calendar-datepicker .ui-datepicker {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbars                                                         */
+/* ------------------------------------------------------------------ */
+
+html {
+    scrollbar-color: #cfccdd transparent;
+}
+
+body ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body ::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: #cfccdd;
+}
+
+body ::-webkit-scrollbar-thumb:hover {
+    background: #b7b2cc;
+}
+
+/* ------------------------------------------------------------------ */
+/* Two-factor verification card (plugin page)                         */
+/* ------------------------------------------------------------------ */
+
+.twofactor-2fa {
+    border: 1px solid @canga-border;
+    border-radius: @canga-radius;
+    background: @canga-surface;
+    color: @canga-ink;
+    box-shadow: @canga-shadow;
+}
+
+.twofactor-2fa-head {
+    border-bottom-color: @canga-border;
+}
+
+.twofactor-2fa-title h3 {
+    color: @canga-ink;
+}
+
+.twofactor-2fa-user,
+.twofactor-2fa-lead {
+    color: @canga-muted;
+}
+
+.twofactor-2fa.is-active .twofactor-2fa-badge {
+    background: @canga-lilac;
+    color: @canga-purple;
+}
+
+.twofactor-2fa-qr {
+    background: @canga-surface;
+    box-shadow: inset 0 0 0 1px @canga-border;
+}
+
+.twofactor-2fa-label {
+    color: #34323c;
+}
+
+.twofactor-2fa-input {
+    border-color: @canga-border;
+    background: @canga-surface-alt;
+    color: @canga-ink;
+}
+
+.twofactor-2fa-input:focus {
+    border-color: @canga-purple;
+    background: @canga-surface;
+    box-shadow: 0 0 0 3px rgba(92, 65, 208, .14);
+}
+
+.twofactor-2fa-btn.is-primary {
+    background: @canga-purple;
+}
+
+.twofactor-2fa-btn.is-primary:hover {
+    background: @canga-purple-600;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark mode                                                          */
+/* ------------------------------------------------------------------ */
+
+html.dark-mode body,
+html.dark-mode #layout {
+    background: #131319 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body:not(.task-login):not(.task-error-login) #layout,
+html.dark-mode body.task-mail #layout {
+    background: #131319 !important;
+}
+
+html.dark-mode body #layout-list,
+html.dark-mode body #layout-content,
+html.dark-mode body.task-mail #layout-list.canga-inbox-list,
+html.dark-mode body.task-mail #layout-content {
+    border: 1px solid #2c2b38 !important;
+    background: #1b1b23 !important;
+    box-shadow: none !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body #layout-list > .header,
+html.dark-mode body #layout-content > .header,
+html.dark-mode body #layout-list > .footer,
+html.dark-mode body #layout-content > .footer {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu {
+    background: #17171f !important;
+    border-right-color: #2c2b38 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .popover-header.canga-brand {
+    border-bottom-color: #2c2b38 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-brand-name {
+    color: #f2f1f7 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-brand-user {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-menu-label {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-menu-label::after {
+    background: linear-gradient(90deg, #2c2b38, transparent) !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a:before {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a:hover,
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a:focus {
+    background: rgba(255, 255, 255, .06) !important;
+    color: #fff !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a:hover:before,
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a:focus:before {
+    color: #a99bff !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a.active {
+    background: rgba(92, 65, 208, .28) !important;
+    color: #fff !important;
+    box-shadow: inset 3px 0 0 #a99bff !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .canga-static-submenu a.active:before {
+    color: #c3b8ff !important;
+}
+
+html.dark-mode #layout-menu.canga-menu .canga-menu-nav > .action-buttons a.compose {
+    background: @canga-purple !important;
+    border-color: @canga-purple !important;
+    color: #fff !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #taskmenu > .special-buttons {
+    border-top-color: #2c2b38 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #taskmenu > .special-buttons a {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #taskmenu > .special-buttons a:before {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #taskmenu > .special-buttons a:hover {
+    background: rgba(255, 255, 255, .06) !important;
+    color: #fff !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu,
+html.dark-mode .canga-mail-menu #layout-sidebar.canga-mail-submenu {
+    background: #1b1b23 !important;
+    border-color: #2c2b38 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu .header,
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu .header .header-title,
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li a,
+html.dark-mode .canga-mail-menu #layout-sidebar.canga-mail-submenu .listing li a {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li.selected,
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li.selected > a,
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu #settings-menu li.selected,
+html.dark-mode #layout-menu.canga-menu #layout-sidebar.canga-submenu #settings-menu li.selected > a {
+    background: rgba(92, 65, 208, .28) !important;
+    color: #fff !important;
+}
+
+html.dark-mode .canga-topbar {
+    background: #131319 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .canga-topbar-trigger {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .canga-topbar-trigger:hover,
+html.dark-mode .canga-topbar-trigger:focus,
+html.dark-mode .canga-topbar-trigger:active,
+html.dark-mode .canga-topbar-trigger.active,
+html.dark-mode .canga-topbar-trigger.is-active,
+html.dark-mode .canga-topbar-trigger[aria-expanded="true"] {
+    background: #232331 !important;
+    color: #a99bff !important;
+    box-shadow: none !important;
+}
+
+html.dark-mode .canga-topbar-icon,
+html.dark-mode .canga-topbar-caret:before {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode .canga-topbar-dropdown {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .5) !important;
+}
+
+html.dark-mode .canga-topbar-dropdown a {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .canga-topbar-dropdown a:hover,
+html.dark-mode .canga-topbar-dropdown a.active {
+    background: rgba(92, 65, 208, .28) !important;
+    color: #fff !important;
+}
+
+html.dark-mode .canga-pageheader {
+    background: #131319 !important;
+}
+
+html.dark-mode .canga-pageheader-title {
+    color: #f2f1f7 !important;
+}
+
+html.dark-mode .canga-pageheader-subtitle {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode #messagelist-header.canga-header-toolbar .toolbar.menu a,
+html.dark-mode #messagelist-header.canga-header-toolbar > .toolbar-button,
+html.dark-mode .canga-header-toolbar .toolbar.menu a,
+html.dark-mode .canga-header-toolbar > .toolbar-button {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+    box-shadow: none !important;
+}
+
+html.dark-mode #messagelist-header.canga-header-toolbar .toolbar.menu a:hover,
+html.dark-mode #messagelist-header.canga-header-toolbar > .toolbar-button:hover,
+html.dark-mode .canga-header-toolbar .toolbar.menu a:hover,
+html.dark-mode .canga-header-toolbar > .toolbar-button:hover {
+    border-color: #4a3d86 !important;
+    background: #232331 !important;
+    color: #fff !important;
+}
+
+html.dark-mode #messagelist-header.canga-header-toolbar .toolbar.menu a:before,
+html.dark-mode #messagelist-header.canga-header-toolbar > .toolbar-button:before,
+html.dark-mode .canga-header-toolbar .toolbar.menu a:before,
+html.dark-mode .canga-header-toolbar > .toolbar-button:before {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode body:not(.task-login) #layout-list .searchbar,
+html.dark-mode body:not(.task-login) #layout-content .searchbar,
+html.dark-mode body:not(.task-login) #layout-sidebar .searchbar,
+html.dark-mode body.task-mail #layout-list .searchbar {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+}
+
+html.dark-mode body:not(.task-login) #layout-list .searchbar input,
+html.dark-mode body:not(.task-login) #layout-content .searchbar input,
+html.dark-mode body:not(.task-login) #layout-sidebar .searchbar input,
+html.dark-mode body.task-mail #layout-list .searchbar input {
+    border-color: transparent !important;
+    background: #232331 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.task-mail #messagelist tbody tr td,
+html.dark-mode body #layout-list .listing tbody tr td,
+html.dark-mode body #layout-content .listing tbody tr td,
+html.dark-mode body #layout-list .listing li,
+html.dark-mode body #layout-content .listing li {
+    border-color: #262530 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.task-mail #messagelist tbody tr:hover td,
+html.dark-mode body #layout-list .listing tbody tr:hover td,
+html.dark-mode body #layout-content .listing tbody tr:hover td {
+    background: #232331 !important;
+}
+
+html.dark-mode body.task-mail #messagelist tbody tr.selected td,
+html.dark-mode body #layout-list .listing tbody tr.selected td,
+html.dark-mode body #layout-content .listing tbody tr.selected td,
+html.dark-mode body #layout-list .listing li.selected,
+html.dark-mode body #layout-content .listing li.selected {
+    background: rgba(92, 65, 208, .3) !important;
+    color: #fff !important;
+}
+
+html.dark-mode body.task-mail #messagelist td.subject a,
+html.dark-mode body.task-mail #messagelist .fromto {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.task-mail #messagelist tbody tr.unread td.subject {
+    color: #fff !important;
+}
+
+html.dark-mode .canga-inbox-tab-count,
+html.dark-mode span.unreadcount,
+html.dark-mode .unreadcount,
+html.dark-mode .listing .count {
+    background: rgba(92, 65, 208, .3) !important;
+    color: #c3b8ff !important;
+}
+
+html.dark-mode #calendarslist li.selected .calname,
+html.dark-mode #layout-sidebar #calendarslist li.selected .calname,
+html.dark-mode #layout-menu.canga-menu #layout-sidebar #calendarslist li.selected .calname {
+    background: transparent !important;
+    color: #c3b8ff !important;
+}
+
+html.dark-mode .btn-secondary {
+    border-color: #2c2b38 !important;
+    background-color: #232331 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .popupmenu,
+html.dark-mode .popover,
+html.dark-mode .ui-menu,
+html.dark-mode .ui-dialog,
+html.dark-mode .ui-datepicker {
+    border-color: #2c2b38 !important;
+    background-color: #1b1b23 !important;
+    color: #e8e6f0 !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .5) !important;
+}
+
+html.dark-mode .ui-menu-item .ui-menu-item-wrapper.ui-state-active,
+html.dark-mode .popupmenu .listing li:not(.disabled):hover {
+    background: rgba(92, 65, 208, .3) !important;
+    color: #fff !important;
+}
+
+html.dark-mode body.action-compose #layout > #layout-sidebar,
+html.dark-mode body.action-compose #layout-sidebar > .header {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.action-compose .attach,
+html.dark-mode body.action-compose #layout-sidebar .btn {
+    background: rgba(92, 65, 208, .28) !important;
+    color: #c3b8ff !important;
+}
+
+html.dark-mode body.task-login,
+html.dark-mode body.task-error-login,
+html.dark-mode body.task-login #layout {
+    background: #131319 !important;
+}
+
+html.dark-mode body.task-login #login-form {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    box-shadow: 0 26px 64px rgba(0, 0, 0, .5) !important;
+}
+
+html.dark-mode body.task-login #login-form:before {
+    color: #f2f1f7 !important;
+}
+
+html.dark-mode body.task-login #login-form td.input {
+    border-color: #2c2b38 !important;
+    background: #232331 !important;
+}
+
+html.dark-mode body.task-login #login-form .form-control {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.task-login #login-footer {
+    border-top-color: #2c2b38 !important;
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode body.task-calendar #layout > #layout-sidebar,
+html.dark-mode body.task-addressbook.canga-show-groups #layout > #layout-sidebar {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    box-shadow: none !important;
+}
+
+html.dark-mode body.task-calendar #layout > #layout-sidebar > .header,
+html.dark-mode body.task-addressbook.canga-show-groups #layout > #layout-sidebar > .header {
+    border-color: #2c2b38 !important;
+    background: #20202a !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode ::-webkit-scrollbar-thumb {
+    background: #3a3848;
+}
+
+html.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #4a475c;
+}
+
+html.dark-mode .twofactor-2fa {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+    box-shadow: none !important;
+}
+
+html.dark-mode .twofactor-2fa-head {
+    border-bottom-color: #2c2b38 !important;
+}
+
+html.dark-mode .twofactor-2fa-title h3 {
+    color: #f2f1f7 !important;
+}
+
+html.dark-mode .twofactor-2fa-user,
+html.dark-mode .twofactor-2fa-lead {
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode .twofactor-2fa.is-active .twofactor-2fa-badge {
+    background: rgba(92, 65, 208, .3) !important;
+    color: #c3b8ff !important;
+}
+
+html.dark-mode .twofactor-2fa-qr {
+    background: #1b1b23 !important;
+    box-shadow: inset 0 0 0 1px #2c2b38 !important;
+}
+
+html.dark-mode .twofactor-2fa-label {
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .twofactor-2fa-input {
+    border-color: #2c2b38 !important;
+    background: #232331 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .twofactor-2fa-input:focus {
+    border-color: #a99bff !important;
+    background: #2a2938 !important;
+    box-shadow: 0 0 0 3px rgba(169, 155, 255, .16) !important;
+}
+
+/* Dark surfaces that the legacy Canga rules paint with teal. */
+html.dark-mode.iframe body,
+html.dark-mode.iframe #layout-content,
+html.dark-mode.iframe .content.frame-content,
+html.dark-mode.iframe .message-htmlpart,
+html.dark-mode.iframe .message-part {
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode #messagelist-content,
+html.dark-mode #messagelist,
+html.dark-mode #messagelist tbody,
+html.dark-mode #contacts-table,
+html.dark-mode #contacts-table tbody,
+html.dark-mode #sections-table,
+html.dark-mode #sections-table tbody,
+html.dark-mode #layout-list .scroller,
+html.dark-mode #layout-content,
+html.dark-mode #compose-content,
+html.dark-mode #compose-content .formcontent.scroller,
+html.dark-mode #composebody,
+html.dark-mode body.action-compose #layout-sidebar,
+html.dark-mode .message-partheaders,
+html.dark-mode .message-part,
+html.dark-mode .message-htmlpart,
+html.dark-mode .attachmentslist,
+html.dark-mode .formcontent,
+html.dark-mode .formcontainer,
+html.dark-mode .boxcontent,
+html.dark-mode .boxtitle,
+html.dark-mode .settingsbox,
+html.dark-mode .propform,
+html.dark-mode .ui-dialog,
+html.dark-mode .ui-dialog-content,
+html.dark-mode .ui-widget-content,
+html.dark-mode .popupmenu,
+html.dark-mode .popupmenu .menu {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode #composebody {
+    border-color: #2c2b38 !important;
+}
+
+html.dark-mode #layout-list .pagenav,
+html.dark-mode #layout-list .pagenav a,
+html.dark-mode #layout-list .pagenav .button {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #9c9aa8 !important;
+}
+
+html.dark-mode body.task-calendar #layout-content .fc,
+html.dark-mode body.task-calendar #layout-content .fc-widget-header,
+html.dark-mode body.task-calendar #layout-content .fc-widget-content,
+html.dark-mode body.task-calendar #layout-content .fc-head-container,
+html.dark-mode body.task-calendar #layout-content .fc-body,
+html.dark-mode body.task-calendar #layout-content .fc-row,
+html.dark-mode body.task-calendar #layout-content .fc-day,
+html.dark-mode body.task-calendar #layout-content .fc-axis,
+html.dark-mode body.task-calendar #layout-content .fc-view,
+html.dark-mode body.task-calendar #layout-content .fc-toolbar,
+html.dark-mode body.task-calendar #layout-content #calendar,
+html.dark-mode body.task-calendar #layout-content #calendartoolbar {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.task-calendar #layout-content .fc-day-today {
+    background: rgba(92, 65, 208, .26) !important;
+}
+
+html.dark-mode body.task-calendar #layout-content .fc-button,
+html.dark-mode body.task-calendar #layout-content .fc-toolbar .btn,
+html.dark-mode body.task-calendar #layout-content #calendar .btn {
+    border-color: #2f2e3c !important;
+    background: #232331 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode body.task-calendar #layout-content .fc-button-active,
+html.dark-mode body.task-calendar #layout-content .fc-state-active {
+    border-color: #5c41d0 !important;
+    background: rgba(92, 65, 208, .3) !important;
+    color: #fff !important;
+}
+
+html.dark-mode #datepicker .ui-datepicker,
+html.dark-mode #datepicker.calendar-datepicker .ui-datepicker {
+    border-color: #2c2b38 !important;
+    background: #1b1b23 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .ui-datepicker-header,
+html.dark-mode #datepicker .ui-datepicker-header {
+    border-color: #2c2b38 !important;
+    background: #232331 !important;
+    color: #e8e6f0 !important;
+}
+
+html.dark-mode .ui-datepicker .ui-state-highlight {
+    background: rgba(92, 65, 208, .3) !important;
+    color: #fff !important;
+}
