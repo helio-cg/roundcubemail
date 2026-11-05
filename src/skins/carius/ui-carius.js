@@ -199,7 +199,6 @@
         var accountMenu = $('.carius-account-menu');
         var bellButton = $('.carius-bell');
         var bellMenu = $('.carius-bell-menu');
-        var searchButton = $('.carius-search');
 
         if (accountButton && accountMenu) {
             accountButton.addEventListener('click', function (event) {
@@ -257,22 +256,6 @@
 
                 if (window.rcmail) {
                     rcmail.command('logout');
-                }
-            });
-        }
-
-        if (searchButton) {
-            searchButton.addEventListener('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                var input = $('#mailsearchform input[name="_q"], #mailsearchform input[type="text"], .searchbar input[name="_q"]');
-
-                if (input) {
-                    input.focus();
-                    input.select();
-                } else if (window.rcmail) {
-                    rcmail.goto_url('?_task=mail');
                 }
             });
         }

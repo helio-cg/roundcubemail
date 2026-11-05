@@ -52,8 +52,8 @@
 }
 
 .user-settings-tab.is-active {
-    border-bottom-color: var(--user-accent, #0f5132);
-    color: var(--user-accent, #0f5132);
+    border-bottom-color: var(--user-accent, #5561e6);
+    color: var(--user-accent, #5561e6);
     opacity: 1;
 }
 
@@ -158,7 +158,8 @@
     font-weight: 600;
 }
 
-.user-settings-field input[type="text"] {
+.user-settings-field input[type="text"],
+.user-settings-field input[type="email"] {
     width: 100%;
     max-width: 28rem;
     padding: .55rem .65rem;
@@ -423,4 +424,445 @@
         border-right: 0;
         border-bottom: 1px solid rgba(128, 128, 128, .25);
     }
+}
+
+/* Canned responses management */
+.user-settings-field textarea {
+    width: 100%;
+    max-width: 48rem;
+    padding: .55rem .65rem;
+    border: 1px solid rgba(128, 128, 128, .35);
+    border-radius: .35rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    resize: vertical;
+}
+
+.user-settings-empty {
+    padding: 1rem;
+    border: 1px dashed rgba(128, 128, 128, .35);
+    border-radius: .45rem;
+    opacity: .8;
+}
+
+.user-responses-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.user-responses-table-wrap {
+    overflow-x: auto;
+}
+
+.user-responses-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-responses-table th,
+.user-responses-table td {
+    padding: .6rem .5rem;
+    border-bottom: 1px solid rgba(128, 128, 128, .2);
+    text-align: left;
+    vertical-align: top;
+}
+
+.user-responses-table th {
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    opacity: .7;
+}
+
+.user-responses-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.user-responses-preview {
+    max-width: 36rem;
+    opacity: .8;
+}
+
+.user-responses-actions {
+    white-space: nowrap;
+}
+
+.user-responses-actions .button {
+    margin-right: .35rem;
+}
+
+.user-response-delete {
+    display: inline-block;
+    margin: 0;
+}
+
+.user-responses-badge {
+    display: inline-block;
+    padding: 0 .45rem;
+    border-radius: .6rem;
+    background: rgba(128, 128, 128, .18);
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Visual polish                                                       */
+/* ------------------------------------------------------------------ */
+
+.user-settings {
+    --us-border: rgba(128, 128, 128, .22);
+    --us-border-strong: rgba(128, 128, 128, .34);
+    --us-surface: rgba(128, 128, 128, .055);
+    --us-surface-hover: rgba(128, 128, 128, .1);
+    --us-muted: rgba(128, 128, 128, .95);
+    --us-radius: .7rem;
+    --us-accent: var(--user-accent, #5561e6);
+    color: inherit;
+}
+
+.user-settings-head h3 {
+    font-size: 1.45rem;
+    letter-spacing: -.02em;
+}
+
+.user-settings-lead,
+.user-settings-hint {
+    color: var(--us-muted);
+    line-height: 1.5;
+    opacity: .85;
+}
+
+.user-settings-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2rem;
+    padding-bottom: .1rem;
+    scrollbar-width: none;
+}
+
+.user-settings-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.user-settings-tab {
+    flex: 0 0 auto;
+    padding: .55rem .85rem;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: .55rem .55rem 0 0;
+    font-size: .82rem;
+    letter-spacing: .01em;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.user-settings-tab:hover,
+.user-settings-tab:focus-visible {
+    border-bottom-color: var(--us-border);
+    background: var(--us-surface);
+}
+
+.user-settings-tab.is-active {
+    border-bottom-color: var(--us-accent);
+    color: var(--us-accent);
+    background: color-mix(in srgb, var(--us-accent) 9%, transparent);
+}
+
+.user-settings-panel {
+    gap: 1.1rem;
+    padding-top: .35rem;
+}
+
+.user-settings-group,
+.user-settings-colors {
+    padding: 1rem 1.1rem 1.1rem;
+    border: 1px solid var(--us-border);
+    border-radius: var(--us-radius);
+    background: var(--us-surface);
+}
+
+.user-settings-group legend,
+.user-settings-colors legend {
+    padding: 0 .4rem;
+    font-size: .98rem;
+    font-weight: 700;
+}
+
+.user-settings-field > label {
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+.user-settings-field input[type="text"],
+.user-settings-field input[type="email"],
+.user-settings-field input[type="password"],
+.user-settings-field input[type="number"],
+.user-settings-field input[type="search"],
+.user-settings-field input[type="tel"],
+.user-settings-field input[type="url"],
+.user-settings-field textarea,
+.user-settings-field select,
+.user-settings-select,
+.user-settings-number {
+    width: 100%;
+    max-width: 32rem;
+    padding: .6rem .75rem;
+    border: 1px solid var(--us-border-strong);
+    border-radius: .55rem;
+    background: rgba(127, 127, 127, .06);
+    color: inherit;
+    font: inherit;
+    line-height: 1.4;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.user-settings-field textarea {
+    max-width: 48rem;
+    min-height: 8rem;
+    resize: vertical;
+}
+
+.user-settings-field input:focus,
+.user-settings-field textarea:focus,
+.user-settings-select:focus,
+.user-settings-number:focus {
+    outline: none;
+    border-color: var(--us-accent);
+    background: transparent;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--us-accent) 20%, transparent);
+}
+
+.user-settings-check input[type="checkbox"] {
+    accent-color: var(--us-accent);
+}
+
+.user-settings .button,
+.user-settings a.button,
+.user-settings button.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-height: 2.15rem;
+    padding: 0 .85rem;
+    border: 1px solid var(--us-border-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .1s ease;
+}
+
+.user-settings .button:before {
+    float: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: .95em;
+    line-height: 1;
+}
+
+.user-settings .button:hover,
+.user-settings .button:focus-visible {
+    border-color: var(--us-border-strong);
+    background: var(--us-surface-hover);
+    outline: none;
+}
+
+.user-settings .button:active {
+    transform: translateY(1px);
+}
+
+.user-settings .button.mainaction {
+    border-color: var(--us-accent);
+    background: var(--us-accent);
+    color: #fff;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--us-accent) 26%, transparent);
+}
+
+.user-settings .button.mainaction:hover,
+.user-settings .button.mainaction:focus-visible {
+    border-color: var(--us-accent);
+    background: var(--us-accent);
+    color: #fff;
+    filter: brightness(.94);
+}
+
+.user-settings .button.delete:hover,
+.user-settings .button.delete:focus-visible {
+    border-color: rgba(192, 57, 43, .45);
+    background: rgba(192, 57, 43, .1);
+    color: #c0392b;
+}
+
+.user-settings-actions {
+    align-items: center;
+    gap: .5rem;
+}
+
+.user-settings-empty {
+    padding: 1.25rem 1.1rem;
+    border: 1px dashed var(--us-border-strong);
+    border-radius: var(--us-radius);
+    background: var(--us-surface);
+    color: var(--us-muted);
+}
+
+.user-responses-head {
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: .25rem;
+}
+
+.user-responses-table-wrap {
+    overflow: auto;
+    border: 1px solid var(--us-border);
+    border-radius: var(--us-radius);
+    background: var(--us-surface);
+}
+
+.user-responses-table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+}
+
+.user-responses-table thead th {
+    padding: .7rem .85rem;
+    border-bottom: 1px solid var(--us-border);
+    background: rgba(127, 127, 127, .07);
+    color: var(--us-muted);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.user-responses-table td {
+    padding: .75rem .85rem;
+    border-bottom: 1px solid var(--us-border);
+    vertical-align: middle;
+}
+
+.user-responses-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.user-responses-table tbody tr:hover td {
+    background: var(--us-surface-hover);
+}
+
+.user-responses-name {
+    font-weight: 600;
+}
+
+.user-responses-preview {
+    max-width: 36rem;
+    color: var(--us-muted);
+}
+
+.user-responses-actions {
+    width: auto;
+    white-space: nowrap;
+}
+
+.user-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .4rem;
+}
+
+.user-actions .button {
+    margin-right: 0;
+}
+
+.user-actions form,
+.user-response-delete {
+    display: inline-flex;
+    margin: 0;
+}
+
+.user-responses-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .1rem .5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--us-accent) 14%, transparent);
+    color: var(--us-accent);
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .user-settings .button,
+    .user-settings-tab,
+    .user-settings-field input,
+    .user-settings-field textarea {
+        transition: none;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .user-settings-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media screen and (max-width: 720px) {
+    .user-settings-head.user-responses-head {
+        align-items: flex-start;
+    }
+
+    .user-responses-table {
+        min-width: 26rem;
+    }
+
+    .user-responses-table th:nth-child(2),
+    .user-responses-table td.user-responses-preview {
+        display: none;
+    }
+
+    .user-settings-tab {
+        padding: .5rem .7rem;
+        font-size: .78rem;
+    }
+
+    .user-actions {
+        flex-wrap: wrap;
+    }
+}
+
+.user-muted {
+    color: var(--us-muted);
+    font-weight: 500;
+}
+
+.user-settings-select,
+.user-settings-field select {
+    background-color: rgba(127, 127, 127, .06) !important;
+}
+
+.user-settings-select:focus,
+.user-settings-field select:focus {
+    background-color: rgba(127, 127, 127, .03) !important;
 }

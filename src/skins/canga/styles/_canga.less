@@ -4494,3 +4494,11 @@ body.task-login #login-footer > div {
     display: block;
     padding: .2em 0;
 }
+
+/* Keep a 1px gap between adjacent menu links so hover backgrounds do not
+   merge into a single block. */
+#layout-menu.canga-menu #taskmenu .canga-static-submenu li + li,
+#layout-menu.canga-menu #layout-sidebar.canga-submenu .listing li + li,
+.canga-mail-nav li + li {
+    margin-top: 1px;
+}

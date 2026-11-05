@@ -13,7 +13,7 @@
  */
 class user extends rcube_plugin
 {
-    public const VERSION = '1.6.0';
+    public const VERSION = '1.8.0';
     public const SCHEMA_VERSION = 2026110300;
 
     private const TABLE = 'user_settings';
@@ -25,9 +25,14 @@ class user extends rcube_plugin
         'compose',
         'addressbook',
         'folders',
+        'mailfolders',
         'server',
+        'identities',
+        'responses',
         'calendar',
     ];
+
+    private const MANAGEMENT_TABS = ['mailfolders', 'identities', 'responses'];
 
     private const COLOR_ROLES = [
         'accent',
@@ -221,6 +226,13 @@ class user extends rcube_plugin
 
         $this->register_action('plugin.user', [$this, 'settings_page']);
         $this->register_action('plugin.user-save', [$this, 'save_settings']);
+        $this->register_action('plugin.user-response-save', [$this, 'save_response']);
+        $this->register_action('plugin.user-response-delete', [$this, 'delete_response']);
+        $this->register_action('plugin.user-folder-save', [$this, 'save_folder']);
+        $this->register_action('plugin.user-folder-delete', [$this, 'delete_folder']);
+        $this->register_action('plugin.user-identity-save', [$this, 'save_identity']);
+        $this->register_action('plugin.user-identity-delete', [$this, 'delete_identity']);
+        $this->register_action('plugin.user-identity-default', [$this, 'default_identity']);
         $this->register_handler('plugin.userdisplayname', [$this, 'userdisplayname']);
         $this->register_handler('plugin.inboxunread', [$this, 'inbox_unread']);
     }
@@ -236,6 +248,11 @@ class user extends rcube_plugin
             'label' => 'usertab',
             'domain' => 'user',
         ];
+
+        // Responses, folders and identities are managed from tabs inside the preferences page.
+        $args['actions'] = array_values(array_filter($args['actions'], static function ($action) {
+            return !in_array($action['action'] ?? '', ['responses', 'folders', 'identities'], true);
+        }));
 
         return $args;
     }
@@ -263,11 +280,16 @@ class user extends rcube_plugin
 
         $settings = $this->get_settings();
 
-        if (!$settings['stored'] || !$this->skin_colors_enabled()) {
+        if (!$this->skin_colors_enabled()) {
             return $args;
         }
 
-        $style = $this->build_color_style($settings['colors']);
+        // Even when the user has not customized the palette, expose the active
+        // skin colors so the plugin UI matches the skin accent.
+        $style = $settings['stored']
+            ? $this->build_color_style($settings['colors'])
+            : $this->build_variable_style($settings['colors']);
+
         $args['content'] = str_ireplace('</head>', $style . '</head>', $args['content']);
 
         return $args;
@@ -325,7 +347,10 @@ class user extends rcube_plugin
             'compose' => $this->gettext('messagescomposition'),
             'addressbook' => $this->gettext('contacts'),
             'folders' => $this->gettext('specialfolders'),
+            'mailfolders' => $this->gettext('tabmailfolders'),
+            'identities' => $this->gettext('tabidentities'),
             'server' => $this->gettext('serversettings'),
+            'responses' => $this->gettext('tabresponses'),
         ];
 
         if (in_array('calendar', $rcmail->plugins->loaded_plugins(), true)) {
@@ -469,16 +494,1018 @@ class user extends rcube_plugin
             $out .= '</div>';
         }
 
-        $out .= '<div class="user-settings-actions">';
+        $out .= '<div class="user-settings-actions user-settings-prefs-actions"'
+            . (in_array($activeTab, self::MANAGEMENT_TABS, true) ? ' hidden' : '') . '>';
         $out .= '<button class="button mainaction" type="submit"' . $disabled . '>'
             . rcube::Q($this->gettext('save')) . '</button>';
         $out .= '<button class="button" type="submit" name="_reset" value="1"' . $disabled . '>'
             . rcube::Q($this->gettext('reset')) . '</button>';
         $out .= '</div>';
         $out .= '</form>';
+
+        $out .= $this->folders_panel($activeTab);
+        $out .= $this->identities_panel($activeTab);
+        $out .= $this->responses_panel($activeTab);
+
         $out .= '</div>';
 
         return '<div class="formcontainer"><div class="formcontent">' . $out . '</div></div>';
+    }
+
+    /**
+     * Render the canned responses management tab.
+     */
+    private function responses_panel(string $activeTab): string
+    {
+        $editId = trim((string) rcube_utils::get_input_value('_rid', rcube_utils::INPUT_GP));
+
+        $out = '<div class="user-settings-panel user-settings-responses-panel"'
+            . ' id="user-panel-responses" role="tabpanel"'
+            . ' aria-labelledby="user-tab-responses" data-panel="responses"'
+            . ($activeTab === 'responses' ? '' : ' hidden') . '>';
+
+        $out .= $editId !== '' ? $this->response_form($editId) : $this->responses_list();
+
+        return $out . '</div>';
+    }
+
+    /**
+     * Build the create/edit form for a canned response.
+     */
+    private function response_form(string $id): string
+    {
+        $rcmail = rcmail::get_instance();
+        $isNew = $id === '' || $id === 'new';
+        $record = $isNew ? null : $rcmail->get_compose_response($id);
+
+        if (!$isNew && !is_array($record)) {
+            return '<p class="user-settings-error">' . rcube::Q($this->gettext('responsenotfound')) . '</p>'
+                . $this->response_back_link();
+        }
+
+        $readonly = !empty($record['static']);
+        $recordId = $record['id'] ?? '';
+        $name = $record['name'] ?? '';
+        $text = $record['data'] ?? '';
+        $isHtml = !empty($record['is_html']);
+
+        $out = '<div class="user-settings-head">';
+        $out .= '<h3>' . rcube::Q($isNew ? $this->gettext('newresponse') : $this->gettext('editresponse')) . '</h3>';
+        if ($readonly) {
+            $out .= '<p class="user-settings-hint">' . rcube::Q($this->gettext('readonlyresponse')) . '</p>';
+        }
+        $out .= '</div>';
+
+        $out .= '<form class="user-settings-form user-response-form" method="post"'
+            . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-response-save'])) . '">';
+        $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+        $out .= '<input type="hidden" name="_tab" value="responses">';
+        $out .= '<input type="hidden" name="_id" value="' . rcube::Q((string) $recordId) . '">';
+
+        $out .= '<div class="user-settings-field">';
+        $out .= '<label for="user-response-name">' . rcube::Q($rcmail->gettext('responsename')) . '</label>';
+        $out .= '<input id="user-response-name" name="_name" type="text" maxlength="255"'
+            . ' value="' . rcube::Q($name) . '"' . ($readonly ? ' readonly' : ' required') . '>';
+        $out .= '</div>';
+
+        $out .= '<div class="user-settings-field">';
+        $out .= '<label for="user-response-text">' . rcube::Q($rcmail->gettext('responsetext')) . '</label>';
+        $out .= '<textarea id="user-response-text" name="_text" rows="12"' . ($readonly ? ' readonly' : '') . '>'
+            . rcube::Q($text) . '</textarea>';
+        $out .= '</div>';
+
+        $out .= '<label class="user-settings-check">';
+        $out .= '<input type="checkbox" name="_is_html" value="1"' . ($isHtml ? ' checked' : '')
+            . ($readonly ? ' disabled' : '') . '>';
+        $out .= '<span>' . rcube::Q($rcmail->gettext('htmltoggle')) . '</span>';
+        $out .= '</label>';
+
+        $out .= '<div class="user-settings-actions">';
+        if (!$readonly) {
+            $out .= '<button class="button mainaction" type="submit">'
+                . rcube::Q($rcmail->gettext('save')) . '</button>';
+        }
+        $out .= $this->response_back_link();
+        $out .= '</div>';
+        $out .= '</form>';
+
+        return $out;
+    }
+
+    /**
+     * Link back to the responses list.
+     */
+    private function response_back_link(): string
+    {
+        $rcmail = rcmail::get_instance();
+        $url = $rcmail->url(['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'responses']);
+
+        return '<button type="button" class="button cancel" data-href="'
+            . rcube::Q($url) . '">' . rcube::Q($rcmail->gettext('cancel')) . '</button>';
+    }
+
+    /**
+     * Build the list of canned responses with management actions.
+     */
+    private function responses_list(): string
+    {
+        $rcmail = rcmail::get_instance();
+        $list = $rcmail->get_compose_responses();
+        $createUrl = $rcmail->url([
+            '_task' => 'settings',
+            '_action' => 'plugin.user',
+            '_tab' => 'responses',
+            '_rid' => 'new',
+        ]);
+
+        $out = '<div class="user-settings-head user-responses-head">';
+        $out .= '<div>';
+        $out .= '<h3>' . rcube::Q($this->gettext('tabresponses')) . '</h3>';
+        $out .= '<p class="user-settings-lead">' . rcube::Q($this->gettext('responseslead')) . '</p>';
+        $out .= '</div>';
+        $out .= '<button type="button" class="button mainaction create" data-href="'
+            . rcube::Q($createUrl) . '">' . rcube::Q($rcmail->gettext('create')) . '</button>';
+        $out .= '</div>';
+
+        if (empty($list)) {
+            return $out . '<p class="user-settings-empty">' . rcube::Q($this->gettext('responseempty')) . '</p>';
+        }
+
+        $out .= '<div class="user-responses-table-wrap">';
+        $out .= '<table class="user-responses-table">';
+        $out .= '<thead><tr>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('responsename')) . '</th>';
+        $out .= '<th scope="col">' . rcube::Q($this->gettext('responsepreview')) . '</th>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('actions')) . '</th>';
+        $out .= '</tr></thead><tbody>';
+
+        foreach ($list as $item) {
+            $id = (string) ($item['id'] ?? '');
+            $record = $rcmail->get_compose_response($id);
+            $static = !empty($item['static']) || !empty($record['static']);
+            $name = (string) ($item['name'] ?? '');
+            $preview = '';
+
+            if (is_array($record)) {
+                $preview = trim(strip_tags((string) ($record['data'] ?? '')));
+                $preview = function_exists('mb_substr') ? mb_substr($preview, 0, 120) : substr($preview, 0, 120);
+            }
+
+            $out .= '<tr>';
+            $out .= '<td class="user-responses-name">' . rcube::Q($name);
+            if ($static) {
+                $out .= ' <span class="user-responses-badge">' . rcube::Q($this->gettext('staticresponse')) . '</span>';
+            }
+            $out .= '</td>';
+            $out .= '<td class="user-responses-preview">' . rcube::Q($preview) . '</td>';
+            $out .= '<td class="user-responses-actions"><div class="user-actions">';
+
+            if ($static) {
+                $viewUrl = $rcmail->url([
+                    '_task' => 'settings',
+                    '_action' => 'plugin.user',
+                    '_tab' => 'responses',
+                    '_rid' => $id,
+                ]);
+                $out .= '<button type="button" class="button view" data-href="'
+                    . rcube::Q($viewUrl) . '">' . rcube::Q($this->gettext('viewresponse')) . '</button>';
+                $out .= '<span class="user-settings-hint">' . rcube::Q($this->gettext('readonlyresponse')) . '</span>';
+            } else {
+                $editUrl = $rcmail->url([
+                    '_task' => 'settings',
+                    '_action' => 'plugin.user',
+                    '_tab' => 'responses',
+                    '_rid' => $id,
+                ]);
+                $out .= '<button type="button" class="button edit" data-href="'
+                    . rcube::Q($editUrl) . '">' . rcube::Q($this->gettext('editresponse')) . '</button>';
+                $out .= '<form class="user-response-delete" method="post"'
+                    . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-response-delete'])) . '"'
+                    . ' onsubmit="return confirm(\'' . rcube::JQ($this->gettext('confirmdeleteresponse')) . '\');">';
+                $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+                $out .= '<input type="hidden" name="_tab" value="responses">';
+                $out .= '<input type="hidden" name="_id" value="' . rcube::Q($id) . '">';
+                $out .= '<button class="button delete" type="submit">'
+                    . rcube::Q($this->gettext('deleteresponse')) . '</button>';
+                $out .= '</form>';
+            }
+
+            $out .= '</div></td></tr>';
+        }
+
+        $out .= '</tbody></table></div>';
+
+        return $out;
+    }
+
+    /**
+     * Save a canned response.
+     */
+    public function save_response()
+    {
+        $rcmail = rcmail::get_instance();
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'responses'];
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $id = trim((string) rcube_utils::get_input_value('_id', rcube_utils::INPUT_POST));
+        $name = trim((string) rcube_utils::get_input_value('_name', rcube_utils::INPUT_POST));
+        $text = trim((string) rcube_utils::get_input_value('_text', rcube_utils::INPUT_POST, true));
+        $isHtml = (bool) rcube_utils::get_input_value('_is_html', rcube_utils::INPUT_POST);
+
+        if ($name === '' || $text === '') {
+            $this->flash($this->gettext('responseincomplete'), 'error');
+            $redirect['_rid'] = $id !== '' ? $id : 'new';
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $record = ['name' => $name, 'data' => $text, 'is_html' => $isHtml];
+
+        if ($isHtml) {
+            $text = rcmail_action_settings_index::attach_images($text, 'response');
+            $record['data'] = rcmail_action_settings_index::wash_html($text);
+        }
+
+        if ($id !== '' && $id !== 'new' && is_numeric($id)) {
+            $saved = $rcmail->user->update_response((int) $id, $record);
+            $message = $this->gettext('responseupdated');
+        } else {
+            $saved = $rcmail->user->insert_response($record);
+            $message = $this->gettext('responsecreated');
+        }
+
+        $this->flash($saved ? $message : $this->gettext('responseerror'), $saved ? 'confirmation' : 'error');
+        $rcmail->output->redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Delete a canned response.
+     */
+    public function delete_response()
+    {
+        $rcmail = rcmail::get_instance();
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'responses'];
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $id = trim((string) rcube_utils::get_input_value('_id', rcube_utils::INPUT_POST));
+
+        if ($id === '' || !is_numeric($id)) {
+            $this->flash($this->gettext('responseerror'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $deleted = $rcmail->user->delete_response((int) $id);
+        $this->flash(
+            $deleted ? $this->gettext('responsedeleted') : $this->gettext('responseerror'),
+            $deleted ? 'confirmation' : 'error'
+        );
+        $rcmail->output->redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Render the folder management tab.
+     */
+    private function folders_panel(string $activeTab): string
+    {
+        $new = (bool) rcube_utils::get_input_value('_fnew', rcube_utils::INPUT_GP);
+        $mbox = trim((string) rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GP, true));
+
+        $out = '<div class="user-settings-panel" id="user-panel-mailfolders" role="tabpanel"'
+            . ' aria-labelledby="user-tab-mailfolders" data-panel="mailfolders"'
+            . ($activeTab === 'mailfolders' ? '' : ' hidden') . '>';
+
+        $out .= $new || $mbox !== '' ? $this->folder_form($new ? null : $mbox) : $this->folders_list();
+
+        return $out . '</div>';
+    }
+
+    /**
+     * Build the folder list with management actions.
+     */
+    private function folders_list(): string
+    {
+        $rcmail = rcmail::get_instance();
+        $storage = $rcmail->get_storage();
+        $folders = [];
+
+        try {
+            $folders = $storage->list_folders('', '*', null, null, false);
+        } catch (\Throwable $e) {
+            // shown as an empty list below
+        }
+
+        $createUrl = $rcmail->url([
+            '_task' => 'settings',
+            '_action' => 'plugin.user',
+            '_tab' => 'mailfolders',
+            '_fnew' => 1,
+        ]);
+
+        $out = '<div class="user-settings-head user-responses-head">';
+        $out .= '<div>';
+        $out .= '<h3>' . rcube::Q($this->gettext('tabmailfolders')) . '</h3>';
+        $out .= '<p class="user-settings-lead">' . rcube::Q($this->gettext('folderslead')) . '</p>';
+        $out .= '</div>';
+        $out .= '<button type="button" class="button mainaction create" data-href="'
+            . rcube::Q($createUrl) . '">' . rcube::Q($rcmail->gettext('create')) . '</button>';
+        $out .= '</div>';
+
+        if (empty($folders)) {
+            return $out . '<p class="user-settings-empty">' . rcube::Q($this->gettext('folderempty')) . '</p>';
+        }
+
+        $out .= '<div class="user-responses-table-wrap">';
+        $out .= '<table class="user-responses-table user-folders-table">';
+        $out .= '<thead><tr>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('folders')) . '</th>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('actions')) . '</th>';
+        $out .= '</tr></thead><tbody>';
+
+        foreach ($folders as $folder) {
+            $options = rcmail_action_settings_folders::folder_options($folder);
+            $protected = !empty($options['protected']);
+            $norename = $protected || !empty($options['norename']);
+            $display = rcmail_action::localize_foldername($folder, true, false);
+
+            $out .= '<tr>';
+            $out .= '<td class="user-responses-name">' . rcube::Q($display) . '</td>';
+            $out .= '<td class="user-responses-actions"><div class="user-actions">';
+
+            if ($norename) {
+                $out .= '<span class="user-settings-hint">' . rcube::Q($this->gettext('foldersreadonly')) . '</span>';
+            } else {
+                $editUrl = $rcmail->url([
+                    '_task' => 'settings',
+                    '_action' => 'plugin.user',
+                    '_tab' => 'mailfolders',
+                    '_mbox' => $folder,
+                ]);
+                $out .= '<button type="button" class="button edit" data-href="'
+                    . rcube::Q($editUrl) . '">' . rcube::Q($rcmail->gettext('edit')) . '</button>';
+            }
+
+            if (!$protected) {
+                $out .= '<form class="user-response-delete" method="post"'
+                    . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-folder-delete'])) . '"'
+                    . ' onsubmit="return confirm(\'' . rcube::JQ($this->gettext('deletefolderconfirm')) . '\');">';
+                $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+                $out .= '<input type="hidden" name="_tab" value="mailfolders">';
+                $out .= '<input type="hidden" name="_mbox" value="' . rcube::Q($folder) . '">';
+                $out .= '<button class="button delete" type="submit">'
+                    . rcube::Q($rcmail->gettext('delete')) . '</button>';
+                $out .= '</form>';
+            }
+
+            $out .= '</div></td></tr>';
+        }
+
+        $out .= '</tbody></table></div>';
+
+        return $out;
+    }
+
+    /**
+     * Build the create/edit form for a folder.
+     */
+    private function folder_form(?string $folder): string
+    {
+        $rcmail = rcmail::get_instance();
+        $storage = $rcmail->get_storage();
+        $delimiter = $storage->get_hierarchy_delimiter();
+        $isNew = $folder === null;
+        $parent = $isNew ? (string) rcube_utils::get_input_value('_parent', rcube_utils::INPUT_GP, true) : '';
+        $leaf = '';
+
+        if (!$isNew) {
+            $options = rcmail_action_settings_folders::folder_options($folder);
+
+            if (!empty($options['protected']) || !empty($options['norename'])) {
+                return '<div class="user-settings-head"><h3>'
+                    . rcube::Q($rcmail->gettext('folderproperties')) . '</h3>'
+                    . '<p class="user-settings-hint">' . rcube::Q($this->gettext('foldersreadonly')) . '</p></div>'
+                    . '<p class="user-responses-name">'
+                    . rcube::Q(rcmail_action::localize_foldername($folder, true, false)) . '</p>'
+                    . $this->management_back_link('mailfolders');
+            }
+
+            $parts = explode($delimiter, $folder);
+            $leaf = rcube_charset::convert((string) array_pop($parts), 'UTF7-IMAP');
+            $parent = implode($delimiter, $parts);
+        }
+
+        $out = '<div class="user-settings-head">';
+        $out .= '<h3>' . rcube::Q($isNew ? $this->gettext('newfolder') : $this->gettext('editfolder')) . '</h3>';
+        $out .= '</div>';
+
+        $out .= '<form class="user-settings-form" method="post"'
+            . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-folder-save'])) . '">';
+        $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+        $out .= '<input type="hidden" name="_tab" value="mailfolders">';
+        $out .= '<input type="hidden" name="_do" value="' . ($isNew ? 'create' : 'rename') . '">';
+
+        if (!$isNew) {
+            $out .= '<input type="hidden" name="_mbox" value="' . rcube::Q($folder) . '">';
+        }
+
+        $out .= '<div class="user-settings-field">';
+        $out .= '<label for="user-folder-name">' . rcube::Q($rcmail->gettext('foldername')) . '</label>';
+        $out .= '<input id="user-folder-name" name="_name" type="text" maxlength="128" required'
+            . ' value="' . rcube::Q($leaf) . '">';
+        $out .= '</div>';
+
+        if ($isNew) {
+            $out .= '<div class="user-settings-field">';
+            $out .= '<label for="user-folder-parent">' . rcube::Q($rcmail->gettext('parentfolder')) . '</label>';
+            $out .= '<select id="user-folder-parent" name="_parent" class="user-settings-select">';
+            $out .= '<option value="">' . rcube::Q($this->gettext('folderroot')) . '</option>';
+
+            try {
+                $folders = $storage->list_folders('', '*', null, null, false);
+            } catch (\Throwable $e) {
+                $folders = [];
+            }
+
+            foreach ($folders as $item) {
+                $out .= '<option value="' . rcube::Q($item) . '"' . ($item === $parent ? ' selected' : '') . '>'
+                    . rcube::Q(rcmail_action::localize_foldername($item, true, false)) . '</option>';
+            }
+
+            $out .= '</select>';
+            $out .= '</div>';
+        }
+
+        $out .= '<div class="user-settings-actions">';
+        $out .= '<button class="button mainaction" type="submit">'
+            . rcube::Q($rcmail->gettext('save')) . '</button>';
+        $out .= $this->management_back_link('mailfolders');
+        $out .= '</div>';
+        $out .= '</form>';
+
+        return $out;
+    }
+
+    /**
+     * Save a folder (create or rename).
+     */
+    public function save_folder()
+    {
+        $rcmail = rcmail::get_instance();
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'mailfolders'];
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $do = (string) rcube_utils::get_input_value('_do', rcube_utils::INPUT_POST);
+        $name = trim((string) rcube_utils::get_input_value('_name', rcube_utils::INPUT_POST, true));
+        $parent = (string) rcube_utils::get_input_value('_parent', rcube_utils::INPUT_POST, true);
+        $mbox = (string) rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true);
+        $storage = $rcmail->get_storage();
+        $delimiter = $storage->get_hierarchy_delimiter();
+        $error = '';
+
+        if ($name === '') {
+            $error = $this->gettext('folderincomplete');
+        } elseif (mb_strlen($name) > 128) {
+            $error = $rcmail->gettext('nametoolong');
+        } elseif ($name[0] === '.' && $rcmail->config->get('imap_skip_hidden_folders')) {
+            $error = $rcmail->gettext('namedotforbidden');
+        } else {
+            $char = null;
+
+            if (!$storage->folder_validate($name, $char)) {
+                $error = $rcmail->gettext('forbiddencharacter') . ($char ? " ({$char})" : '');
+            }
+        }
+
+        if ($error === '') {
+            $name_imap = rcube_charset::convert($name, RCUBE_CHARSET, 'UTF7-IMAP');
+            $saved = false;
+            $message = $this->gettext('foldererror');
+
+            try {
+                if ($do === 'create') {
+                    $full = $parent !== '' ? $parent . $delimiter . $name_imap : $storage->mod_folder($name_imap, 'in');
+                    $saved = $storage->create_folder($full, true);
+                    $message = $this->gettext('foldercreated');
+                } else {
+                    $options = rcmail_action_settings_folders::folder_options($mbox);
+
+                    if (!empty($options['protected']) || !empty($options['norename'])) {
+                        $error = $this->gettext('foldererror');
+                    } else {
+                        $parts = explode($delimiter, $mbox);
+                        array_pop($parts);
+                        $old_parent = implode($delimiter, $parts);
+                        $full = $old_parent !== '' ? $old_parent . $delimiter . $name_imap : $storage->mod_folder($name_imap, 'in');
+                        $saved = $storage->rename_folder($mbox, $full);
+                        $message = $this->gettext('folderupdated');
+                    }
+                }
+            } catch (\Throwable $e) {
+                $error = $this->gettext('foldererror');
+            }
+
+            if ($error === '') {
+                $saved = $saved ?? false;
+                $this->flash($saved ? $message : $this->gettext('foldererror'), $saved ? 'confirmation' : 'error');
+                $rcmail->output->redirect($redirect);
+                exit;
+            }
+        }
+
+        $this->flash($error, 'error');
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+        } else {
+            $rcmail->output->redirect($redirect + ($do === 'create' ? ['_fnew' => 1] : ['_mbox' => $mbox]));
+        }
+        exit;
+    }
+
+    /**
+     * Delete a folder.
+     */
+    public function delete_folder()
+    {
+        $rcmail = rcmail::get_instance();
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'mailfolders'];
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $mbox = (string) rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST, true);
+
+        if ($mbox === '') {
+            $this->flash($this->gettext('foldererror'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $options = rcmail_action_settings_folders::folder_options($mbox);
+
+        if (!empty($options['protected'])) {
+            $this->flash($this->gettext('foldersreadonly'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        try {
+            $deleted = $rcmail->get_storage()->delete_folder($mbox);
+        } catch (\Throwable $e) {
+            $deleted = false;
+        }
+
+        $this->flash(
+            $deleted ? $this->gettext('folderdeleted') : $this->gettext('foldererror'),
+            $deleted ? 'confirmation' : 'error'
+        );
+        $rcmail->output->redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Render the identities management tab.
+     */
+    private function identities_panel(string $activeTab): string
+    {
+        $iid = trim((string) rcube_utils::get_input_value('_iid', rcube_utils::INPUT_GP));
+
+        $out = '<div class="user-settings-panel" id="user-panel-identities" role="tabpanel"'
+            . ' aria-labelledby="user-tab-identities" data-panel="identities"'
+            . ($activeTab === 'identities' ? '' : ' hidden') . '>';
+
+        $out .= $iid !== '' ? $this->identity_form($iid) : $this->identities_list();
+
+        return $out . '</div>';
+    }
+
+    /**
+     * Build the identity list with management actions.
+     */
+    private function identities_list(): string
+    {
+        $rcmail = rcmail::get_instance();
+        $identities = $rcmail->user->list_identities('', true);
+        $count = count($identities);
+        $level = (int) $rcmail->config->get('identities_level', 0);
+        $createUrl = $rcmail->url([
+            '_task' => 'settings',
+            '_action' => 'plugin.user',
+            '_tab' => 'identities',
+            '_iid' => 'new',
+        ]);
+
+        $out = '<div class="user-settings-head user-responses-head">';
+        $out .= '<div>';
+        $out .= '<h3>' . rcube::Q($this->gettext('tabidentities')) . '</h3>';
+        $out .= '<p class="user-settings-lead">' . rcube::Q($this->gettext('identitieslead')) . '</p>';
+        $out .= '</div>';
+
+        if ($level < 2) {
+            $out .= '<button type="button" class="button mainaction create" data-href="'
+                . rcube::Q($createUrl) . '">' . rcube::Q($rcmail->gettext('create')) . '</button>';
+        }
+
+        $out .= '</div>';
+
+        if (empty($identities)) {
+            return $out . '<p class="user-settings-empty">' . rcube::Q($this->gettext('identityempty')) . '</p>';
+        }
+
+        $out .= '<div class="user-responses-table-wrap">';
+        $out .= '<table class="user-responses-table user-identities-table">';
+        $out .= '<thead><tr>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('name')) . '</th>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('email')) . '</th>';
+        $out .= '<th scope="col">' . rcube::Q($rcmail->gettext('actions')) . '</th>';
+        $out .= '</tr></thead><tbody>';
+
+        foreach ($identities as $identity) {
+            $id = (int) $identity['identity_id'];
+            $standard = !empty($identity['standard']);
+            $name = trim((string) ($identity['name'] ?? ''));
+            $email = (string) ($identity['email'] ?? '');
+            $nameLabel = $name !== ''
+                ? rcube::Q($name)
+                : '<span class="user-muted">' . rcube::Q($this->gettext('noname')) . '</span>';
+
+            $out .= '<tr>';
+            $out .= '<td class="user-responses-name">' . $nameLabel;
+            if ($standard) {
+                $out .= ' <span class="user-responses-badge">' . rcube::Q($this->gettext('defaultidentity')) . '</span>';
+            }
+            $out .= '</td>';
+            $out .= '<td class="user-responses-preview">' . rcube::Q($email) . '</td>';
+            $out .= '<td class="user-responses-actions"><div class="user-actions">';
+
+            $editUrl = $rcmail->url([
+                '_task' => 'settings',
+                '_action' => 'plugin.user',
+                '_tab' => 'identities',
+                '_iid' => $id,
+            ]);
+            $out .= '<button type="button" class="button edit" data-href="'
+                . rcube::Q($editUrl) . '">' . rcube::Q($rcmail->gettext('edit')) . '</button>';
+
+            if (!$standard) {
+                $out .= '<form class="user-response-delete" method="post"'
+                    . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-identity-default'])) . '">';
+                $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+                $out .= '<input type="hidden" name="_tab" value="identities">';
+                $out .= '<input type="hidden" name="_iid" value="' . $id . '">';
+                $out .= '<button class="button yes" type="submit">'
+                    . rcube::Q($this->gettext('makedefault')) . '</button>';
+                $out .= '</form>';
+            }
+
+            if ($count > 1) {
+                $out .= '<form class="user-response-delete" method="post"'
+                    . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-identity-delete'])) . '"'
+                    . ' onsubmit="return confirm(\'' . rcube::JQ($this->gettext('deleteidentityconfirm')) . '\');">';
+                $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+                $out .= '<input type="hidden" name="_tab" value="identities">';
+                $out .= '<input type="hidden" name="_iid" value="' . $id . '">';
+                $out .= '<button class="button delete" type="submit">'
+                    . rcube::Q($rcmail->gettext('delete')) . '</button>';
+                $out .= '</form>';
+            }
+
+            $out .= '</div></td></tr>';
+        }
+
+        $out .= '</tbody></table></div>';
+
+        return $out;
+    }
+
+    /**
+     * Build the create/edit form for an identity.
+     */
+    private function identity_form(string $id): string
+    {
+        $rcmail = rcmail::get_instance();
+        $isNew = $id === '' || $id === 'new';
+        $identity = $isNew ? [] : $rcmail->user->get_identity($id);
+
+        if (!$isNew && !is_array($identity)) {
+            return '<p class="user-settings-error">' . rcube::Q($this->gettext('identityerror')) . '</p>'
+                . $this->management_back_link('identities');
+        }
+
+        $level = (int) $rcmail->config->get('identities_level', 0);
+
+        if ($isNew && $level >= 2) {
+            return '<p class="user-settings-error">' . rcube::Q($this->gettext('identityerror')) . '</p>'
+                . $this->management_back_link('identities');
+        }
+
+        $emailLocked = in_array($level, [1, 3, 4], true);
+        $signatureOnly = $level === 4;
+        $hideDefault = $level > 1;
+
+        $out = '<div class="user-settings-head">';
+        $out .= '<h3>' . rcube::Q($isNew ? $this->gettext('newidentity') : $rcmail->gettext('editidentity')) . '</h3>';
+        $out .= '</div>';
+
+        $out .= '<form class="user-settings-form" method="post"'
+            . ' action="' . rcube::Q($rcmail->url(['_task' => 'settings', '_action' => 'plugin.user-identity-save'])) . '">';
+        $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
+        $out .= '<input type="hidden" name="_tab" value="identities">';
+        $out .= '<input type="hidden" name="_iid" value="' . rcube::Q($isNew ? 'new' : (string) $identity['identity_id']) . '">';
+
+        $fields = [
+            'name' => ['label' => $rcmail->gettext('name'), 'type' => 'text', 'maxlength' => 128],
+            'email' => ['label' => $rcmail->gettext('email'), 'type' => 'email', 'maxlength' => 320],
+            'organization' => ['label' => $rcmail->gettext('organization'), 'type' => 'text', 'maxlength' => 128],
+            'reply-to' => ['label' => $rcmail->gettext('replyto'), 'type' => 'text', 'maxlength' => 320],
+            'bcc' => ['label' => $rcmail->gettext('bcc'), 'type' => 'text', 'maxlength' => 320],
+        ];
+
+        foreach ($fields as $field => $meta) {
+            $value = (string) ($identity[$field] ?? '');
+            $disabled = $signatureOnly || ($field === 'email' && $emailLocked);
+
+            $out .= '<div class="user-settings-field">';
+            $out .= '<label for="user-identity-' . rcube::Q($field) . '">' . rcube::Q($meta['label']) . '</label>';
+            $out .= '<input id="user-identity-' . rcube::Q($field) . '" name="_' . rcube::Q($field) . '"'
+                . ' type="' . rcube::Q($meta['type']) . '" maxlength="' . (int) $meta['maxlength'] . '"'
+                . ($field === 'email' ? ' required' : '')
+                . ' value="' . rcube::Q($value) . '"' . ($disabled ? ' readonly' : '') . '>';
+            $out .= '</div>';
+        }
+
+        if (!$hideDefault) {
+            $out .= '<label class="user-settings-check">';
+            $out .= '<input type="checkbox" name="_standard" value="1"'
+                . (!empty($identity['standard']) ? ' checked' : '') . ($signatureOnly ? ' disabled' : '') . '>';
+            $out .= '<span>' . rcube::Q($rcmail->gettext('setdefault')) . '</span>';
+            $out .= '</label>';
+        }
+
+        $out .= '<div class="user-settings-field">';
+        $out .= '<label for="user-identity-signature">' . rcube::Q($rcmail->gettext('signature')) . '</label>';
+        $out .= '<textarea id="user-identity-signature" name="_signature" rows="8">'
+            . rcube::Q((string) ($identity['signature'] ?? '')) . '</textarea>';
+        $out .= '</div>';
+
+        $out .= '<label class="user-settings-check">';
+        $out .= '<input type="checkbox" name="_html_signature" value="1"'
+            . (!empty($identity['html_signature']) ? ' checked' : '') . '>';
+        $out .= '<span>' . rcube::Q($rcmail->gettext('htmlsignature')) . '</span>';
+        $out .= '</label>';
+
+        $out .= '<div class="user-settings-actions">';
+        $out .= '<button class="button mainaction" type="submit">'
+            . rcube::Q($rcmail->gettext('save')) . '</button>';
+        $out .= $this->management_back_link('identities');
+        $out .= '</div>';
+        $out .= '</form>';
+
+        return $out;
+    }
+
+    /**
+     * Save an identity.
+     */
+    public function save_identity()
+    {
+        $rcmail = rcmail::get_instance();
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'identities'];
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $iid = trim((string) rcube_utils::get_input_value('_iid', rcube_utils::INPUT_POST));
+        $isNew = $iid === '' || $iid === 'new';
+        $level = (int) $rcmail->config->get('identities_level', 0);
+
+        if ($isNew && $level >= 2) {
+            $this->flash($this->gettext('identityerror'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $data = [
+            'name' => trim((string) rcube_utils::get_input_value('_name', rcube_utils::INPUT_POST, true)),
+            'email' => trim((string) rcube_utils::get_input_value('_email', rcube_utils::INPUT_POST, true)),
+            'organization' => trim((string) rcube_utils::get_input_value('_organization', rcube_utils::INPUT_POST, true)),
+            'reply-to' => trim((string) rcube_utils::get_input_value('_reply-to', rcube_utils::INPUT_POST, true)),
+            'bcc' => trim((string) rcube_utils::get_input_value('_bcc', rcube_utils::INPUT_POST, true)),
+            'signature' => (string) rcube_utils::get_input_value('_signature', rcube_utils::INPUT_POST, true),
+            'html_signature' => (int) (bool) rcube_utils::get_input_value('_html_signature', rcube_utils::INPUT_POST),
+            'standard' => (int) (bool) rcube_utils::get_input_value('_standard', rcube_utils::INPUT_POST),
+        ];
+
+        if (in_array($level, [1, 3], true)) {
+            $data['email'] = $rcmail->get_user_email();
+        }
+
+        if ($level === 4) {
+            $data = [
+                'signature' => $data['signature'],
+                'html_signature' => $data['html_signature'],
+                'standard' => $data['standard'],
+            ];
+        }
+
+        if ($level > 1) {
+            $data['standard'] = 1;
+        }
+
+        if (($level === 0 || $level === 2) && $data['email'] === '') {
+            $this->flash($this->gettext('identityincomplete'), 'error');
+            $rcmail->output->redirect($redirect + ['_iid' => $isNew ? 'new' : $iid]);
+            exit;
+        }
+
+        $addresses = [];
+
+        if (!empty($data['email'])) {
+            $addresses[] = rcube_utils::idn_to_ascii($data['email']);
+        }
+
+        foreach (['reply-to', 'bcc'] as $field) {
+            if (!empty($data[$field])) {
+                foreach (rcube_mime::decode_address_list($data[$field], null, false) as $rcpt) {
+                    if (!empty($rcpt['mailto'])) {
+                        $addresses[] = rcube_utils::idn_to_ascii($rcpt['mailto']);
+                    }
+                }
+            }
+        }
+
+        foreach ($addresses as $address) {
+            if (!rcube_utils::check_email($address)) {
+                $this->flash($this->gettext('identityemailinvalid'), 'error');
+                $rcmail->output->redirect($redirect + ['_iid' => $isNew ? 'new' : $iid]);
+                exit;
+            }
+        }
+
+        if (!empty($data['email'])) {
+            $data['email'] = rcube_utils::idn_to_ascii($data['email']);
+        }
+
+        if (!empty($data['signature']) && !empty($data['html_signature'])) {
+            $data['signature'] = rcmail_action_settings_index::attach_images($data['signature'], 'identity');
+            $data['signature'] = rcmail_action_settings_index::wash_html($data['signature']);
+        }
+
+        if ($isNew) {
+            $saved = $rcmail->user->insert_identity($data);
+            $message = $this->gettext('identitycreated');
+            $savedId = $saved ? (int) $saved : 0;
+        } else {
+            $saved = $rcmail->user->update_identity((int) $iid, $data);
+            $message = $this->gettext('identityupdated');
+            $savedId = (int) $iid;
+        }
+
+        if ($saved && !empty($data['standard'])) {
+            $rcmail->user->set_default($savedId);
+        }
+
+        $this->flash($saved ? $message : $this->gettext('identityerror'), $saved ? 'confirmation' : 'error');
+        $rcmail->output->redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Delete an identity.
+     */
+    public function delete_identity()
+    {
+        $rcmail = rcmail::get_instance();
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'identities'];
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $iid = trim((string) rcube_utils::get_input_value('_iid', rcube_utils::INPUT_POST));
+
+        if ($iid === '' || !is_numeric($iid)) {
+            $this->flash($this->gettext('identityerror'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $deleted = $rcmail->user->delete_identity((int) $iid);
+
+        if ($deleted === -1) {
+            $this->flash($this->gettext('identitylast'), 'error');
+        } else {
+            $this->flash(
+                $deleted ? $this->gettext('identitydeleted') : $this->gettext('identityerror'),
+                $deleted ? 'confirmation' : 'error'
+            );
+        }
+
+        $rcmail->output->redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Make an identity the default one.
+     */
+    public function default_identity()
+    {
+        $rcmail = rcmail::get_instance();
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => 'identities'];
+
+        if (!$rcmail->user->ID) {
+            $rcmail->output->redirect(['_task' => 'login']);
+            exit;
+        }
+
+        if (!$rcmail->check_request()) {
+            $this->flash($this->gettext('errorcsrf'), 'error');
+            $rcmail->output->redirect($redirect);
+            exit;
+        }
+
+        $iid = trim((string) rcube_utils::get_input_value('_iid', rcube_utils::INPUT_POST));
+        $updated = false;
+
+        if ($iid !== '' && is_numeric($iid)) {
+            $rcmail->user->set_default((int) $iid);
+            $updated = true;
+        }
+
+        $this->flash(
+            $updated ? $this->gettext('identityupdated') : $this->gettext('identityerror'),
+            $updated ? 'confirmation' : 'error'
+        );
+        $rcmail->output->redirect($redirect);
+        exit;
+    }
+
+    /**
+     * Link back to a management tab.
+     */
+    private function management_back_link(string $tab): string
+    {
+        $rcmail = rcmail::get_instance();
+        $url = $rcmail->url(['_task' => 'settings', '_action' => 'plugin.user', '_tab' => $tab]);
+
+        return '<button type="button" class="button cancel" data-href="'
+            . rcube::Q($url) . '">' . rcube::Q($rcmail->gettext('cancel')) . '</button>';
     }
 
     /**
@@ -1806,6 +2833,24 @@ class user extends rcube_plugin
     private function skin_colors_enabled(): bool
     {
         return (bool) rcmail::get_instance()->config->get('user_enable_skin_colors', true);
+    }
+
+    /**
+     * Build the CSS variables for one palette without overriding skin rules.
+     */
+    private function build_variable_style(array $colors): string
+    {
+        $light = $colors['light'];
+        $dark = $colors['dark'];
+
+        return '<style id="user-skin-colors">'
+            . ':root{--user-accent:' . $light['accent'] . ';--user-menu:' . $light['menu'] . ';'
+            . '--user-background:' . $light['background'] . ';--user-text:' . $light['text'] . ';'
+            . '--user-selection:' . $light['selection'] . ';}'
+            . 'html.dark-mode{--user-accent:' . $dark['accent'] . ';--user-menu:' . $dark['menu'] . ';'
+            . '--user-background:' . $dark['background'] . ';--user-text:' . $dark['text'] . ';'
+            . '--user-selection:' . $dark['selection'] . ';}'
+            . '</style>';
     }
 
     /**

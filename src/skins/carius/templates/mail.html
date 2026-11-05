@@ -8,8 +8,6 @@
 	<div class="header">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span class="header-title username"><roundcube:object name="username" /></span>
-		<roundcube:button name="folderactions" type="link" title="folderactions" label="actions"
-			class="button icon sidebar-menu" innerclass="inner" data-popup="mailboxoptions-menu" />
 	</div>
 	<h2 id="aria-label-folderlist" class="voice"><roundcube:label name="arialabelfolderlist" /></h2>
 	<div id="folderlist-content" class="scroller">
@@ -50,6 +48,8 @@
 				label="refresh" title="checkmail" innerclass="inner" />
 			<roundcube:container name="listcontrols" id="listcontrols" />
 			<a class="button icon toolbar-menu-button" href="#list-menu"><span class="inner"><roundcube:label name="menu" /></span></a>
+			<roundcube:button name="folderactions" type="link" title="folderactions" label="actions"
+				class="button icon folderactions" innerclass="inner" data-popup="mailboxoptions-menu" />
 		</div>
 	</div>
 	<roundcube:add_label name="showunread" />

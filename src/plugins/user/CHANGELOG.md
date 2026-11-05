@@ -3,6 +3,25 @@
 All notable changes to the User plugin are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## 1.8.0 - 2026-11-05
+
+- Move folder management into a **Folders** tab on the preferences page, with a
+  list to create, rename and delete mail folders.
+- Move identity management into an **Identities** tab on the preferences page,
+  with a list to create, edit, delete and set the default identity.
+- Remove the standalone **Folders** and **Identities** entries from the settings
+  navigation.
+- Match the preferences UI to the active skin accent and modernize tabs,
+  buttons, form controls and management tables.
+- Respect `identities_level` when creating new identities and validate the
+  reply-to and BCC addresses.
+
+## 1.7.0 - 2026-11-05
+
+- Move canned responses management into a **Responses** tab on the preferences
+  page, with a list to view, create, edit and delete responses.
+- Remove the standalone **Responses** entry from the settings navigation.
+
 ## 1.6.0 - 2026-11-04
 
 - Show the INBOX unread count in the Canga menu on every task, using the last

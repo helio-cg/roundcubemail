@@ -15,6 +15,7 @@
         var tabs = root.querySelectorAll('.user-settings-tab[data-tab]');
         var panels = root.querySelectorAll('.user-settings-panel[data-panel]');
         var activeTabInput = root.querySelector('#user-active-tab');
+        var prefsActions = root.querySelector('.user-settings-prefs-actions');
         var htmlInput = root.querySelector('#user-prefer-html');
         var showImagesInput = root.querySelector('#user-show-images');
 
@@ -129,6 +130,16 @@
             panels.forEach(function (panel) {
                 panel.hidden = panel.getAttribute('data-panel') !== name;
             });
+
+            if (prefsActions) {
+                prefsActions.hidden = ['responses', 'mailfolders', 'identities'].indexOf(name) !== -1;
+            }
+
+            if (window.history && window.history.replaceState) {
+                var url = new URL(window.location.href);
+                url.searchParams.set('_tab', name);
+                window.history.replaceState({}, '', url.toString());
+            }
         }
 
         function syncShowImages() {
@@ -136,6 +147,12 @@
                 showImagesInput.disabled = !htmlInput.checked;
             }
         }
+
+        root.querySelectorAll('[data-href]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                window.location.href = button.getAttribute('data-href');
+            }, false);
+        });
 
         tabs.forEach(function (tab, index) {
             tab.addEventListener('click', function () {

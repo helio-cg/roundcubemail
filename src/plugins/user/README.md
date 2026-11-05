@@ -3,7 +3,14 @@
 Adds a **User** section to Roundcube Settings with:
 
 - **Appearance**, **User interface**, **Messages**, **Composing Messages**,
-  **Contacts**, **Special Folders**, **Server Settings** and **Calendar** tabs;
+  **Contacts**, **Special Folders**, **Folders**, **Identities**,
+  **Server Settings**, **Responses** and **Calendar** tabs;
+- canned **Responses** management moved into the preferences page, with a list
+  to view, create, edit and delete the responses used when composing messages;
+- **Folders** management moved into the preferences page, with a list to create,
+  rename and delete mail folders;
+- **Identities** management moved into the preferences page, with a list to
+  create, edit, delete and set the default sender identity;
 - a display name for the current account, also shown next to the Canga logo
   (defaults to **Seu nome**);
 - the core interface preferences: language, time zone, date/time formats,

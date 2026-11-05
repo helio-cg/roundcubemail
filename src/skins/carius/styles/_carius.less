@@ -338,16 +338,6 @@ html.layout-phone #layout-menu.carius-topbar.hidden {
     outline: 0;
 }
 
-.carius-search:before {
-    .um-icon-solid(@fa-var-search);
-    float: none;
-    width: auto;
-    height: auto;
-    margin: 0;
-    font-size: 1.15rem;
-    line-height: 1;
-}
-
 .carius-bell:before {
     .um-icon-regular(@fa-var-bell);
     float: none;
@@ -631,12 +621,25 @@ html.dark-mode .carius-theme-toggle .carius-i-moon:before {
     height: 44px;
     min-height: 44px;
     padding: 0 14px;
-    justify-content: flex-end;
+    justify-content: flex-start;
     background: @um-sidebar;
 }
 
 #layout-sidebar > .header .header-title.username {
     display: none;
+}
+
+#layout-sidebar > .header .header-title,
+#layout-list > .header .header-title,
+#messagelist-header .header-title {
+    text-align: left;
+    margin: 0;
+}
+
+@media screen and (min-width: (@screen-width-large + 1px)) {
+    a.back-list-button {
+        display: none !important;
+    }
 }
 
 #layout-sidebar > .header a.button {
@@ -955,6 +958,7 @@ body.task-mail #messagelist-header .toolbar > .dropbutton {
 #layout-list .toolbar a.toolbar-menu-button:before,
 #layout-list .toolbar a.more:before { .um-icon-solid(@fa-var-ellipsis-h); }
 #layout-list .toolbar a.threads:before { .um-icon-regular(@fa-var-comments); }
+#layout-list .toolbar a.folderactions:before { .um-icon-solid(@fa-var-chevron-down); }
 
 #layout-list .toolbar .dropbutton {
     display: inline-flex;
@@ -1707,10 +1711,6 @@ body.task-login #login-footer a {
 }
 
 @media screen and (max-width: 560px) {
-    #layout-menu.carius-topbar .carius-search {
-        display: none;
-    }
-
     .carius-popover {
         position: fixed;
         top: 62px;
@@ -2485,6 +2485,16 @@ html.dark-mode {
         content: @fa-var-ellipsis-h;
         font-family: 'Icons';
         font-weight: 900;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.folderactions {
+        width: 38px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    #layout.carius-mail-layout #toolbar-list-menu > li > a.folderactions .inner {
+        display: none;
     }
 
     #layout.carius-mail-layout #toolbar-list-menu > li > a.disabled {
