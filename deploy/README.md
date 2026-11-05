@@ -322,10 +322,53 @@ comandos:
 - `rc-restore` — baixa, valida e restaura um backup;
 - `rc-backup-verify` — valida checksum/gzip/manifesto e as relações internas.
 
-A configuração fica em `/etc/roundcube/rc-backup.env` (criada a partir do
-exemplo no primeiro deploy; ajuste antes de usar).
+A configuração fica em `/etc/roundcube/rc-backup.env`. No primeiro deploy, se
+ainda não houver chaves do R2, o deploy pergunta os dados, testa leitura/escrita
+no bucket e só então grava o arquivo com modo `600`.
 
-### Configurar o R2
+### Primeiro deploy: configuração automática do R2
+
+O `./deploy/deploy.sh` verifica se `/etc/roundcube/rc-backup.env` já tem chaves
+do R2 (`RCLONE_CONFIG_*_ACCESS_KEY_ID`/`SECRET_ACCESS_KEY`). Se já tiver, segue
+com o deploy normal, sem perguntar nada.
+
+Se ainda não tiver, o primeiro deploy pergunta no terminal:
+
+- Account ID do R2 (ou a URL completa do endpoint);
+- Access Key ID e Secret Access Key;
+- bucket e prefixo;
+- se o `rclone` não estiver instalado, pergunta se pode instalar;
+- se o bucket não existir, pergunta se pode criá-lo.
+
+Antes de gravar a configuração final, o deploy faz um teste real de leitura e
+escrita no bucket. Só então gera `/etc/roundcube/rc-backup.env` (modo `600`) com
+as credenciais em variáveis `RCLONE_CONFIG_*`, sem depender de `rclone.conf`.
+
+Para automação (sem terminal), defina as variáveis no `deploy.env` ou no
+ambiente antes de rodar:
+
+```bash
+RC_R2_ACCOUNT_ID=...
+RC_R2_ACCESS_KEY_ID=...
+RC_R2_SECRET_ACCESS_KEY=...
+RC_R2_BUCKET=roundcube-backups
+RC_R2_PREFIX=roundcube-backups
+./deploy/deploy.sh root@servidor
+```
+
+Controles úteis:
+
+- `RC_CONFIGURE_R2=1` força reconfigurar mesmo que as chaves já existam;
+- `RC_CONFIGURE_R2=0` não mexe no R2;
+- `RC_R2_SKIP_SETUP=1` pula a configuração neste deploy (o backup não funciona
+  até ser configurado);
+- `RC_INSTALL_RCLONE=1` instala o rclone sem perguntar; `0` falha se ele faltar.
+
+Se já existir um remote rclone com o nome configurado (padrão `r2:`), o deploy
+reaproveita as chaves desse remote e pede apenas bucket e prefixo.
+
+### Configurar o R2 manualmente
+
 
 O backend recomendado é o `rclone`. Instale-o no servidor e crie o remote:
 
