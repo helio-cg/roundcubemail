@@ -59,8 +59,11 @@
 					<roundcube:container name="taskbar" id="taskmenu-taskbar" />
 					<roundcube:button command="addressbook" label="contacts" type="link" innerClass="inner"
 						class="contacts" classSel="contacts selected" />
-					<roundcube:button command="settings" label="settings" type="link" innerClass="inner"
-						class="settings" classSel="settings selected" />
+					<roundcube:if condition="env:task == 'settings'" />
+						<a class="settings selected" href="?_task=settings&amp;_action=plugin.user" role="button"><span class="inner"><roundcube:label name="preferences" /></span></a>
+					<roundcube:else />
+						<a class="settings" href="?_task=settings&amp;_action=plugin.user" role="button"><span class="inner"><roundcube:label name="preferences" /></span></a>
+					<roundcube:endif />
 					<span class="carius-native-theme" aria-hidden="true">
 						<roundcube:if condition="config:dark_mode_support" />
 							<roundcube:add_label name="darkmode" />
@@ -97,10 +100,6 @@
 									<span class="carius-account-email" data-email="<roundcube:object name="username" />"><roundcube:object name="username" /></span>
 								</span>
 							</div>
-							<a class="carius-menu-item" href="?_task=settings">
-								<span class="carius-menu-item-icon carius-i-settings"></span>
-								<span>Configurações</span>
-							</a>
 							<a class="carius-menu-item" href="?_task=settings&amp;_action=plugin.user">
 								<span class="carius-menu-item-icon carius-i-settings"></span>
 								<span>Preferências</span>

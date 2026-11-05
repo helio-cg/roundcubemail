@@ -15,7 +15,7 @@ RC_ROOT="${RC_ROOT:-/var/lib/roundcube}"
 RC_CONFIG_DIR="${RC_CONFIG_DIR:-/etc/roundcube}"
 RC_OWNER="${RC_OWNER:-hestiamail:www-data}"
 RC_SKIN="${RC_SKIN:-carius}"
-RC_SKINS="${RC_SKINS:-carius aurora iguatu canga}"
+RC_SKINS="${RC_SKINS:-carius iguatu canga}"
 RC_PLUGINS="${RC_PLUGINS:-calendar libcalendaring libkolab twofactor_gauthenticator user}"
 RC_VERSION_PREFIX="${RC_VERSION_PREFIX:-1.7.}"
 RC_ALLOW_VERSION_MISMATCH="${RC_ALLOW_VERSION_MISMATCH:-0}"
@@ -26,6 +26,8 @@ RC_KEEP_BACKUPS="${RC_KEEP_BACKUPS:-5}"
 RC_ROLLBACK_ON_FAILURE="${RC_ROLLBACK_ON_FAILURE:-1}"
 RC_HEALTH_URL="${RC_HEALTH_URL:-}"
 RC_SKIP_DB_BACKUP="${RC_SKIP_DB_BACKUP:-0}"
+RC_SPAMHAUS_UNBOUND="${RC_SPAMHAUS_UNBOUND:-0}"
+RC_SPAMHAUS_DNSBL="${RC_SPAMHAUS_DNSBL:-zen.spamhaus.org}"
 PHP_BIN="${PHP_BIN:-php}"
 
 case "$RC_KEEP_BACKUPS" in
@@ -122,13 +124,13 @@ dump_database() {
     [ -n "$DB_NAME" ] || return 1
     command -v mysqldump >/dev/null 2>&1 || return 1
 
-    if MYSQL_PWD="$DB_PASS" mysqldump --single-transaction --quick --no-tablespaces \
-        -h "$DB_HOST" -u "$DB_USER" "$DB_NAME" > "$BK/roundcube.sql" 2>/dev/null; then
+    if mysqldump --single-transaction --quick --no-tablespaces \
+        -h "$DB_HOST" -u "$DB_USER" --password="$DB_PASS" "$DB_NAME" > "$BK/roundcube.sql" 2>/dev/null; then
         return 0
     fi
 
-    if MYSQL_PWD="$DB_PASS" mysqldump --single-transaction --quick \
-        -h "$DB_HOST" -u "$DB_USER" "$DB_NAME" > "$BK/roundcube.sql" 2>/dev/null; then
+    if mysqldump --single-transaction --quick \
+        -h "$DB_HOST" -u "$DB_USER" --password="$DB_PASS" "$DB_NAME" > "$BK/roundcube.sql" 2>/dev/null; then
         return 0
     fi
 
@@ -155,14 +157,18 @@ write_restore_script() {
         else
             printf 'rm -f %s/rc-deploy.inc.php\n' "$q_config"
         fi
+        printf 'if [ -f %s/absent-skins.txt ]; then while IFS= read -r d; do if [ -n "$d" ]; then rm -rf %s/skins/"$d"; fi; done < %s/absent-skins.txt; fi\n' \
+            "$q_backup" "$q_root" "$q_backup"
+        printf 'if [ -f %s/absent-plugins.txt ]; then while IFS= read -r d; do if [ -n "$d" ]; then rm -rf %s/plugins/"$d"; fi; done < %s/absent-plugins.txt; fi\n' \
+            "$q_backup" "$q_root" "$q_backup"
         printf 'for f in %s/skin-*.tar.gz; do if [ -e "$f" ]; then tar -C %s/skins -xzf "$f"; fi; done\n' "$q_backup" "$q_root"
         printf 'for f in %s/plugin-*.tar.gz; do if [ -e "$f" ]; then tar -C %s/plugins -xzf "$f"; fi; done\n' "$q_backup" "$q_root"
         printf 'if [ -f %s/composer.json ]; then cp -a %s/composer.json %s/composer.json; fi\n' "$q_backup" "$q_backup" "$q_root"
         printf 'if [ -f %s/composer.lock ]; then cp -a %s/composer.lock %s/composer.lock; fi\n' "$q_backup" "$q_backup" "$q_root"
         printf 'if [ -f %s/vendor.tar.gz ]; then rm -rf %s/vendor && tar -C %s -xzf %s/vendor.tar.gz; fi\n' \
             "$q_backup" "$q_root" "$q_root" "$q_backup"
-        printf 'if [ -f %s/roundcube.sql ] && [ -n %s ]; then MYSQL_PWD=%s mysql -h %s -u %s %s < %s/roundcube.sql; fi\n' \
-            "$q_backup" "$q_name" "$q_pass" "$q_host" "$q_user" "$q_name" "$q_backup"
+        printf 'if [ -f %s/roundcube.sql ] && [ -n %s ]; then mysql -h %s -u %s --password=%s %s < %s/roundcube.sql; fi\n' \
+            "$q_backup" "$q_name" "$q_host" "$q_user" "$q_pass" "$q_name" "$q_backup"
         printf 'chown -R %s %s/skins %s/plugins %s/vendor %s/config.inc.php %s/rc-deploy.inc.php 2>/dev/null || true\n' \
             "$q_owner" "$q_root" "$q_root" "$q_root" "$q_config" "$q_config"
         printf 'chmod 640 %s/config.inc.php %s/rc-deploy.inc.php 2>/dev/null || true\n' "$q_config" "$q_config"
@@ -195,14 +201,22 @@ backup() {
         HAD_OVERLAY=1
     fi
 
+    : > "$BK/absent-skins.txt"
     for skin in $RC_SKINS; do
-        [ -d "$RC_ROOT/skins/$skin" ] || continue
-        tar -C "$RC_ROOT/skins" -czf "$BK/skin-$skin.tar.gz" "$skin"
+        if [ -d "$RC_ROOT/skins/$skin" ]; then
+            tar -C "$RC_ROOT/skins" -czf "$BK/skin-$skin.tar.gz" "$skin"
+        else
+            printf '%s\n' "$skin" >> "$BK/absent-skins.txt"
+        fi
     done
 
+    : > "$BK/absent-plugins.txt"
     for plugin in $RC_PLUGINS; do
-        [ -d "$RC_ROOT/plugins/$plugin" ] || continue
-        tar -C "$RC_ROOT/plugins" -czf "$BK/plugin-$plugin.tar.gz" "$plugin"
+        if [ -d "$RC_ROOT/plugins/$plugin" ]; then
+            tar -C "$RC_ROOT/plugins" -czf "$BK/plugin-$plugin.tar.gz" "$plugin"
+        else
+            printf '%s\n' "$plugin" >> "$BK/absent-plugins.txt"
+        fi
     done
 
     if [ -f "$RC_ROOT/composer.json" ]; then
@@ -248,10 +262,12 @@ install_tree() {
     else
         if [ -n "$exclude" ]; then
             find "$dest" -mindepth 1 -maxdepth 1 ! -name "$exclude" -exec rm -rf {} +
+            ( cd "$src" && tar --exclude="$exclude" -cf - . ) | tar -C "$dest" -xf -
         else
             rm -rf "$dest"
+            mkdir -p "$dest"
+            cp -a "$src/." "$dest/"
         fi
-        cp -a "$src/." "$dest/"
     fi
 }
 
@@ -274,10 +290,10 @@ php_deps_ok() {
             exit(1);
         }
         require $root . "/vendor/autoload.php";
-        exit(class_exists("Sabre\\VObject\\VCalendar")
+        exit(class_exists("Sabre\\VObject\\Component\\VCalendar")
             && class_exists("HTTP_Request2")
             && class_exists("Caxy\\HtmlDiff\\HtmlDiff")
-            && class_exists("cogpowered\\FineDiff\\FineDiff") ? 0 : 1);
+            && class_exists("cogpowered\\FineDiff\\Diff") ? 0 : 1);
     ' "$RC_ROOT" >/dev/null 2>&1
 }
 
@@ -291,11 +307,20 @@ find_composer() {
     done
 
     if [ -x /usr/local/hestia/bin/v-add-user-composer ]; then
-        /usr/local/hestia/bin/v-add-user-composer root >/dev/null 2>&1 || true
-        if [ -x /root/.composer/composer ]; then
-            printf '%s' /root/.composer/composer
-            return 0
+        local u
+        for u in admin root; do
+            /usr/local/hestia/bin/v-add-user-composer "$u" >/dev/null 2>&1 || true
+        done
+        u="$(/usr/local/hestia/bin/v-list-users plain 2>/dev/null | awk 'NR==1{print $1}')"
+        if [ -n "$u" ]; then
+            /usr/local/hestia/bin/v-add-user-composer "$u" >/dev/null 2>&1 || true
         fi
+        for candidate in /home/*/.composer/composer /root/.composer/composer /usr/local/bin/composer; do
+            if [ -x "$candidate" ]; then
+                printf '%s' "$candidate"
+                return 0
+            fi
+        done
     fi
 
     return 1
@@ -430,6 +455,60 @@ append_config_include
 "$PHP_BIN" -l "$CONFIG_FILE" >/dev/null || die "sintaxe inválida em $CONFIG_FILE"
 "$PHP_BIN" -l "$OVERLAY_FILE" >/dev/null || die "sintaxe inválida em $OVERLAY_FILE"
 
+# URL única de webmail para vários domínios: o login precisa usar o endereço
+# completo. Um username_domain fixo faria as contas dos outros domínios falharem.
+effective_username_domain="$("$PHP_BIN" -r '
+    $config = [];
+    $rcmail_config = [];
+    ob_start();
+    include $argv[1];
+    ob_end_clean();
+    $v = $config["username_domain"] ?? ($rcmail_config["username_domain"] ?? "");
+    if (is_array($v)) {
+        $v = implode(",", array_filter($v, function ($x) { return $x !== ""; }));
+    }
+    echo trim((string) $v);
+' "$CONFIG_FILE" 2>/dev/null || true)"
+if [ -n "$effective_username_domain" ]; then
+    die "username_domain fixo ($effective_username_domain) em $CONFIG_FILE impede login multi-domínio"
+fi
+
+effective_des_key="$("$PHP_BIN" -r '
+    $config = [];
+    $rcmail_config = [];
+    ob_start();
+    include $argv[1];
+    ob_end_clean();
+    echo trim((string) ($config["des_key"] ?? ($rcmail_config["des_key"] ?? "")));
+' "$CONFIG_FILE" 2>/dev/null || true)"
+case "$effective_des_key" in
+    '' | 'rcmail-!24ByteDESkey*Str')
+        warn "des_key padrão/vazio em $CONFIG_FILE; com twofactor_pref_encrypt=true os segredos 2FA usariam chave conhecida. Defina um des_key único e estável."
+        ;;
+esac
+
+twofactor_config="$RC_ROOT/plugins/twofactor_gauthenticator/config.inc.php"
+if [ -f "$twofactor_config" ]; then
+    twofactor_allowed="$("$PHP_BIN" -r '
+        $config = [];
+        $rcmail_config = [];
+        ob_start();
+        include $argv[1];
+        ob_end_clean();
+        $v = $rcmail_config["users_allowed_2FA"] ?? ($config["users_allowed_2FA"] ?? null);
+        if (is_array($v)) {
+            echo implode(",", $v);
+        } elseif ($v === null) {
+            echo "*";
+        } else {
+            echo (string) $v;
+        }
+    ' "$twofactor_config" 2>/dev/null || true)"
+    if [ "$twofactor_allowed" != '*' ]; then
+        warn "twofactor_gauthenticator: users_allowed_2FA restrito a [$twofactor_allowed]; em multi-domínio use null para todos"
+    fi
+fi
+
 install_php_deps
 
 run_plugin_migrations
@@ -444,6 +523,14 @@ reload_php
 health_check
 
 INSTALL_STARTED=0
+
+if [ "$RC_SPAMHAUS_UNBOUND" = 1 ]; then
+    say "configurando Spamhaus com resolvedor local (unbound)"
+    RC_SPAMHAUS_DNSBL="$RC_SPAMHAUS_DNSBL" \
+        bash "$PAYLOAD/enable-spamhaus-unbound.sh" \
+        || die "configuração do Spamhaus/unbound falhou"
+fi
+
 prune_backups || warn "não foi possível limpar backups antigos"
 
 say "concluído; skin padrão: $RC_SKIN; backup: $BK"

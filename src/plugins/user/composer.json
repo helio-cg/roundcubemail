@@ -3,7 +3,7 @@
     "type": "roundcube-plugin",
     "description": "Adds a User settings section with a display name and per-user skin color preferences.",
     "license": "GPL-3.0-or-later",
-    "version": "1.2.2",
+    "version": "1.6.0",
     "authors": [
         {
             "name": "Hélio CG.",

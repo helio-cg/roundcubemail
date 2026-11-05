@@ -2,18 +2,26 @@
 
 Adds a **User** section to Roundcube Settings with:
 
+- **Appearance**, **User interface**, **Messages**, **Composing Messages**,
+  **Contacts**, **Special Folders**, **Server Settings** and **Calendar** tabs;
 - a display name for the current account, also shown next to the Canga logo
   (defaults to **Seu nome**);
+- the core interface preferences: language, time zone, date/time formats,
+  pretty dates, refresh interval, skin and standard windows;
+- the remaining core preferences rendered with Roundcube's own settings
+  renderer, including **Encryption** as a subsection of **Server Settings**;
 - recommended color schemes: Current, Blue, Red, Gray and MArple;
 - light and dark color controls (accent, menu, background, text and selection);
-- live previews for both light and dark mode.
+- live previews for both light and dark mode;
+- mailbox view and message display preferences, grouped under the **Messages**
+  tab.
 
 Preferences are stored in the plugin's own `user_settings` table, keyed by the
 Roundcube `user_id`. The colors are injected into every authenticated page, so
 the same preferences apply in **Carius**, **Iguatu**, **Canga** and **Elastic**,
 including the Canga top bar, brand block, page header, the inbox list and plugin
-interfaces such as the calendar and two-factor authentication pages. A direct
-**Preferences** link is added to the main task bar and to the Canga menu.
+interfaces such as the calendar and two-factor authentication pages. The bundled
+skins point their **Preferences** menu entry to this page.
 
 ## Requirements
 

@@ -13,10 +13,21 @@
  */
 class user extends rcube_plugin
 {
-    public const VERSION = '1.2.2';
+    public const VERSION = '1.6.0';
     public const SCHEMA_VERSION = 2026110300;
 
     private const TABLE = 'user_settings';
+
+    private const TABS = [
+        'aparencia',
+        'interface',
+        'mensagem',
+        'compose',
+        'addressbook',
+        'folders',
+        'server',
+        'calendar',
+    ];
 
     private const COLOR_ROLES = [
         'accent',
@@ -207,11 +218,11 @@ class user extends rcube_plugin
 
         $this->add_hook('settings_actions', [$this, 'settings_actions']);
         $this->add_hook('render_page', [$this, 'render_page']);
-        $this->add_hook('template_container', [$this, 'template_container']);
 
         $this->register_action('plugin.user', [$this, 'settings_page']);
         $this->register_action('plugin.user-save', [$this, 'save_settings']);
         $this->register_handler('plugin.userdisplayname', [$this, 'userdisplayname']);
+        $this->register_handler('plugin.inboxunread', [$this, 'inbox_unread']);
     }
 
     /**
@@ -230,24 +241,13 @@ class user extends rcube_plugin
     }
 
     /**
-     * Add a direct "Preferences" link to the main task bar.
+     * Last known INBOX unread count for the current session.
      */
-    public function template_container($args)
+    public function inbox_unread()
     {
-        $rcmail = rcmail::get_instance();
+        $count = (int) ($_SESSION['unseen_count']['INBOX'] ?? 0);
 
-        if (($args['name'] ?? '') !== 'taskbar' || !$rcmail->user->ID) {
-            return $args;
-        }
-
-        $this->add_texts('localization/', false);
-        $url = $rcmail->url(['_task' => 'settings', '_action' => 'plugin.user']);
-        $label = rcube::Q($this->gettext('preferences'));
-
-        $args['content'] .= '<a class="user-preferences" href="' . rcube::Q($url) . '"'
-            . ' role="button" title="' . $label . '"><span class="inner">' . $label . '</span></a>';
-
-        return $args;
+        return $count > 0 ? (string) $count : '';
     }
 
     /**
@@ -312,9 +312,25 @@ class user extends rcube_plugin
         $rcmail = rcmail::get_instance();
         $settings = $this->get_settings();
         $colors = $settings['colors'];
-        $skin = (string) $rcmail->config->get('skin', 'elastic');
+        $skin = $this->current_skin();
         $hasTable = $this->table_exists($rcmail->get_dbh());
         $presets = $this->presets();
+        $activeTab = $this->active_tab();
+        $disabled = $hasTable ? '' : ' disabled';
+
+        $tabs = [
+            'aparencia' => $this->gettext('tabaparencia'),
+            'interface' => $this->gettext('tabinterface'),
+            'mensagem' => $this->gettext('tabmensagem'),
+            'compose' => $this->gettext('messagescomposition'),
+            'addressbook' => $this->gettext('contacts'),
+            'folders' => $this->gettext('specialfolders'),
+            'server' => $this->gettext('serversettings'),
+        ];
+
+        if (in_array('calendar', $rcmail->plugins->loaded_plugins(), true)) {
+            $tabs['calendar'] = $rcmail->gettext('calendar', 'calendar');
+        }
 
         $out = '<div class="user-settings">';
         $out .= '<div class="user-settings-head">';
@@ -329,13 +345,32 @@ class user extends rcube_plugin
         $out .= '<form class="user-settings-form" method="post" action="?_task=settings&amp;_action=plugin.user-save">';
         $out .= '<input type="hidden" name="_token" value="' . rcube::Q($rcmail->get_request_token()) . '">';
         $out .= '<input type="hidden" name="_preset" id="user-color-preset" value="' . rcube::Q($settings['preset']) . '">';
+        $out .= '<input type="hidden" name="_tab" id="user-active-tab" value="' . rcube::Q($activeTab) . '">';
+
+        $out .= '<div class="user-settings-tabs" role="tablist">';
+
+        foreach ($tabs as $key => $label) {
+            $active = $activeTab === $key;
+            $out .= '<button type="button" class="user-settings-tab' . ($active ? ' is-active' : '') . '"'
+                . ' id="user-tab-' . $key . '" role="tab" data-tab="' . $key . '"'
+                . ' aria-controls="user-panel-' . $key . '"'
+                . ' aria-selected="' . ($active ? 'true' : 'false') . '"'
+                . ' tabindex="' . ($active ? '0' : '-1') . '">'
+                . rcube::Q($label) . '</button>';
+        }
+
+        $out .= '</div>';
+
+        $out .= '<div class="user-settings-panel" id="user-panel-aparencia" role="tabpanel"'
+            . ' aria-labelledby="user-tab-aparencia" data-panel="aparencia"'
+            . ($activeTab === 'aparencia' ? '' : ' hidden') . '>';
 
         $out .= '<div class="user-settings-field">';
         $out .= '<label for="user-display-name">' . rcube::Q($this->gettext('displayname')) . '</label>';
         $out .= '<input id="user-display-name" name="_display_name" type="text" maxlength="255"'
             . ' autocomplete="name" placeholder="' . rcube::Q($this->gettext('defaultdisplayname')) . '"'
             . ' value="' . rcube::Q($settings['display_name']) . '"'
-            . ($hasTable ? '' : ' disabled') . '>';
+            . $disabled . '>';
         $out .= '<p class="user-settings-hint">' . rcube::Q($this->gettext('displaynamehint')) . '</p>';
         $out .= '</div>';
 
@@ -368,19 +403,11 @@ class user extends rcube_plugin
             $out .= '</div>';
             $out .= '</fieldset>';
 
+            $out .= '<div class="user-color-columns">';
             $out .= $this->palette_fieldset('light', $this->gettext('lightmode'), $colors['light'], $hasTable);
             $out .= $this->palette_fieldset('dark', $this->gettext('darkmode'), $colors['dark'], $hasTable);
-        }
+            $out .= '</div>';
 
-        $out .= '<div class="user-settings-actions">';
-        $out .= '<button class="button mainaction" type="submit"' . ($hasTable ? '' : ' disabled') . '>'
-            . rcube::Q($this->gettext('save')) . '</button>';
-        $out .= '<button class="button" type="submit" name="_reset" value="1"' . ($hasTable ? '' : ' disabled') . '>'
-            . rcube::Q($this->gettext('reset')) . '</button>';
-        $out .= '</div>';
-        $out .= '</form>';
-
-        if ($this->skin_colors_enabled()) {
             $out .= '<div class="user-preview-grid">';
             $out .= $this->preview_block($colors['light'], 'light', $skin);
             $out .= $this->preview_block($colors['dark'], 'dark', $skin);
@@ -389,7 +416,695 @@ class user extends rcube_plugin
 
         $out .= '</div>';
 
+        $out .= '<div class="user-settings-panel" id="user-panel-interface" role="tabpanel"'
+            . ' aria-labelledby="user-tab-interface" data-panel="interface"'
+            . ($activeTab === 'interface' ? '' : ' hidden') . '>';
+
+        $out .= '<p class="user-settings-lead">' . rcube::Q($this->gettext('interfacelead')) . '</p>';
+        $out .= $this->interface_fields($hasTable);
+
+        $out .= '</div>';
+
+        $out .= '<div class="user-settings-panel" id="user-panel-mensagem" role="tabpanel"'
+            . ' aria-labelledby="user-tab-mensagem" data-panel="mensagem"'
+            . ($activeTab === 'mensagem' ? '' : ' hidden') . '>';
+
+        $out .= '<p class="user-settings-lead">' . rcube::Q($this->gettext('messagelead')) . '</p>';
+
+        $out .= '<fieldset class="user-settings-group">';
+        $out .= '<legend>' . rcube::Q($this->gettext('mailboxview')) . '</legend>';
+        $out .= '<p class="user-settings-hint">' . rcube::Q($this->gettext('mailboxviewhint')) . '</p>';
+        $out .= $this->mailbox_fields($hasTable);
+        $out .= '</fieldset>';
+
+        $out .= '<fieldset class="user-settings-group">';
+        $out .= '<legend>' . rcube::Q($this->gettext('messagesdisplaying')) . '</legend>';
+        $out .= '<p class="user-settings-hint">' . rcube::Q($this->gettext('messagesdisplayinghint')) . '</p>';
+        $out .= $this->message_fields($hasTable);
+        $out .= '</fieldset>';
+
+        $out .= '</div>';
+
+        foreach (['compose', 'addressbook', 'folders'] as $section) {
+            $out .= '<div class="user-settings-panel" id="user-panel-' . $section . '" role="tabpanel"'
+                . ' aria-labelledby="user-tab-' . $section . '" data-panel="' . $section . '"'
+                . ($activeTab === $section ? '' : ' hidden') . '>';
+            $out .= $this->core_prefs_panel($section);
+            $out .= '</div>';
+        }
+
+        $out .= '<div class="user-settings-panel" id="user-panel-server" role="tabpanel"'
+            . ' aria-labelledby="user-tab-server" data-panel="server"'
+            . ($activeTab === 'server' ? '' : ' hidden') . '>';
+        $out .= $this->core_prefs_panel('server');
+        $out .= '<h4 class="user-settings-subtitle">' . rcube::Q($this->gettext('encryption')) . '</h4>';
+        $out .= $this->core_prefs_panel('encryption');
+        $out .= '</div>';
+
+        if (isset($tabs['calendar'])) {
+            $out .= '<div class="user-settings-panel" id="user-panel-calendar" role="tabpanel"'
+                . ' aria-labelledby="user-tab-calendar" data-panel="calendar"'
+                . ($activeTab === 'calendar' ? '' : ' hidden') . '>';
+            $out .= $this->core_prefs_panel('calendar');
+            $out .= '</div>';
+        }
+
+        $out .= '<div class="user-settings-actions">';
+        $out .= '<button class="button mainaction" type="submit"' . $disabled . '>'
+            . rcube::Q($this->gettext('save')) . '</button>';
+        $out .= '<button class="button" type="submit" name="_reset" value="1"' . $disabled . '>'
+            . rcube::Q($this->gettext('reset')) . '</button>';
+        $out .= '</div>';
+        $out .= '</form>';
+        $out .= '</div>';
+
         return '<div class="formcontainer"><div class="formcontent">' . $out . '</div></div>';
+    }
+
+    /**
+     * Valid tab for the settings page.
+     */
+    private function active_tab(): string
+    {
+        $tab = (string) rcube_utils::get_input_value('_tab', rcube_utils::INPUT_GPC);
+
+        return in_array($tab, self::TABS, true) ? $tab : 'aparencia';
+    }
+
+    /**
+     * Fields for the mailbox display section.
+     */
+    private function mailbox_fields(bool $hasTable): string
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+        $no_override = array_flip((array) $config->get('dont_override'));
+        $disabled = !$hasTable;
+        $out = '';
+
+        $supported = (array) $config->get('supported_layouts', ['widescreen', 'desktop', 'list']);
+
+        if (!isset($no_override['layout']) && count($supported) > 1) {
+            $labels = [
+                'widescreen' => 'layoutwidescreen',
+                'desktop' => 'layoutdesktop',
+                'list' => 'layoutlist',
+            ];
+            $options = [];
+
+            foreach (array_intersect_key($labels, array_flip($supported)) as $value => $label) {
+                $options[$value] = $this->gettext($label);
+            }
+
+            $out .= $this->select_field(
+                '_layout',
+                'user-layout',
+                $this->gettext('layout'),
+                $options,
+                $config->get('layout') ?: 'widescreen',
+                $this->gettext('layouthint'),
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['mail_read_time'])) {
+            $options = [
+                '-1' => $this->gettext('never'),
+                '0' => $this->gettext('immediately'),
+            ];
+
+            foreach ([5, 10, 20, 30] as $seconds) {
+                $options[$seconds] = sprintf($this->gettext('afterseconds'), $seconds);
+            }
+
+            $out .= $this->select_field(
+                '_mail_read_time',
+                'user-mail-read-time',
+                $this->gettext('automarkread'),
+                $options,
+                (int) $config->get('mail_read_time'),
+                $this->gettext('automarkreadhint'),
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['autoexpand_threads'])) {
+            $storage = $rcmail->get_storage();
+
+            if ($storage->get_capability('THREAD')) {
+                $options = [
+                    '0' => $this->gettext('threadsnever'),
+                    '1' => $this->gettext('threadsexpand'),
+                    '2' => $this->gettext('threadsexpandunread'),
+                ];
+
+                $out .= $this->select_field(
+                    '_autoexpand_threads',
+                    'user-autoexpand-threads',
+                    $this->gettext('autoexpandthreads'),
+                    $options,
+                    (int) $config->get('autoexpand_threads'),
+                    $this->gettext('autoexpandthreadshint'),
+                    $disabled
+                );
+            }
+        }
+
+        if (!isset($no_override['mail_pagesize'])) {
+            $out .= $this->number_field(
+                '_mail_pagesize',
+                'user-mail-pagesize',
+                $this->gettext('pagesize'),
+                (int) ($config->get('mail_pagesize') ?: $config->get('pagesize') ?: 50),
+                $this->gettext('pagesizehint'),
+                2,
+                (int) $config->get('max_pagesize') ?: null,
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['check_all_folders'])) {
+            $out .= $this->checkbox_field(
+                '_check_all_folders',
+                'user-check-all-folders',
+                $this->gettext('checkallfolders'),
+                (bool) $config->get('check_all_folders'),
+                $this->gettext('checkallfoldershint'),
+                $disabled
+            );
+        }
+
+        return $out;
+    }
+
+    /**
+     * Fields for the message display section.
+     */
+    private function message_fields(bool $hasTable): string
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+        $no_override = array_flip((array) $config->get('dont_override'));
+        $disabled = !$hasTable;
+        $preferHtml = (bool) $config->get('prefer_html');
+        $out = '';
+
+        if (!isset($no_override['message_extwin'])) {
+            $out .= $this->checkbox_field(
+                '_message_extwin',
+                'user-message-extwin',
+                $this->gettext('showinextwin'),
+                (bool) $config->get('message_extwin'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['message_show_email'])) {
+            $out .= $this->checkbox_field(
+                '_message_show_email',
+                'user-message-show-email',
+                $this->gettext('showemail'),
+                (bool) $config->get('message_show_email'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['prefer_html'])) {
+            $out .= $this->checkbox_field(
+                '_prefer_html',
+                'user-prefer-html',
+                $this->gettext('preferhtml'),
+                $preferHtml,
+                $this->gettext('preferhtmlhint'),
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['show_images'])) {
+            $options = [
+                '0' => $this->gettext('never'),
+                '1' => $this->gettext('frommycontacts'),
+                '3' => $this->gettext('fromtrustedsenders'),
+                '2' => $this->gettext('always'),
+            ];
+
+            $attributes = ' data-show-images="1"' . ($disabled ? ' data-locked="1"' : '');
+
+            $out .= $this->select_field(
+                '_show_images',
+                'user-show-images',
+                $this->gettext('allowremoteresources'),
+                $options,
+                $preferHtml ? (int) $config->get('show_images') : 0,
+                $this->gettext('remoteresourceshint'),
+                $disabled || !$preferHtml,
+                $attributes
+            );
+        }
+
+        if (!isset($no_override['inline_images'])) {
+            $out .= $this->checkbox_field(
+                '_inline_images',
+                'user-inline-images',
+                $this->gettext('inlineimages'),
+                (bool) $config->get('inline_images'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['mdn_requests'])) {
+            $options = [
+                '0' => $this->gettext('mdnaskuser'),
+                '1' => $this->gettext('mdnautosend'),
+                '3' => $this->gettext('mdnautosendknown'),
+                '4' => $this->gettext('mdnautosendknownignore'),
+                '5' => $this->gettext('mdnautosendtrusted'),
+                '6' => $this->gettext('mdnautosendtrustedignore'),
+                '2' => $this->gettext('mdnignore'),
+            ];
+
+            $out .= $this->select_field(
+                '_mdn_requests',
+                'user-mdn-requests',
+                $this->gettext('mdnrequests'),
+                $options,
+                (int) $config->get('mdn_requests'),
+                $this->gettext('mdnrequestshint'),
+                $disabled
+            );
+        }
+
+        return $out;
+    }
+
+    /**
+     * Fields for the user interface section.
+     */
+    private function interface_fields(bool $hasTable): string
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+        $no_override = array_flip((array) $config->get('dont_override'));
+        $disabled = !$hasTable;
+        $out = '';
+
+        $main = '';
+
+        if (!isset($no_override['language'])) {
+            $languages = $rcmail->list_languages();
+            asort($languages);
+
+            $main .= $this->select_field(
+                '_language',
+                'user-language',
+                $this->gettext('language'),
+                $languages,
+                (string) ($rcmail->user->language ?: $config->get('language')),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['timezone'])) {
+            $main .= $this->select_field(
+                '_timezone',
+                'user-timezone',
+                $this->gettext('timezone'),
+                $this->timezone_options(),
+                (string) $config->get('timezone'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['date_format'])) {
+            $refdate = mktime(12, 30, 0, 7, 24);
+            $defaults = ['Y-m-d', 'd-m-Y', 'Y/m/d', 'm/d/Y', 'd/m/Y', 'd.m.Y', 'j.n.Y'];
+            $options = [];
+
+            foreach ((array) $config->get('date_formats', $defaults) as $choice) {
+                $options[$choice] = date($choice, $refdate);
+            }
+
+            $main .= $this->select_field(
+                '_date_format',
+                'user-date-format',
+                $this->gettext('dateformat'),
+                $options,
+                (string) $config->get('date_format'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['time_format'])) {
+            $reftime = mktime(7, 30, 0);
+            $defaults = ['G:i', 'H:i', 'g:i a', 'h:i A'];
+            $options = [];
+
+            foreach ((array) $config->get('time_formats', $defaults) as $choice) {
+                $options[$choice] = date($choice, $reftime);
+            }
+
+            $main .= $this->select_field(
+                '_time_format',
+                'user-time-format',
+                $this->gettext('timeformat'),
+                $options,
+                (string) $config->get('time_format'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['prettydate'])) {
+            $main .= $this->checkbox_field(
+                '_pretty_date',
+                'user-pretty-date',
+                $this->gettext('prettydate'),
+                (bool) $config->get('prettydate'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['display_next'])) {
+            $main .= $this->checkbox_field(
+                '_display_next',
+                'user-display-next',
+                $this->gettext('displaynext'),
+                (bool) $config->get('display_next'),
+                '',
+                $disabled
+            );
+        }
+
+        if (!isset($no_override['refresh_interval'])) {
+            $options = ['0' => $this->gettext('never')];
+            $minInterval = (int) $config->get('min_refresh_interval');
+
+            foreach ([1, 3, 5, 10, 15, 30, 60] as $minutes) {
+                if (!$minInterval || $minInterval <= $minutes * 60) {
+                    $options[(string) $minutes] = $this->gettext([
+                        'name' => 'everynminutes',
+                        'vars' => ['n' => $minutes],
+                    ]);
+                }
+            }
+
+            $main .= $this->select_field(
+                '_refresh_interval',
+                'user-refresh-interval',
+                $this->gettext('refreshinterval'),
+                $options,
+                (int) round(((int) $config->get('refresh_interval')) / 60),
+                '',
+                $disabled
+            );
+        }
+
+        if ($main !== '') {
+            $out .= '<fieldset class="user-settings-group user-settings-group-main">';
+            $out .= '<legend>' . rcube::Q($this->gettext('mainoptions')) . '</legend>';
+            $out .= $main;
+            $out .= '</fieldset>';
+        }
+
+        $side = '';
+
+        if (!isset($no_override['skin'])) {
+            $side .= $this->skin_field($disabled);
+        }
+
+        if (!isset($no_override['standard_windows'])) {
+            $side .= '<fieldset class="user-settings-group">';
+            $side .= '<legend>' . rcube::Q($this->gettext('browseroptions')) . '</legend>';
+            $side .= $this->checkbox_field(
+                '_standard_windows',
+                'user-standard-windows',
+                $this->gettext('standardwindows'),
+                (bool) $config->get('standard_windows'),
+                '',
+                $disabled
+            );
+            $side .= '</fieldset>';
+        }
+
+        if ($out === '' && $side === '') {
+            return '';
+        }
+
+        return '<div class="user-settings-columns">'
+            . '<div class="user-settings-column">' . $out . '</div>'
+            . '<div class="user-settings-column">' . $side . '</div>'
+            . '</div>';
+    }
+
+    /**
+     * Render a preferences section using Roundcube's own settings renderer.
+     */
+    private function core_prefs_panel(string $section): string
+    {
+        if (!class_exists('rcmail_action_settings_index')) {
+            return '';
+        }
+
+        [$sections] = \rcmail_action_settings_index::user_prefs($section);
+
+        if (empty($sections[$section]['blocks'])) {
+            return '';
+        }
+
+        $out = '<input type="hidden" name="_user_sections[]" value="' . rcube::Q($section) . '">';
+
+        foreach ($sections[$section]['blocks'] as $class => $block) {
+            $legend = html::tag('legend', null, $block['name'] ?? '');
+
+            if (!empty($block['options'])) {
+                $table = new html_table(['cols' => 2]);
+
+                foreach ($block['options'] as $option) {
+                    if (isset($option['title'])) {
+                        $table->add('title', $option['title']);
+                        $table->add(null, $option['content']);
+                    } else {
+                        $table->add(['colspan' => 2], $option['content']);
+                    }
+                }
+
+                $out .= html::tag('fieldset', 'user-settings-group ' . $class, $legend . $table->show());
+            } elseif (!empty($block['content'])) {
+                $out .= html::tag('fieldset', 'user-settings-group ' . $class, $legend . $block['content']);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Time zone options with localized labels and GMT offsets.
+     */
+    private function timezone_options(): array
+    {
+        $options = ['auto' => $this->gettext('autodetect')];
+
+        if (!class_exists('rcmail_action_settings_index')) {
+            return $options;
+        }
+
+        $zones = [];
+
+        foreach (\DateTimeZone::listIdentifiers() as $timezone) {
+            $data = \rcmail_action_settings_index::timezone_standard_time_data($timezone);
+
+            if ($data) {
+                $zones[$data['key']] = [$timezone, $data['offset']];
+            }
+        }
+
+        ksort($zones);
+
+        foreach ($zones as [$timezone, $offset]) {
+            $options[$timezone] = '(GMT ' . $offset . ') '
+                . \rcmail_action_settings_index::timezone_label($timezone);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Available interface skins.
+     */
+    private function skin_options(): array
+    {
+        if (!class_exists('rcmail_action_settings_index')) {
+            return [];
+        }
+
+        $rcmail = rcmail::get_instance();
+        $options = [];
+
+        foreach (\rcmail_action_settings_index::get_skins() as $skin) {
+            $meta = $rcmail->output->get_skin_info($skin);
+            $options[$skin] = $meta['name'] ?? $skin;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Skin picker with radio buttons and thumbnails, like the original page.
+     */
+    private function skin_field(bool $disabled): string
+    {
+        $skins = $this->skin_options();
+
+        if (count($skins) < 2) {
+            return '';
+        }
+
+        $rcmail = rcmail::get_instance();
+        $selected = $this->current_skin();
+        $out = '<fieldset class="user-settings-group">';
+        $out .= '<legend>' . rcube::Q($this->gettext('skin')) . '</legend>';
+        $out .= '<div class="user-skin-grid">';
+
+        foreach ($skins as $skin => $name) {
+            $meta = $rcmail->output->get_skin_info($skin);
+            $id = 'user-skin-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $skin);
+            $author = !empty($meta['author_link'])
+                ? $this->gettext(['name' => 'skinauthor', 'vars' => ['author' => $meta['author_link']]])
+                : '';
+            $license = !empty($meta['license_link'])
+                ? $this->gettext('license') . ':&nbsp;' . $meta['license_link']
+                : '';
+
+            $out .= '<label class="skinselection" for="' . rcube::Q($id) . '">';
+            $out .= '<span class="skinitem"><input type="radio" name="_skin" id="' . rcube::Q($id) . '"'
+                . ' value="' . rcube::Q($skin) . '"' . ($selected === $skin ? ' checked' : '')
+                . ($disabled ? ' disabled' : '') . '></span>';
+            $out .= '<span class="skinitem">' . html::img([
+                'src' => $rcmail->output->asset_url("skins/{$skin}/thumbnail.png"),
+                'class' => 'skinthumbnail',
+                'alt' => $name,
+                'width' => 64,
+                'height' => 64,
+                'onerror' => "this.onerror = null; this.src = 'data:image/gif;base64,"
+                    . rcmail_output::BLANK_GIF . "';",
+            ]) . '</span>';
+            $out .= '<span class="skinitem"><span class="skinname">' . rcube::Q($name) . '</span>';
+
+            if ($author !== '') {
+                $out .= '<br><span class="skinauthor">' . rcube::Q($author) . '</span>';
+            }
+
+            if ($license !== '') {
+                $out .= '<br><span class="skinlicense">' . $license . '</span>';
+            }
+
+            $out .= '</span>';
+            $out .= '</label>';
+        }
+
+        $out .= '</div>';
+        $out .= '</fieldset>';
+
+        return $out;
+    }
+
+    /**
+     * Render one label, control and hint block.
+     */
+    private function select_field(
+        string $name,
+        string $id,
+        string $label,
+        array $options,
+        $selected,
+        string $hint = '',
+        bool $disabled = false,
+        string $attributes = ''
+    ): string {
+        $out = '<div class="user-settings-field">';
+        $out .= '<label for="' . rcube::Q($id) . '">' . rcube::Q($label) . '</label>';
+        $out .= '<select class="user-settings-select" id="' . rcube::Q($id) . '" name="' . rcube::Q($name) . '"'
+            . ($disabled ? ' disabled' : '') . $attributes . '>';
+
+        foreach ($options as $value => $text) {
+            $out .= '<option value="' . rcube::Q((string) $value) . '"'
+                . ((string) $selected === (string) $value ? ' selected' : '') . '>'
+                . rcube::Q($text) . '</option>';
+        }
+
+        $out .= '</select>';
+
+        if ($hint !== '') {
+            $out .= '<p class="user-settings-hint">' . rcube::Q($hint) . '</p>';
+        }
+
+        $out .= '</div>';
+
+        return $out;
+    }
+
+    /**
+     * Render a numeric input field.
+     */
+    private function number_field(
+        string $name,
+        string $id,
+        string $label,
+        int $value,
+        string $hint = '',
+        int $min = 0,
+        ?int $max = null,
+        bool $disabled = false
+    ): string {
+        $out = '<div class="user-settings-field">';
+        $out .= '<label for="' . rcube::Q($id) . '">' . rcube::Q($label) . '</label>';
+        $out .= '<input class="user-settings-number" id="' . rcube::Q($id) . '" name="' . rcube::Q($name) . '"'
+            . ' type="number" min="' . $min . '"'
+            . ($max !== null ? ' max="' . $max . '"' : '')
+            . ' value="' . rcube::Q((string) $value) . '"'
+            . ($disabled ? ' disabled' : '') . '>';
+
+        if ($hint !== '') {
+            $out .= '<p class="user-settings-hint">' . rcube::Q($hint) . '</p>';
+        }
+
+        $out .= '</div>';
+
+        return $out;
+    }
+
+    /**
+     * Render a checkbox field.
+     */
+    private function checkbox_field(
+        string $name,
+        string $id,
+        string $label,
+        bool $checked,
+        string $hint = '',
+        bool $disabled = false
+    ): string {
+        $out = '<div class="user-settings-field user-settings-checkfield">';
+        $out .= '<label class="user-settings-check" for="' . rcube::Q($id) . '">';
+        $out .= '<input type="checkbox" id="' . rcube::Q($id) . '" name="' . rcube::Q($name) . '" value="1"'
+            . ($checked ? ' checked' : '') . ($disabled ? ' disabled' : '') . '>';
+        $out .= '<span>' . rcube::Q($label) . '</span>';
+        $out .= '</label>';
+
+        if ($hint !== '') {
+            $out .= '<p class="user-settings-hint">' . rcube::Q($hint) . '</p>';
+        }
+
+        $out .= '</div>';
+
+        return $out;
     }
 
     /**
@@ -404,7 +1119,9 @@ class user extends rcube_plugin
             exit;
         }
 
-        $redirect = ['_task' => 'settings', '_action' => 'plugin.user'];
+        $tab = (string) rcube_utils::get_input_value('_tab', rcube_utils::INPUT_POST);
+        $tab = in_array($tab, self::TABS, true) ? $tab : 'aparencia';
+        $redirect = ['_task' => 'settings', '_action' => 'plugin.user', '_tab' => $tab];
 
         if (!$rcmail->check_request()) {
             $this->flash($this->gettext('errorcsrf'), 'error');
@@ -462,6 +1179,10 @@ class user extends rcube_plugin
             ];
         }
 
+        $mailPrefsSaved = $this->save_mail_prefs();
+        $interfacePrefsSaved = $this->save_interface_prefs();
+        $remainingPrefsSaved = $this->save_remaining_prefs();
+
         $now = date('Y-m-d H:i:s');
         $table = $db->table_name(self::TABLE, true);
 
@@ -489,7 +1210,7 @@ class user extends rcube_plugin
             );
         }
 
-        if ($db->is_error()) {
+        if ($db->is_error() || !$mailPrefsSaved || !$interfacePrefsSaved || !$remainingPrefsSaved) {
             $this->flash($this->gettext('errorsave'), 'error');
         } else {
             $this->flash($this->gettext('saved'), 'confirmation');
@@ -497,6 +1218,375 @@ class user extends rcube_plugin
 
         $rcmail->output->redirect($redirect);
         exit;
+    }
+
+    /**
+     * Save the mailbox and message display preferences.
+     */
+    private function save_mail_prefs(): bool
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+        $no_override = array_flip((array) $config->get('dont_override'));
+
+        $mailbox = [];
+
+        if (!isset($no_override['layout'])) {
+            $layout = (string) rcube_utils::get_input_value('_layout', rcube_utils::INPUT_POST);
+            $supported = (array) $config->get('supported_layouts', ['widescreen', 'desktop', 'list']);
+
+            if (in_array($layout, $supported, true)) {
+                $mailbox['layout'] = $layout;
+            }
+        }
+
+        if (!isset($no_override['mail_read_time'])) {
+            $mailbox['mail_read_time'] = (int) rcube_utils::get_input_value('_mail_read_time', rcube_utils::INPUT_POST);
+        }
+
+        if (!isset($no_override['autoexpand_threads'])
+            && $rcmail->get_storage()->get_capability('THREAD')
+        ) {
+            $mailbox['autoexpand_threads'] = (int) rcube_utils::get_input_value(
+                '_autoexpand_threads',
+                rcube_utils::INPUT_POST
+            );
+        }
+
+        if (!isset($no_override['mail_pagesize'])) {
+            $pagesize = max(2, (int) rcube_utils::get_input_value('_mail_pagesize', rcube_utils::INPUT_POST));
+            $maxPagesize = (int) $config->get('max_pagesize');
+
+            if ($maxPagesize && $pagesize > $maxPagesize) {
+                $pagesize = $maxPagesize;
+            }
+
+            $mailbox['mail_pagesize'] = $pagesize;
+        }
+
+        if (!isset($no_override['check_all_folders'])) {
+            $mailbox['check_all_folders'] = !empty($_POST['_check_all_folders']);
+        }
+
+        $mailview = [];
+
+        if (!isset($no_override['message_extwin'])) {
+            $mailview['message_extwin'] = !empty($_POST['_message_extwin']) ? 1 : 0;
+        }
+
+        if (!isset($no_override['message_show_email'])) {
+            $mailview['message_show_email'] = !empty($_POST['_message_show_email']);
+        }
+
+        $preferHtml = isset($no_override['prefer_html'])
+            ? (bool) $config->get('prefer_html')
+            : !empty($_POST['_prefer_html']);
+
+        if (!isset($no_override['prefer_html'])) {
+            $mailview['prefer_html'] = $preferHtml;
+        }
+
+        if (!isset($no_override['show_images'])) {
+            $mailview['show_images'] = $preferHtml
+                ? (int) rcube_utils::get_input_value('_show_images', rcube_utils::INPUT_POST)
+                : 0;
+        }
+
+        if (!isset($no_override['inline_images'])) {
+            $mailview['inline_images'] = !empty($_POST['_inline_images']);
+        }
+
+        if (!isset($no_override['mdn_requests'])) {
+            $mailview['mdn_requests'] = (int) rcube_utils::get_input_value('_mdn_requests', rcube_utils::INPUT_POST);
+        }
+
+        $mailbox = $this->filter_prefs_save('mailbox', $mailbox);
+
+        if ($mailbox === null) {
+            return false;
+        }
+
+        $mailview = $this->filter_prefs_save('mailview', $mailview);
+
+        if ($mailview === null) {
+            return false;
+        }
+
+        return (bool) $rcmail->user->save_prefs($mailbox + $mailview);
+    }
+
+    /**
+     * Save the user interface preferences (language, formats, behavior).
+     */
+    private function save_interface_prefs(): bool
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+        $no_override = array_flip((array) $config->get('dont_override'));
+
+        $prefs = [
+            'language' => $this->pref_input('language', '/^[a-zA-Z0-9_-]+$/'),
+            'timezone' => $this->pref_input('timezone', '/^[a-zA-Z_\/-]+$/'),
+            'date_format' => $this->pref_input('date_format', '/^[a-zA-Z_.\/ -]+$/'),
+            'time_format' => $this->pref_input('time_format', '/^[a-zA-Z0-9: ]+$/'),
+            'prettydate' => isset($_POST['_pretty_date']),
+            'display_next' => isset($_POST['_display_next']),
+            'refresh_interval' => ((int) rcube_utils::get_input_value(
+                '_refresh_interval',
+                rcube_utils::INPUT_POST
+            )) * 60,
+            'standard_windows' => isset($_POST['_standard_windows']),
+            'skin' => $this->pref_input('skin', '/^[a-zA-Z0-9_.-]+$/'),
+        ];
+
+        foreach ($no_override as $name => $_) {
+            $prefs[$name] = $config->get($name);
+        }
+
+        if ((isset($_POST['_date_format']) || isset($_POST['_time_format']))
+            && !empty($prefs['date_format'])
+            && !empty($prefs['time_format'])
+        ) {
+            $prefs['date_short'] = 'D ' . $prefs['time_format'];
+            $prefs['date_long'] = $prefs['date_format'] . ' ' . $prefs['time_format'];
+        }
+
+        if (isset($_POST['_language']) && $prefs['language'] != ($_SESSION['language'] ?? '')) {
+            $rcmail->load_language($prefs['language']);
+        }
+
+        if (!empty($prefs['skin']) && !$rcmail->output->check_skin($prefs['skin'])) {
+            unset($prefs['skin']);
+        }
+
+        $prefs['timezone'] = (string) $prefs['timezone'];
+
+        $minInterval = (int) $config->get('min_refresh_interval');
+
+        if (!empty($prefs['refresh_interval']) && $minInterval && $prefs['refresh_interval'] < $minInterval) {
+            $prefs['refresh_interval'] = $minInterval;
+        }
+
+        $prefs = $this->filter_prefs_save('general', $prefs);
+
+        if ($prefs === null) {
+            return false;
+        }
+
+        return (bool) $rcmail->user->save_prefs($prefs);
+    }
+
+    /**
+     * Read and validate a textual preference from the request.
+     */
+    private function pref_input(string $name, string $pattern): ?string
+    {
+        $rcmail = rcmail::get_instance();
+        $value = rcube_utils::get_input_value('_' . $name, rcube_utils::INPUT_POST);
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        if ($value !== '' && !preg_match($pattern, $value)) {
+            return (string) $rcmail->config->get($name);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Integer preference from the request.
+     */
+    private function post_int(string $name): int
+    {
+        return (int) rcube_utils::get_input_value('_' . $name, rcube_utils::INPUT_POST);
+    }
+
+    /**
+     * Raw (unescaped) preference from the request.
+     */
+    private function post_raw(string $name): string
+    {
+        return (string) rcube_utils::get_input_value('_' . $name, rcube_utils::INPUT_POST, true);
+    }
+
+    /**
+     * Save the remaining core preferences sections.
+     */
+    private function save_remaining_prefs(): bool
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+        $no_override = array_flip((array) $config->get('dont_override'));
+
+        $sections = ['compose', 'addressbook', 'folders', 'server', 'encryption'];
+
+        if (in_array('calendar', $rcmail->plugins->loaded_plugins(), true)) {
+            $sections[] = 'calendar';
+        }
+
+        $submitted = (array) rcube_utils::get_input_value('_user_sections', rcube_utils::INPUT_POST);
+        $prefs = [];
+
+        foreach ($sections as $section) {
+            if (!in_array($section, $submitted, true)) {
+                continue;
+            }
+
+            $sectionPrefs = $this->filter_prefs_save($section, $this->section_prefs($section));
+
+            if ($sectionPrefs === null) {
+                return false;
+            }
+
+            foreach ($no_override as $name => $_) {
+                $sectionPrefs[$name] = $config->get($name);
+            }
+
+            $prefs += $this->verify_prefs($section, $sectionPrefs);
+        }
+
+        return (bool) $rcmail->user->save_prefs($prefs);
+    }
+
+    /**
+     * Read one core preferences section from the request.
+     */
+    private function section_prefs(string $section): array
+    {
+        switch ($section) {
+            case 'compose':
+                return [
+                    'compose_extwin' => $this->post_int('compose_extwin'),
+                    'htmleditor' => $this->post_int('htmleditor'),
+                    'draft_autosave' => $this->post_int('draft_autosave'),
+                    'mime_param_folding' => $this->post_int('mime_param_folding'),
+                    'force_7bit' => isset($_POST['_force_7bit']),
+                    'mdn_default' => isset($_POST['_mdn_default']),
+                    'dsn_default' => isset($_POST['_dsn_default']),
+                    'keep_formatting_default' => isset($_POST['_keep_formatting_default']),
+                    'reply_same_folder' => isset($_POST['_reply_same_folder']),
+                    'spellcheck_before_send' => isset($_POST['_spellcheck_before_send']),
+                    'spellcheck_ignore_syms' => isset($_POST['_spellcheck_ignore_syms']),
+                    'spellcheck_ignore_nums' => isset($_POST['_spellcheck_ignore_nums']),
+                    'spellcheck_ignore_caps' => isset($_POST['_spellcheck_ignore_caps']),
+                    'show_sig' => $this->post_int('show_sig'),
+                    'reply_mode' => $this->post_int('reply_mode'),
+                    'enable_autolink' => isset($_POST['_enable_autolink']),
+                    'sig_below' => isset($_POST['_sig_below']),
+                    'strip_existing_sig' => isset($_POST['_strip_existing_sig']),
+                    'sig_separator' => isset($_POST['_sig_separator']),
+                    'default_font' => $this->pref_input('default_font', '/^[a-zA-Z ]+$/'),
+                    'default_font_size' => $this->pref_input('default_font_size', '/^[0-9]+pt$/'),
+                    'reply_all_mode' => $this->post_int('reply_all_mode'),
+                    'forward_attachment' => !empty($_POST['_forward_attachment']),
+                    'compose_save_localstorage' => $this->post_int('compose_save_localstorage'),
+                ];
+
+            case 'addressbook':
+                return [
+                    'default_addressbook' => $this->post_raw('default_addressbook'),
+                    'collected_recipients' => $this->post_raw('collected_recipients'),
+                    'collected_senders' => $this->post_raw('collected_senders'),
+                    'autocomplete_single' => isset($_POST['_autocomplete_single']),
+                    'addressbook_sort_col' => $this->pref_input('addressbook_sort_col', '/^[a-z_]+$/'),
+                    'addressbook_name_listing' => $this->post_int('addressbook_name_listing'),
+                    'addressbook_pagesize' => max(2, $this->post_int('addressbook_pagesize')),
+                    'contact_form_mode' => $this->pref_input('contact_form_mode', '/^(private|business)$/'),
+                ];
+
+            case 'folders':
+                $dont_override = (array) rcmail::get_instance()->config->get('dont_override');
+                $prefs = [
+                    'show_real_foldernames' => isset($_POST['_show_real_foldernames']),
+                    'lock_special_folders' => !in_array('lock_special_folders', $dont_override),
+                ];
+
+                foreach (\rcube_storage::$folder_types as $type) {
+                    $prefs[$type . '_mbox'] = $this->post_raw($type . '_mbox');
+                }
+
+                return $prefs;
+
+            case 'server':
+                return [
+                    'read_when_deleted' => isset($_POST['_read_when_deleted']),
+                    'skip_deleted' => isset($_POST['_skip_deleted']),
+                    'flag_for_deletion' => isset($_POST['_flag_for_deletion']),
+                    'delete_junk' => isset($_POST['_delete_junk']),
+                    'logout_purge' => $this->pref_input('logout_purge', '/^(all|never|30|60|90)$/'),
+                    'logout_expunge' => isset($_POST['_logout_expunge']),
+                ];
+
+            case 'encryption':
+                return [
+                    'mailvelope_main_keyring' => isset($_POST['_mailvelope_main_keyring']),
+                ];
+        }
+
+        return [];
+    }
+
+    /**
+     * Validate a section's preferences before saving.
+     */
+    private function verify_prefs(string $section, array $prefs): array
+    {
+        $rcmail = rcmail::get_instance();
+        $config = $rcmail->config;
+
+        switch ($section) {
+            case 'addressbook':
+                if (($prefs['addressbook_pagesize'] ?? 0) < 1) {
+                    $prefs['addressbook_pagesize'] = 10;
+                }
+
+                $maxPagesize = (int) $config->get('max_pagesize');
+
+                if ($maxPagesize && ($prefs['addressbook_pagesize'] ?? 0) > $maxPagesize) {
+                    $prefs['addressbook_pagesize'] = $maxPagesize;
+                }
+
+                break;
+
+            case 'folders':
+                $specials = [];
+
+                foreach (\rcube_storage::$folder_types as $type) {
+                    $specials[$type] = $prefs[$type . '_mbox'] ?? '';
+                }
+
+                $rcmail->get_storage()->set_special_folders($specials);
+
+                break;
+
+            case 'server':
+                if (isset($prefs['logout_purge']) && !is_numeric($prefs['logout_purge'])) {
+                    $prefs['logout_purge'] = $prefs['logout_purge'] !== 'never';
+                }
+
+                break;
+        }
+
+        return $prefs;
+    }
+
+    /**
+     * Run the preferences_save hook for one section.
+     */
+    private function filter_prefs_save(string $section, array $prefs): ?array
+    {
+        $plugin = rcmail::get_instance()->plugins->exec_hook('preferences_save', [
+            'prefs' => $prefs,
+            'section' => $section,
+        ]);
+
+        if (!empty($plugin['abort'])) {
+            return null;
+        }
+
+        return is_array($plugin['prefs'] ?? null) ? $plugin['prefs'] : $prefs;
     }
 
     /**
@@ -534,8 +1624,13 @@ class user extends rcube_plugin
                 $decoded = $this->decode_colors($row['colors'], $defaults['colors']);
 
                 $this->settings['stored'] = true;
-                $this->settings['colors'] = $decoded['colors'];
                 $this->settings['preset'] = $decoded['preset'];
+
+                // The "atual" preset follows the active skin, so a palette
+                // saved on another skin must not leak into this one.
+                $this->settings['colors'] = $decoded['preset'] === 'atual'
+                    ? $defaults['colors']
+                    : $decoded['colors'];
             }
         }
 
@@ -543,12 +1638,35 @@ class user extends rcube_plugin
     }
 
     /**
+     * Name of the skin currently being rendered.
+     *
+     * The config value is the default skin, not necessarily the one the user
+     * picked, so prefer the skin the output layer has actually loaded.
+     */
+    private function current_skin(): string
+    {
+        $rcmail = rcmail::get_instance();
+        $skin = '';
+
+        if (isset($rcmail->output) && is_object($rcmail->output)
+            && method_exists($rcmail->output, 'get_env')
+        ) {
+            $skin = (string) $rcmail->output->get_env('skin');
+        }
+
+        if ($skin === '') {
+            $skin = (string) $rcmail->config->get('skin', 'elastic');
+        }
+
+        return $skin !== '' ? $skin : 'elastic';
+    }
+
+    /**
      * Default values for the current skin.
      */
     private function default_settings(): array
     {
-        $rcmail = rcmail::get_instance();
-        $skin = (string) $rcmail->config->get('skin', 'elastic');
+        $skin = $this->current_skin();
         $palette = self::SKIN_PALETTES[$skin] ?? self::SKIN_PALETTES['elastic'];
 
         return [
@@ -638,8 +1756,7 @@ class user extends rcube_plugin
      */
     private function presets(): array
     {
-        $rcmail = rcmail::get_instance();
-        $skin = (string) $rcmail->config->get('skin', 'elastic');
+        $skin = $this->current_skin();
         $current = self::SKIN_PALETTES[$skin] ?? self::SKIN_PALETTES['elastic'];
 
         return ['atual' => $current] + self::PRESETS;

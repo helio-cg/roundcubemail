@@ -12,6 +12,11 @@
         var previews = root.querySelectorAll('.user-settings-preview[data-mode]');
         var presets = root.querySelectorAll('.user-preset[data-preset]');
         var presetInput = root.querySelector('#user-color-preset');
+        var tabs = root.querySelectorAll('.user-settings-tab[data-tab]');
+        var panels = root.querySelectorAll('.user-settings-panel[data-panel]');
+        var activeTabInput = root.querySelector('#user-active-tab');
+        var htmlInput = root.querySelector('#user-prefer-html');
+        var showImagesInput = root.querySelector('#user-show-images');
 
         function contrast(hex) {
             hex = String(hex || '').replace('#', '');
@@ -109,6 +114,49 @@
             updatePreviews();
         }
 
+        function activateTab(name) {
+            if (activeTabInput) {
+                activeTabInput.value = name;
+            }
+
+            tabs.forEach(function (tab) {
+                var active = tab.getAttribute('data-tab') === name;
+                tab.classList.toggle('is-active', active);
+                tab.setAttribute('aria-selected', active ? 'true' : 'false');
+                tab.setAttribute('tabindex', active ? '0' : '-1');
+            });
+
+            panels.forEach(function (panel) {
+                panel.hidden = panel.getAttribute('data-panel') !== name;
+            });
+        }
+
+        function syncShowImages() {
+            if (htmlInput && showImagesInput && !showImagesInput.hasAttribute('data-locked')) {
+                showImagesInput.disabled = !htmlInput.checked;
+            }
+        }
+
+        tabs.forEach(function (tab, index) {
+            tab.addEventListener('click', function () {
+                activateTab(tab.getAttribute('data-tab'));
+            }, false);
+
+            tab.addEventListener('keydown', function (event) {
+                var direction = event.key === 'ArrowRight' ? 1 : (event.key === 'ArrowLeft' ? -1 : 0);
+
+                if (direction === 0) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                var next = tabs[(index + direction + tabs.length) % tabs.length];
+                activateTab(next.getAttribute('data-tab'));
+                next.focus();
+            }, false);
+        });
+
         presets.forEach(function (button) {
             button.addEventListener('click', function () {
                 applyPreset(button);
@@ -126,6 +174,11 @@
             }, false);
         });
 
+        if (htmlInput) {
+            htmlInput.addEventListener('change', syncShowImages, false);
+        }
+
+        syncShowImages();
         updatePreviews();
     }
 

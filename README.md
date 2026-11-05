@@ -175,3 +175,6 @@ podman build -t meu-roundcube:dev .
 podman-compose down -v
 podman-compose up -d
 ```
+
+- criar scipr que faz backup de caltarios e tudo que não faz parte do backup normal do hesticap.
+- preprar para restauração comrelacionado ao id.

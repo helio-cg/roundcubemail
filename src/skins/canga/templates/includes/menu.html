@@ -23,7 +23,7 @@
 
 		<span class="canga-menu-label mail"><span class="inner">E-mail</span></span>
 		<ul class="canga-static-submenu">
-			<li><a class="inbox" href="?_task=mail&amp;_mbox=INBOX"><span class="canga-menu-text">Caixa de entrada</span></a></li>
+			<li><a class="inbox" href="?_task=mail&amp;_mbox=INBOX"><span class="canga-menu-text">Caixa de entrada</span><span class="canga-nav-count" style="margin-left: auto;"><roundcube:object name="plugin.inboxunread" /></span></a></li>
 			<li><a class="sent" href="?_task=mail&amp;_mbox=Sent"><span class="canga-menu-text">Enviadas</span></a></li>
 			<li><a class="drafts" href="?_task=mail&amp;_mbox=Drafts"><span class="canga-menu-text">Rascunhos</span></a></li>
 			<li><a class="archive" href="?_task=mail&amp;_mbox=Archive"><span class="canga-menu-text">Arquivo</span></a></li>
@@ -46,7 +46,7 @@
 				<roundcube:add_label name="darkmode" />
 				<roundcube:add_label name="lightmode" />
 				<roundcube:button name="theme" label="darkmode" type="link" innerClass="inner" class="theme dark" />
-			</roundcube:if>
+			<roundcube:endif />
 			<roundcube:button name="about" label="about" type="link" class="about" innerClass="inner" onclick="UI.about_dialog(this)" />
 			<roundcube:button command="logout" label="logout" type="link" class="logout" innerClass="inner" />
 		</span>

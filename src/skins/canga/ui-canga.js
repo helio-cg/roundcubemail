@@ -20,6 +20,73 @@
         return name === 'INBOX' ? 'Caixa de entrada' : (name || 'Caixa de entrada');
     }
 
+    var MENU_MAILBOXES = {
+        inbox: 'INBOX',
+        sent: 'Sent',
+        drafts: 'Drafts',
+        archive: 'Archive',
+        junk: 'Junk',
+        trash: 'Trash'
+    };
+
+    function mailboxForClass(cls) {
+        var source = document.querySelector('#mailboxlist li.' + cls + ' a[rel]');
+
+        if (source) {
+            return { name: source.getAttribute('rel'), source: source };
+        }
+
+        var mailboxes = rcmail.env.mailboxes || {};
+
+        for (var name in mailboxes) {
+            if (mailboxes[name] && mailboxes[name].class === cls) {
+                return { name: name, source: null };
+            }
+        }
+
+        return { name: MENU_MAILBOXES[cls], source: null };
+    }
+
+    function updateUnreadCounts() {
+        Object.keys(MENU_MAILBOXES).forEach(function (cls) {
+            var target = document.querySelector('.canga-menu-nav > .canga-static-submenu a.' + cls);
+
+            if (!target) {
+                return;
+            }
+
+            var info = mailboxForClass(cls);
+            var counts = rcmail.env.unread_counts || {};
+            var hasData = !!info.source || (info.name && Object.prototype.hasOwnProperty.call(counts, info.name));
+            var count = 0;
+
+            if (info.source) {
+                var counter = info.source.querySelector('.unreadcount');
+
+                if (counter) {
+                    count = parseInt(counter.textContent.replace(/\D/g, ''), 10) || 0;
+                }
+            } else if (hasData) {
+                count = parseInt(counts[info.name] || 0, 10) || 0;
+            }
+
+            var badge = target.querySelector('.canga-nav-count');
+
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'canga-nav-count';
+                badge.style.marginLeft = 'auto';
+                target.appendChild(badge);
+                badge.hidden = !hasData;
+            }
+
+            if (hasData) {
+                badge.textContent = count > 0 ? String(count) : '';
+                badge.hidden = count <= 0;
+            }
+        });
+    }
+
     function settingsName() {
         var action = rcmail.env.action || '';
         var names = {
@@ -283,6 +350,7 @@
         applyHeader();
         moveListToolbar();
         setActiveMenu();
+        updateUnreadCounts();
         setTimeout(function () {
             applyHeader();
             moveListToolbar();
@@ -304,6 +372,7 @@
         rcmail.addEventListener('init', scheduleHeader);
         rcmail.addEventListener('afterlist', scheduleHeader);
         rcmail.addEventListener('listupdate', scheduleHeader);
+        rcmail.addEventListener('set-unread-count', updateUnreadCounts);
     }
 
     document.addEventListener('click', function (event) {

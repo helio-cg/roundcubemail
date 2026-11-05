@@ -2,11 +2,13 @@
 
 Este deploy instala as skins e plugins deste repositório no Roundcube que o
 HestiaCP já serve. E-mail não faz parte do deploy: nenhum diretório de mensagens,
-conta, domínio, Exim, Dovecot ou Postfix é lido ou alterado.
+conta ou domínio é lido ou alterado. A única exceção é a etapa de
+Spamhaus/unbound (`RC_SPAMHAUS_UNBOUND`, ligada no `deploy.env.example`), que
+mexe em `/etc/resolv.conf` e no DNSBL do Exim.
 
 ## O que o deploy altera
 
-- `/var/lib/roundcube/skins/{carius,aurora,iguatu,canga}`
+- `/var/lib/roundcube/skins/{carius,iguatu,canga}`
 - `/var/lib/roundcube/plugins/{calendar,libcalendaring,libkolab,twofactor_gauthenticator,user}`
 - `/etc/roundcube/rc-deploy.inc.php` (novo include de configuração)
 - um bloco marcado `BEGIN rc-deploy` no fim de `/etc/roundcube/config.inc.php`
@@ -147,6 +149,69 @@ backup antigo manualmente:
 
 Os backups mais antigos são removidos conforme `RC_KEEP_BACKUPS` (padrão: 5).
 
+## Spamhaus com resolvedor local (opcional)
+
+Quando o servidor consulta o `zen.spamhaus.org` por um resolvedor público, o
+Spamhaus responde `127.255.255.x` para **todas** as consultas. O Exim interpreta
+isso como "IP listado" e rejeita o e-mail externo inteiro. Para usar o Spamhaus
+com segurança é preciso um resolvedor recursivo próprio.
+
+Com `RC_SPAMHAUS_UNBOUND=1` no `deploy/deploy.env`, o deploy:
+
+1. instala o `unbound` (se faltar) e o configura em `127.0.0.1:53`;
+2. valida que o Spamhaus responde pelo unbound (nunca `127.255.255.x`);
+3. só então aponta `/etc/resolv.conf` para `127.0.0.1`;
+4. reativa o DNSBL na Hestia e reinicia o Exim.
+
+O script (`deploy/enable-spamhaus-unbound.sh`) é idempotente e autônomo: faz
+backup em `/root/spamhaus-unbound-backups/<data-hora>/`, recusa-se a aplicar se
+a saída direta para a porta 53 estiver bloqueada (caso em que o caminho é o DQS
+com chave) e **reverte tudo sozinho** se qualquer verificação falhar. Se o
+`zen.spamhaus.org` já estiver ativo e o resolvedor atual estiver bloqueado, ele
+**remove o DNSBL imediatamente** para não rejeitar e-mail, e só o reativa depois
+que o unbound responder. Ele também pode ser copiado e executado direto no
+servidor, como root:
+
+```bash
+./enable-spamhaus-unbound.sh
+```
+
+Para conferir depois:
+
+```bash
+dig +short 2.0.0.127.zen.spamhaus.org @127.0.0.1   # esperado: 127.0.0.2
+dig +short 2.0.0.127.zen.spamhaus.org              # usa /etc/resolv.conf
+```
+
+Rollback manual:
+
+```bash
+/root/spamhaus-unbound-backups/<data-hora>/rollback.sh
+```
+
+Se `/etc/resolv.conf` for regravado por cloud-init/resolvconf ou por um
+`systemd-resolved` ativo, aponte-o de volta para `127.0.0.1` após o reboot (ou
+desabilite o gerenciador).
+
+## TLS no acesso local (opcional)
+
+Com `RC_LOCAL_TLS=1`, o deploy acrescenta ao overlay:
+
+```php
+$config['imap_host'] = 'ssl://localhost:993';
+$config['smtp_host'] = 'tls://localhost:587';
+```
+
+e relaxa `verify_peer`/`verify_peer_name` **apenas no loopback**, porque o
+certificado do Dovecot/Exim é emitido para o nome público (`mail.<dominio>`),
+não para `localhost`. Assim o Roundcube fala TLS com Dovecot e Exim sem sair
+para a rede.
+
+Requisitos: Dovecot ouvindo em 993 e Exim em 587 com STARTTLS (padrão no
+Hestia). Se o login falhar após ativar, volte `RC_LOCAL_TLS=0` e rode o deploy
+de novo. O bloco é gerado no build do payload, não fica no arquivo do
+repositório, e é removido no próximo deploy com `RC_LOCAL_TLS=0`.
+
 ## CSS de produção
 
 O deploy compila `styles.min.css`, `print.min.css`, `embed.min.css` e o CSS do
@@ -162,20 +227,58 @@ ALLOW_STALE_CSS=1 ./deploy/deploy.sh
 
 ## Skins e escolha do tema
 
-O tema padrão de novos acessos é `carius` (`RC_SKIN`). As quatro skins ficam
+O tema padrão de novos acessos é `carius` (`RC_SKIN`). As três skins ficam
 disponíveis para os usuários escolherem, junto com `elastic`, que não é alterada.
 
-## 2FA
+## 2FA e plugin user
 
-O plugin `twofactor_gauthenticator` é instalado com `force_enrollment_users`
-desligado e `users_allowed_2FA = null`, ou seja, todos podem ativar o 2FA
-voluntariamente. Para restringir ou forçar usuários, edite no servidor:
+O plugin `user` só liga `user_enable_skin_colors`; não há mais nada a ajustar.
+
+O `twofactor_gauthenticator` é semeado com:
+
+- `force_enrollment_users = false` (2FA voluntário);
+- `users_allowed_2FA = null` (todos os usuários — necessário em multi-domínio);
+- `whitelist = []` (sem bypass por IP);
+- `twofactor_pref_encrypt = true` (segredos TOTP cifrados);
+- `twofactor_lockout_delays` / `twofactor_lockout` (proteção contra força bruta).
+
+O deploy não copia o `config.inc.php` que vem dentro do plugin: ele semeia
+`deploy/config/plugins/twofactor_gauthenticator.php`. Para restringir ou forçar
+usuários, edite no servidor:
 
 ```text
 /var/lib/roundcube/plugins/twofactor_gauthenticator/config.inc.php
 ```
 
-O deploy não sobrescreve esse arquivo depois do primeiro.
+O deploy não sobrescreve esse arquivo depois do primeiro. Ele avisa se
+`users_allowed_2FA` estiver restrito (por exemplo, aos domínios de exemplo) e se
+o `des_key` estiver vazio ou no valor padrão.
+
+Cuidados:
+
+- `twofactor_pref_encrypt = true` usa o `des_key` do Roundcube. Mantenha o
+  `des_key` estável: trocá-lo torna ilegíveis os segredos 2FA já cadastrados.
+- `twofactor_trusted_proxies` fica vazio. Se o webmail estiver atrás de
+  Cloudflare e você usar a whitelist por IP, inclua as faixas do Cloudflare;
+  caso contrário a whitelist vê o IP do proxy.
+
+## Login multi-domínio (URL única)
+
+O webmail é um só para todos os domínios: o usuário entra em um endereço único
+(ex.: `https://webmail.stmip.net`) e digita o **e-mail completo**
+(`fulano@telhafm.com`, `outro@outrodominio.com`). Não é preciso criar
+`webmail.<dominio>` para cada domínio.
+
+Para isso funcionar, o deploy grava em `/etc/roundcube/rc-deploy.inc.php`:
+
+```php
+$config['username_domain'] = '';
+```
+
+Isso anula qualquer domínio fixo que o painel tenha configurado. Se
+`username_domain` ficasse preenchido, o Roundcube completaria o login com um
+domínio só e as contas dos demais domínios não autenticariam. Não altere esse
+valor em servidores com mais de um domínio.
 
 ## Verificação
 

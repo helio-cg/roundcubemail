@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PAYLOAD="$ROOT/.build/payload"
-SKINS="${RC_SKINS:-carius aurora iguatu canga}"
+SKINS="${RC_SKINS:-carius iguatu canga}"
 ALLOW_STALE_CSS="${ALLOW_STALE_CSS:-0}"
 
 LESS_CMD=(npx --yes -p less -p less-plugin-clean-css lessc "--clean-css=--s1 --advanced")
@@ -59,9 +59,27 @@ for skin in $SKINS; do
 done
 
 cp -a "$ROOT/deploy/config/rc-deploy.inc.php" "$PAYLOAD/config/rc-deploy.inc.php"
+
+if [ "${RC_LOCAL_TLS:-0}" = 1 ]; then
+    cat >> "$PAYLOAD/config/rc-deploy.inc.php" <<'PHP'
+
+$config['imap_host'] = 'ssl://localhost:993';
+$config['smtp_host'] = 'tls://localhost:587';
+$config['imap_conn_options'] = array_replace_recursive(
+    (array) ($config['imap_conn_options'] ?? []),
+    ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]
+);
+$config['smtp_conn_options'] = array_replace_recursive(
+    (array) ($config['smtp_conn_options'] ?? []),
+    ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]
+);
+PHP
+fi
+
 cp -a "$ROOT/deploy/config/plugins/." "$PAYLOAD/plugin-configs/"
 cp -a "$ROOT/deploy/remote-install.sh" "$PAYLOAD/remote-install.sh"
-chmod +x "$PAYLOAD/remote-install.sh"
+cp -a "$ROOT/deploy/enable-spamhaus-unbound.sh" "$PAYLOAD/enable-spamhaus-unbound.sh"
+chmod +x "$PAYLOAD/remote-install.sh" "$PAYLOAD/enable-spamhaus-unbound.sh"
 
 {
     printf 'commit=%s\n' "$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"

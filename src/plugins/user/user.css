@@ -1,5 +1,6 @@
 .user-settings {
-    max-width: 760px;
+    width: 100%;
+    max-width: none;
 }
 
 .user-settings-head {
@@ -20,6 +21,131 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.user-settings-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .15rem;
+    margin: 0;
+    border-bottom: 1px solid rgba(128, 128, 128, .28);
+}
+
+.user-settings-tab {
+    padding: .6rem .9rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: .35rem .35rem 0 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    opacity: .7;
+    cursor: pointer;
+}
+
+.user-settings-tab:hover,
+.user-settings-tab:focus-visible {
+    background: rgba(128, 128, 128, .1);
+    opacity: 1;
+    outline: none;
+}
+
+.user-settings-tab.is-active {
+    border-bottom-color: var(--user-accent, #0f5132);
+    color: var(--user-accent, #0f5132);
+    opacity: 1;
+}
+
+.user-settings-panel[hidden] {
+    display: none !important;
+}
+
+.user-settings-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-settings-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.user-settings-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.user-settings-group {
+    margin: 0;
+    padding: .9rem 1rem 1rem;
+    border: 1px solid rgba(128, 128, 128, .25);
+    border-radius: .45rem;
+}
+
+.user-settings-group legend {
+    padding: 0 .35rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.user-settings-group .user-settings-field + .user-settings-field {
+    margin-top: .9rem;
+}
+
+.user-settings-subtitle {
+    margin: 1.2rem 0 .5rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.user-settings-panel .user-settings-group table {
+    width: 100%;
+}
+
+.user-skin-grid {
+    display: table;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 .4rem;
+}
+
+.user-skin-grid .skinselection {
+    cursor: pointer;
+}
+
+.user-settings-select,
+.user-settings-number {
+    width: 100%;
+    max-width: 28rem;
+    padding: .55rem .65rem;
+    border: 1px solid rgba(128, 128, 128, .35);
+    border-radius: .35rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+}
+
+.user-settings-number {
+    max-width: 9rem;
+}
+
+.user-settings-check {
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.user-settings-check input[type="checkbox"] {
+    flex: 0 0 auto;
+    margin-top: .2rem;
 }
 
 .user-settings-field {
@@ -66,6 +192,13 @@
 .user-settings-colors legend {
     padding: 0 .35rem;
     font-weight: 600;
+}
+
+.user-color-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+    align-items: start;
 }
 
 .user-color-grid {
@@ -265,6 +398,18 @@
     font: inherit;
     font-size: 88%;
     cursor: default;
+}
+
+@media screen and (min-width: 1024px) {
+    .user-color-columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 960px) {
+    .user-settings-columns {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media screen and (max-width: 480px) {
