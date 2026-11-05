@@ -45,6 +45,7 @@ fail() { printf '[deploy] erro: %s\n' "$*" >&2; exit 1; }
     printf 'RC_UNBOUND_PORT=%s\n' "${RC_UNBOUND_PORT:-53}"
     printf 'RC_SPAMHAUS_KEEP_BACKUPS=%s\n' "${RC_SPAMHAUS_KEEP_BACKUPS:-5}"
     printf 'RC_LOCAL_TLS=%s\n' "${RC_LOCAL_TLS:-0}"
+    printf 'RC_INSTALL_BACKUP_TOOLS=%s\n' "${RC_INSTALL_BACKUP_TOOLS:-1}"
 } > "$PAYLOAD/deploy.env"
 
 ssh_cmd=(ssh $DEPLOY_SSH_OPTS "$DEPLOY_TARGET")

@@ -79,7 +79,15 @@ fi
 cp -a "$ROOT/deploy/config/plugins/." "$PAYLOAD/plugin-configs/"
 cp -a "$ROOT/deploy/remote-install.sh" "$PAYLOAD/remote-install.sh"
 cp -a "$ROOT/deploy/enable-spamhaus-unbound.sh" "$PAYLOAD/enable-spamhaus-unbound.sh"
-chmod +x "$PAYLOAD/remote-install.sh" "$PAYLOAD/enable-spamhaus-unbound.sh"
+cp -a "$ROOT/deploy/rc-backup.sh" "$PAYLOAD/rc-backup.sh"
+cp -a "$ROOT/deploy/rc-restore.sh" "$PAYLOAD/rc-restore.sh"
+cp -a "$ROOT/deploy/rc-backup-verify.sh" "$PAYLOAD/rc-backup-verify.sh"
+cp -a "$ROOT/deploy/rc-backup-lib.sh" "$PAYLOAD/rc-backup-lib.sh"
+cp -a "$ROOT/deploy/rc-data.php" "$PAYLOAD/rc-data.php"
+cp -a "$ROOT/deploy/rc-backup.env.example" "$PAYLOAD/rc-backup.env.example"
+chmod +x "$PAYLOAD/remote-install.sh" "$PAYLOAD/enable-spamhaus-unbound.sh" \
+    "$PAYLOAD/rc-backup.sh" "$PAYLOAD/rc-restore.sh" "$PAYLOAD/rc-backup-verify.sh"
+chmod 644 "$PAYLOAD/rc-backup-lib.sh" "$PAYLOAD/rc-data.php" "$PAYLOAD/rc-backup.env.example"
 
 {
     printf 'commit=%s\n' "$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"

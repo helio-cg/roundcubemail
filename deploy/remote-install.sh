@@ -29,6 +29,9 @@ RC_SKIP_DB_BACKUP="${RC_SKIP_DB_BACKUP:-0}"
 RC_SPAMHAUS_UNBOUND="${RC_SPAMHAUS_UNBOUND:-0}"
 RC_SPAMHAUS_DNSBL="${RC_SPAMHAUS_DNSBL:-zen.spamhaus.org}"
 PHP_BIN="${PHP_BIN:-php}"
+RC_INSTALL_BACKUP_TOOLS="${RC_INSTALL_BACKUP_TOOLS:-1}"
+RC_BACKUP_TOOL_DIR="${RC_BACKUP_TOOL_DIR:-/usr/local/lib/roundcube-backup}"
+RC_BACKUP_ENV_FILE="${RC_BACKUP_ENV_FILE:-/etc/roundcube/rc-backup.env}"
 
 case "$RC_KEEP_BACKUPS" in
     '' | *[!0-9]* | 0) RC_KEEP_BACKUPS=1 ;;
@@ -419,6 +422,33 @@ run_plugin_migrations() {
     done
 }
 
+install_backup_tools() {
+    [ "$RC_INSTALL_BACKUP_TOOLS" = 1 ] || return 0
+
+    install -d -m 755 "$RC_BACKUP_TOOL_DIR" /usr/local/sbin
+    install -m 755 "$PAYLOAD/rc-backup.sh" "$RC_BACKUP_TOOL_DIR/rc-backup.sh"
+    install -m 755 "$PAYLOAD/rc-restore.sh" "$RC_BACKUP_TOOL_DIR/rc-restore.sh"
+    install -m 755 "$PAYLOAD/rc-backup-verify.sh" "$RC_BACKUP_TOOL_DIR/rc-backup-verify.sh"
+    install -m 644 "$PAYLOAD/rc-backup-lib.sh" "$RC_BACKUP_TOOL_DIR/rc-backup-lib.sh"
+    install -m 644 "$PAYLOAD/rc-data.php" "$RC_BACKUP_TOOL_DIR/rc-data.php"
+    install -m 600 "$PAYLOAD/rc-backup.env.example" "$RC_BACKUP_TOOL_DIR/rc-backup.env.example"
+
+    ln -sfn "$RC_BACKUP_TOOL_DIR/rc-backup.sh" /usr/local/sbin/rc-backup
+    ln -sfn "$RC_BACKUP_TOOL_DIR/rc-restore.sh" /usr/local/sbin/rc-restore
+    ln -sfn "$RC_BACKUP_TOOL_DIR/rc-backup-verify.sh" /usr/local/sbin/rc-backup-verify
+
+    if [ ! -f "$RC_BACKUP_ENV_FILE" ]; then
+        install -m 600 "$PAYLOAD/rc-backup.env.example" "$RC_BACKUP_ENV_FILE"
+        warn "configuração inicial de backup criada em $RC_BACKUP_ENV_FILE; ajuste R2/credenciais antes do primeiro backup"
+    fi
+
+    if ! command -v rclone >/dev/null 2>&1 && ! command -v aws >/dev/null 2>&1; then
+        warn "rclone/awscli não encontrado; instale um deles para ativar o backup no R2"
+    fi
+
+    say "ferramentas de backup instaladas em $RC_BACKUP_TOOL_DIR"
+}
+
 reload_php() {
     local svc
     command -v systemctl >/dev/null 2>&1 || return 0
@@ -510,6 +540,8 @@ if [ -f "$twofactor_config" ]; then
 fi
 
 install_php_deps
+
+install_backup_tools
 
 run_plugin_migrations
 

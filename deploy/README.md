@@ -15,6 +15,9 @@ mexe em `/etc/resolv.conf` e no DNSBL do Exim.
 - dependências Composer que faltarem em `/var/lib/roundcube/vendor`
 - somente o banco `roundcube` (preferências, contatos, calendário), via tabelas
   dos próprios plugins
+- ferramentas de backup/restauração em `/usr/local/lib/roundcube-backup` e os
+  comandos `rc-backup`, `rc-restore` e `rc-backup-verify` (configuração em
+  `/etc/roundcube/rc-backup.env`)
 
 O deploy não toca em `/home/*/mail`, `/var/mail`, `/var/vmail`, `/etc/dovecot`,
 `/etc/exim4` ou `/etc/postfix`. O `config.inc.php` existente também é preservado:
@@ -291,3 +294,145 @@ Após o deploy, abra o webmail do HestiaCP e confira:
 
 Se `RC_HEALTH_URL` estiver definido, o deploy também faz uma requisição HTTP de
 verificação e falha se a página não responder.
+
+## Backup dos dados Roundcube por usuário da Hestia (R2)
+
+O backup normal da Hestia cobre `/home/<usuário>` (maildirs, sites, configs),
+mas não o banco do Roundcube. Este conjunto de scripts faz backup **por usuário
+da Hestia** dos dados que não estão nos maildirs:
+
+- contatos, grupos de contatos e endereços coletados;
+- calendários, eventos e anexos;
+- identidades, respostas pré-configuradas e buscas salvas;
+- preferências do Roundcube (inclui o segredo 2FA cifrado) e `user_settings`;
+- dicionário, filestore e demais tabelas com `user_id`.
+
+O backup não lê nem altera maildirs, contas ou domínios. Ele consulta a Hestia
+(`v-list-users`, `v-list-mail-domains`, `v-list-mail-accounts`) para agrupar as
+contas de e-mail de cada usuário e grava um arquivo por usuário no R2. Além das
+contas listadas pela Hestia, entram usuários do Roundcube cujo domínio pertence
+ao mesmo usuário (cobre aliases/catch-all já usados no webmail).
+
+### O que é instalado
+
+O deploy instala as ferramentas em `/usr/local/lib/roundcube-backup` e cria os
+comandos:
+
+- `rc-backup` — exporta e envia o backup de um usuário ou de todos;
+- `rc-restore` — baixa, valida e restaura um backup;
+- `rc-backup-verify` — valida checksum/gzip/manifesto e as relações internas.
+
+A configuração fica em `/etc/roundcube/rc-backup.env` (criada a partir do
+exemplo no primeiro deploy; ajuste antes de usar).
+
+### Configurar o R2
+
+O backend recomendado é o `rclone`. Instale-o no servidor e crie o remote:
+
+```bash
+curl https://rclone.org/install.sh | bash
+rclone config create r2 s3 provider=Cloudflare \
+  access_key_id=SEU_ACCESS_KEY secret_access_key=SEU_SECRET \
+  endpoint=https://SEU_ACCOUNT_ID.r2.cloudflarestorage.com region=auto
+rclone lsd r2:
+```
+
+Crie o bucket privado e ajuste `/etc/roundcube/rc-backup.env`:
+
+```ini
+RC_R2_BACKEND=rclone
+RC_R2_REMOTE=r2
+RC_R2_BUCKET=roundcube-backups
+RC_R2_PREFIX=roundcube-backups
+RC_RETENTION_COUNT=14
+RC_RETENTION_DAYS=90
+RC_VERIFY_AFTER_UPLOAD=1
+```
+
+Alternativa sem `rclone.conf`, usando variáveis de ambiente (também funciona
+quando o arquivo é lido pelo cron):
+
+```ini
+RCLONE_CONFIG_R2_TYPE=s3
+RCLONE_CONFIG_R2_PROVIDER=Cloudflare
+RCLONE_CONFIG_R2_ACCESS_KEY_ID=...
+RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=...
+RCLONE_CONFIG_R2_ENDPOINT=https://SEU_ACCOUNT_ID.r2.cloudflarestorage.com
+RCLONE_CONFIG_R2_REGION=auto
+```
+
+Mantenha o bucket privado e `/etc/roundcube/rc-backup.env` com modo `600`. O
+manifesto inclui o `des_key` do Roundcube porque ele é necessário para decifrar
+preferências e o segredo 2FA restaurados.
+
+### Testar antes do cron
+
+```bash
+# Um usuário da Hestia (usa o mapeamento da Hestia)
+rc-backup --user alice
+
+# Teste sem R2 e sem Hestia (ambiente local)
+RC_BACKEND=local RC_R2_LOCAL_DIR=/tmp/r2 \
+  rc-backup --hestia-user alice --emails alice@example.com --no-upload \
+  --output-dir /tmp/rc-backups
+
+# Conferir o último backup de um usuário
+rc-backup-verify --user alice
+
+# Simular a restauração (não grava nada)
+rc-restore --user alice --dry-run
+```
+
+### Restauração em um servidor novo
+
+Depois de restaurar o usuário na Hestia e o banco do Roundcube, os IDs numéricos
+de `users.user_id` podem ser diferentes. O `rc-restore` localiza (ou cria) o
+usuário pelo **email** e usa o novo `user_id` para reinserir todos os dados
+relacionados, remapeando contatos/grupos, calendários/eventos/anexos,
+identidades, respostas etc.
+
+```bash
+# Último backup do usuário
+rc-restore --user alice --mode replace --yes
+
+# Um backup específico
+rc-restore --user alice --timestamp 20261105-031500 --mode replace --yes
+
+# Arquivo local
+rc-restore --file /root/backups/alice-20261105.tar.gz --mode replace --yes
+```
+
+O modo `replace` apaga os dados atuais dos emails presentes no backup antes de
+reinserir. Use `--dry-run` para ver o mapeamento antigo → novo sem gravar. O modo
+`merge` apenas insere e pode duplicar registros se o destino já tiver dados.
+
+Se o `des_key` do backup for diferente do Roundcube atual, a restauração avisa:
+preferências cifradas e o 2FA podem não abrir. O ideal é manter o mesmo
+`des_key` ou copiá-lo do backup para `/etc/roundcube/config.inc.php` de forma
+consciente.
+
+### Retenção e verificação
+
+Cada execução do `rc-backup` aplica a retenção por usuário:
+
+- `RC_RETENTION_COUNT` mantém os N backups mais recentes (padrão 14);
+- `RC_RETENTION_DAYS` remove backups mais antigos que N dias (padrão 90).
+
+A validação feita logo após o envio compara checksum e tamanho remotos. Para uma
+verificação completa (download, sha256, gzip, manifesto e relações internas):
+
+```bash
+rc-backup-verify --user alice
+rc-backup-verify --all --enforce-retention
+```
+
+### Cron sugerido
+
+```cron
+# /etc/cron.d/roundcube-backup
+15 3 * * * root /usr/local/sbin/rc-backup --all >> /var/log/rc-roundcube-backup.cron.log 2>&1
+30 4 * * 1 root /usr/local/sbin/rc-backup-verify --all >> /var/log/rc-roundcube-backup.cron.log 2>&1
+```
+
+O `rc-backup` usa `flock`: uma execução não atropela a outra. O log operacional
+fica em `RC_LOG_FILE` (padrão `/var/log/rc-roundcube-backup.log`).

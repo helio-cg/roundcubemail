@@ -866,3 +866,30 @@
 .user-settings-field select:focus {
     background-color: rgba(127, 127, 127, .03) !important;
 }
+
+/* Contrast and focus refinements */
+.user-settings .button:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--us-accent) 28%, transparent);
+}
+
+.user-settings .button.mainaction:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--us-accent) 35%, transparent),
+        0 6px 16px color-mix(in srgb, var(--us-accent) 26%, transparent);
+}
+
+html.dark-mode .user-settings .button.mainaction {
+    color: #14161f;
+}
+
+html.dark-mode .user-settings .button.mainaction:hover,
+html.dark-mode .user-settings .button.mainaction:focus-visible {
+    color: #14161f;
+}
+
+.user-responses-badge {
+    white-space: nowrap;
+}
+
+.user-responses-preview {
+    overflow-wrap: anywhere;
+}
