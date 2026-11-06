@@ -70,10 +70,10 @@ podman logs -f roundcube-dev-mail
 
 ## Onde fica o tema
 
-- Tema atual: `src/skins/carius`
-- Estilos: `src/skins/carius/styles/*.less` (o arquivo principal e `_carius.less`)
-- Templates: `src/skins/carius/templates/*.html`
-- Nome/metadados do tema: `src/skins/carius/meta.json`
+- Tema atual: `src/skins/canga`
+- Estilos: `src/skins/canga/styles/*.less` (os principais sao `_theme.less` e `_canga.less`)
+- Templates: `src/skins/canga/templates/*.html`
+- Nome/metadados do tema: `src/skins/canga/meta.json`
 
 O **Carius** usa a base do Elastic 1.7.5 e reorganiza a navegacao no topo:
 E-mail, Calendario, Contatos e Configuracoes ficam na barra superior, enquanto a
@@ -101,7 +101,7 @@ Para editar o LESS com recarga instantanea, defina `ROUNDCUBE_DEVEL_MODE=1` no
 `.env` e rode `podman-compose up -d --force-recreate`. Nesse modo o LESS e
 compilado no navegador (mais lento e com um pequeno flash entre paginas).
 
-Temas disponiveis: **Carius** (padrao), **Aurora**, **Iguatu**, **Canga** e o
+Temas disponiveis: **Canga** (padrao), **Carius**, **Aurora**, **Iguatu** e o
 **Elastic** original. Para trocar depois de autenticado, use:
 
 - `https://roundcube.test/?_task=mail&skin=carius`
@@ -176,5 +176,10 @@ podman-compose down -v
 podman-compose up -d
 ```
 
-- criar scipr que faz backup de caltarios e tudo que não faz parte do backup normal do hesticap.
-- preprar para restauração comrelacionado ao id.
+- criar script que faz backup de calendarios, contatos e tudo que não faz parte do backup normal do hesticap.
+- preprar para restauração com relacionado ao user_id, sendo que ao restaurar no hestia vai gerar novo id para cada conta, ai precisa fazer correlação pelo email e pagar novo id antes de restaura dados relacionados a cada email.
+- backup e restauração sera no r2 por user do hestiacp
+- criar script pra validar integraidade dos backup e manter retençã
+- ajustes finos no css
+- testar deploy, backup e restauração
+- ver onde salva senha do ses na aws e criar nova

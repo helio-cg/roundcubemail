@@ -68,6 +68,7 @@ $labels['presetatual'] = 'Current';
 $labels['presetazul'] = 'Blue';
 $labels['presetvermelho'] = 'Red';
 $labels['presetcinza'] = 'Gray';
+$labels['presetverde'] = 'Green';
 $labels['presetmarple'] = 'MArple';
 $labels['save'] = 'Save and apply';
 $labels['reset'] = 'Restore default';

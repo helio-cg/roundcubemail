@@ -1,6 +1,6 @@
 FROM docker.io/roundcube/roundcubemail:1.7.5-apache
 
-ARG ROUNDCUBE_SKIN=carius
+ARG ROUNDCUBE_SKIN=canga
 
 COPY ./src/skins/${ROUNDCUBE_SKIN}/ /usr/src/roundcubemail/skins/${ROUNDCUBE_SKIN}/
 COPY ./src/plugins/ /usr/src/roundcubemail/plugins/

@@ -1,7 +1,7 @@
 <?php
 
 $rcDeployPlugins = ['libcalendaring', 'libkolab', 'calendar', 'twofactor_gauthenticator', 'user'];
-$rcDeploySkins = ['carius', 'iguatu', 'canga'];
+$rcDeploySkins = ['canga', 'carius', 'iguatu'];
 
 $config['plugins'] = isset($config['plugins']) && is_array($config['plugins']) ? $config['plugins'] : [];
 foreach ($rcDeployPlugins as $rcDeployPlugin) {
@@ -14,13 +14,12 @@ $config['skins_allowed'] = isset($config['skins_allowed']) && is_array($config['
     ? $config['skins_allowed']
     : ['elastic'];
 
-foreach ($rcDeploySkins as $rcDeploySkin) {
-    if (!in_array($rcDeploySkin, $config['skins_allowed'], true)) {
-        $config['skins_allowed'][] = $rcDeploySkin;
-    }
-}
+// Canga first: it is the default and the first entry in the skin menu.
+$config['skins_allowed'] = array_values(array_unique(array_merge(
+    $rcDeploySkins, $config['skins_allowed']
+)));
 
-$config['skin'] = 'carius';
+$config['skin'] = 'canga';
 $config['devel_mode'] = false;
 $config['user_enable_skin_colors'] = true;
 

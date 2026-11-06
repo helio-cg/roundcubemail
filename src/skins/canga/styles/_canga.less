@@ -2336,7 +2336,7 @@ body #layout {
 
 body #layout-list,
 body #layout-content {
-    padding-top: 106px;
+    padding-top: 78px;
 }
 
 body.task-login #layout-list,
@@ -2391,7 +2391,7 @@ body.task-login #layout-content {
 
 body #layout-list,
 body #layout-content {
-    padding-top: 126px;
+    padding-top: 78px;
 }
 
 .canga-brand-copy,
@@ -2407,9 +2407,9 @@ body.task-mail #layout {
 
 body.task-mail #layout-list.canga-inbox-list,
 body.task-mail #layout-content {
-    height: calc(100% - 158px);
+    height: calc(100% - 94px);
     min-height: 0;
-    margin-top: 142px;
+    margin-top: 78px;
     margin-bottom: 16px;
     padding-top: 0;
     border: 1px solid @canga-menu-border;
@@ -2432,8 +2432,8 @@ body.task-mail #layout-content {
 @media screen and (max-width: @screen-width-small) {
     body.task-mail #layout-list.canga-inbox-list,
     body.task-mail #layout-content {
-        height: calc(100% - 150px);
-        margin: 134px 8px 16px;
+        height: calc(100% - 94px);
+        margin: 78px 8px 16px;
     }
 
     body.task-mail #layout-content {
@@ -2531,9 +2531,9 @@ body:not(.task-login):not(.task-error-login) #layout {
 
 body:not(.task-login):not(.task-error-login) #layout-list,
 body:not(.task-login):not(.task-error-login) #layout-content {
-    height: calc(100% - 158px);
+    height: calc(100% - 94px);
     min-height: 0;
-    margin-top: 142px;
+    margin-top: 78px;
     margin-bottom: 16px;
     padding-top: 0;
     border: 1px solid @canga-menu-border;
@@ -2561,8 +2561,8 @@ body.task-calendar #layout-content {
 @media screen and (max-width: @screen-width-small) {
     body:not(.task-login):not(.task-error-login) #layout-list,
     body:not(.task-login):not(.task-error-login) #layout-content {
-        height: calc(100% - 150px);
-        margin: 134px 8px 16px;
+        height: calc(100% - 94px);
+        margin: 78px 8px 16px;
     }
 
     body.task-calendar #layout-content {
@@ -2970,9 +2970,9 @@ body.action-compose #layout > #layout-sidebar {
     width: 320px;
     max-width: 320px;
     min-width: 0;
-    height: calc(100% - 158px);
+    height: calc(100% - 94px);
     min-height: 0;
-    margin: 142px 16px 16px 8px;
+    margin: 78px 16px 16px 8px;
     border: 1px solid @canga-menu-border;
     border-radius: 12px;
     background: #fff;
@@ -3032,7 +3032,7 @@ body.action-compose #layout-sidebar .btn {
     }
 
     body.action-compose #layout > #layout-content {
-        margin: 134px 8px 16px;
+        margin: 78px 8px 16px;
     }
 }
 
@@ -3485,339 +3485,6 @@ body #layout-menu.canga-menu #taskmenu > .special-buttons a.logout:hover {
     }
 }
 
-/* ===== Complete Canga dark mode ===== */
-html.dark-mode body {
-    background: #0b141a;
-    color: #d7e5e7;
-}
-
-html.dark-mode #layout {
-    background: #0b141a;
-}
-
-html.dark-mode .canga-pageheader {
-    border-bottom-color: #24333c;
-    background: #111c23;
-}
-
-html.dark-mode .canga-pageheader-title {
-    color: #eef7f7;
-}
-
-html.dark-mode .canga-pageheader-subtitle {
-    color: #8fa6aa;
-}
-
-html.dark-mode body:not(.task-login):not(.task-error-login) #layout-list,
-html.dark-mode body:not(.task-login):not(.task-error-login) #layout-content,
-html.dark-mode body.action-compose #layout-sidebar {
-    border-color: #283740 !important;
-    background: #151f27 !important;
-    box-shadow: none !important;
-    color: #d7e5e7;
-}
-
-html.dark-mode #layout-list > .header,
-html.dark-mode #layout-content > .header,
-html.dark-mode body.action-compose #layout-sidebar > .header {
-    border-color: #283740 !important;
-    background: #18242c !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #layout-list > .header a.button,
-html.dark-mode #layout-content > .header a.button,
-html.dark-mode body.action-compose #layout-sidebar > .header a.button {
-    color: #c6d7da !important;
-}
-
-html.dark-mode #messagelist-header.canga-header-toolbar .toolbar.menu a,
-html.dark-mode #messagelist-header.canga-header-toolbar > .toolbar-button,
-html.dark-mode .canga-header-toolbar .toolbar.menu a,
-html.dark-mode .canga-header-toolbar > .toolbar-button {
-    border-color: #2b3b44 !important;
-    background: #18262e !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #messagelist-header.canga-header-toolbar .toolbar.menu a:hover,
-html.dark-mode #messagelist-header.canga-header-toolbar > .toolbar-button:hover,
-html.dark-mode .canga-header-toolbar .toolbar.menu a:hover,
-html.dark-mode .canga-header-toolbar > .toolbar-button:hover {
-    border-color: #3b5660 !important;
-    background: #20343c !important;
-    color: #fff !important;
-}
-
-html.dark-mode #messagelist-header.canga-header-toolbar .toolbar.menu a:before,
-html.dark-mode #messagelist-header.canga-header-toolbar > .toolbar-button:before,
-html.dark-mode .canga-header-toolbar .toolbar.menu a:before,
-html.dark-mode .canga-header-toolbar > .toolbar-button:before {
-    color: #9db5b9 !important;
-}
-
-html.dark-mode body:not(.task-login) #layout-list .searchbar,
-html.dark-mode body:not(.task-login) #layout-content .searchbar {
-    border-color: #283740 !important;
-    background: #111c23 !important;
-}
-
-html.dark-mode body:not(.task-login) #layout-list .searchbar input,
-html.dark-mode body:not(.task-login) #layout-content .searchbar input {
-    border-color: #2c3b44 !important;
-    background: #0c151b !important;
-    color: #e4eff0 !important;
-}
-
-html.dark-mode body:not(.task-login) #layout-list .searchbar .button,
-html.dark-mode body:not(.task-login) #layout-content .searchbar .button {
-    color: #b6ccd0 !important;
-}
-
-html.dark-mode #messagelist tbody tr td,
-html.dark-mode #contacts-table tbody tr td,
-html.dark-mode #sections-table tbody tr td,
-html.dark-mode #layout-list .listing tbody tr td,
-html.dark-mode #layout-content .listing tbody tr td,
-html.dark-mode #layout-list .listing li,
-html.dark-mode #layout-content .listing li {
-    border-color: #25333c !important;
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #messagelist tbody tr:hover td,
-html.dark-mode #contacts-table tbody tr:hover td,
-html.dark-mode #layout-list .listing tbody tr:hover td,
-html.dark-mode #layout-content .listing tbody tr:hover td {
-    background: #1b2b33 !important;
-}
-
-html.dark-mode #messagelist tbody tr.selected td,
-html.dark-mode #contacts-table tbody tr.selected td,
-html.dark-mode #layout-list .listing tbody tr.selected td,
-html.dark-mode #layout-content .listing tbody tr.selected td {
-    background: #1d3b3b !important;
-    color: #fff !important;
-}
-
-html.dark-mode #messagelist td.subject a,
-html.dark-mode #messagelist .fromto,
-html.dark-mode #messagelist .date {
-    color: #d9e8ea !important;
-}
-
-html.dark-mode #messagelist td.date {
-    color: #90a7ab !important;
-}
-
-html.dark-mode #layout-list .pagenav {
-    border-color: #283740 !important;
-    background: #111c23 !important;
-    color: #9db5b9 !important;
-}
-
-html.dark-mode #layout-list .pagenav a,
-html.dark-mode #layout-list .pagenav .button {
-    color: #b8ced1 !important;
-}
-
-html.dark-mode .listing-info,
-html.dark-mode .listing .empty,
-html.dark-mode .listing-info td {
-    color: #8fa6aa !important;
-    background: transparent !important;
-}
-
-/* Compose */
-html.dark-mode #layout-content,
-html.dark-mode #compose-content,
-html.dark-mode #compose-content .formcontent.scroller,
-html.dark-mode #composebody {
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #composebody {
-    border-color: #2c3b44 !important;
-    background: #0f181e !important;
-    color: #e4eff0 !important;
-}
-
-html.dark-mode body.action-compose #layout-sidebar .scroller,
-html.dark-mode body.action-compose #compose-attachments,
-html.dark-mode body.action-compose #compose-options,
-html.dark-mode body.action-compose #layout-sidebar .file-upload {
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode body.action-compose #compose-attachments h2:not(.voice),
-html.dark-mode body.action-compose #compose-options h2:not(.voice),
-html.dark-mode body.action-compose #layout-sidebar label,
-html.dark-mode body.action-compose #layout-sidebar .col-form-label {
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode body.action-compose #layout-sidebar .attach,
-html.dark-mode body.action-compose #layout-sidebar .btn {
-    border-color: #354751 !important;
-    background: #1d3037 !important;
-    color: #d9eeee !important;
-}
-
-html.dark-mode body.action-compose #layout-sidebar .file-upload {
-    border-color: #354751 !important;
-}
-
-html.dark-mode #layout-content .compose-headers label,
-html.dark-mode #layout-content .compose-headers .col-form-label,
-html.dark-mode #layout-content .form-group label {
-    color: #a9c0c4 !important;
-}
-
-html.dark-mode #layout-content input,
-html.dark-mode #layout-content select,
-html.dark-mode #layout-content textarea,
-html.dark-mode #layout-sidebar input,
-html.dark-mode #layout-sidebar select,
-html.dark-mode #layout-sidebar textarea {
-    border-color: #2c3b44 !important;
-    background: #0f181e !important;
-    color: #e4eff0 !important;
-}
-
-html.dark-mode #layout-content .custom-select,
-html.dark-mode #layout-content .form-control {
-    border-color: #2c3b44 !important;
-    background-color: #0f181e !important;
-    color: #e4eff0 !important;
-}
-
-/* Calendar */
-html.dark-mode #layout-content .fc,
-html.dark-mode #layout-content .fc-widget-header,
-html.dark-mode #layout-content .fc-widget-content,
-html.dark-mode #layout-content .fc-head-container,
-html.dark-mode #layout-content .fc-body,
-html.dark-mode #layout-content .fc-row,
-html.dark-mode #layout-content .fc-day,
-html.dark-mode #layout-content .fc-axis,
-html.dark-mode #layout-content .fc-view,
-html.dark-mode #layout-content .fc-toolbar {
-    border-color: #2a3740 !important;
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #layout-content .fc-day-today {
-    background: #1b3b3a !important;
-}
-
-html.dark-mode #layout-content .fc-day-number,
-html.dark-mode #layout-content .fc-center,
-html.dark-mode #layout-content .fc-toolbar h2 {
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #layout-content .fc-button,
-html.dark-mode #layout-content .fc-toolbar .btn,
-html.dark-mode #layout-content #calendar .btn {
-    border-color: #2f424b !important;
-    background: #1b2a32 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #layout-content .fc-button-active,
-html.dark-mode #layout-content .fc-state-active {
-    border-color: #3d726b !important;
-    background: #1d4847 !important;
-    color: #fff !important;
-}
-
-html.dark-mode #layout-content .calendar-datepicker .ui-datepicker {
-    border-color: #2a3740 !important;
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-/* Login */
-html.dark-mode body.task-login {
-    background: #0b141a;
-}
-
-html.dark-mode body.task-login #login-form {
-    background: #151f27;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
-}
-
-html.dark-mode body.task-login #login-form:before {
-    color: #f2f7f7;
-}
-
-html.dark-mode body.task-login #login-form td.input {
-    border-color: #2c3b44;
-    background: #0f181e;
-}
-
-html.dark-mode body.task-login #login-form td.input:focus-within {
-    border-color: #4db39d;
-    background: #121e25;
-}
-
-html.dark-mode body.task-login #login-form .form-control {
-    background: transparent;
-    color: #e4eff0;
-}
-
-html.dark-mode body.task-login #login-footer {
-    border-top-color: #283740;
-    color: #8fa6aa;
-}
-
-/* Message preview iframe */
-html.dark-mode.iframe body {
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode.iframe #layout-content,
-html.dark-mode.iframe .content.frame-content,
-html.dark-mode.iframe .message-htmlpart {
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode.iframe .message-htmlpart,
-html.dark-mode.iframe .message-part {
-    color: #d7e5e7;
-}
-
-html.dark-mode ::-webkit-scrollbar-thumb {
-    background: #3a4c55;
-}
-
-html.dark-mode ::-webkit-scrollbar-thumb:hover {
-    background: #4b6570;
-}
-
-html.dark-mode #layout-list,
-html.dark-mode #layout-list .scroller,
-html.dark-mode #messagelist-content,
-html.dark-mode #messagelist,
-html.dark-mode #messagelist tbody,
-html.dark-mode #contacts-table,
-html.dark-mode #contacts-table tbody,
-html.dark-mode #sections-table,
-html.dark-mode #sections-table tbody {
-    background: #151f27 !important;
-    color: #d7e5e7 !important;
-}
-
-html.dark-mode #layout-list .scroller {
-    scrollbar-color: #3a4c55 transparent;
-}
-
 /* ===== Canga top bar: calendar and settings ===== */
 .canga-topbar {
     position: fixed;
@@ -4069,9 +3736,9 @@ body.task-addressbook.canga-show-groups #layout > #layout-sidebar {
     width: 230px;
     max-width: 230px;
     min-width: 0;
-    height: calc(100% - 158px);
+    height: calc(100% - 94px);
     min-height: 0;
-    margin: 142px 8px 16px 16px;
+    margin: 78px 8px 16px 16px;
     border: 1px solid @canga-menu-border;
     border-radius: 12px;
     background: #fff;
@@ -4107,27 +3774,10 @@ body.task-addressbook.canga-show-groups #layout > #layout-list {
     }
 }
 
-html.dark-mode body.task-addressbook.canga-show-groups #layout > #layout-sidebar {
-    border-color: #283740;
-    background: #151f27;
-    box-shadow: none;
-}
-
-html.dark-mode body.task-addressbook.canga-show-groups #layout > #layout-sidebar > .header {
-    border-color: #283740;
-    background: #18242c;
-    color: #d7e5e7;
-}
-
 /* Keep the brand block aligned with the top bar on every viewport height. */
 body #layout-menu.canga-menu .popover-header.canga-brand {
     min-height: 62px;
     padding: 8px 12px !important;
-}
-
-/* Dark mode: the workspace surface must stay dark behind the cards. */
-html.dark-mode body:not(.task-login):not(.task-error-login) #layout {
-    background: #0b141a;
 }
 
 /* ------------------------------------------------------------------ */
@@ -4429,8 +4079,8 @@ body.task-login #login-footer > div {
         width: 240px;
         max-width: 240px;
         min-width: 0;
-        height: calc(100% - 158px);
-        margin: 142px 0 16px 16px;
+        height: calc(100% - 94px);
+        margin: 78px 0 16px 16px;
         padding: 0;
         border: 1px solid @canga-menu-border;
         border-radius: 12px;

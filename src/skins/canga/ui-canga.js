@@ -130,20 +130,6 @@
         return name ? name.split('@')[0] : '';
     }
 
-    function applyHeader() {
-        var titleEl = document.getElementById('canga-pageheader-title');
-        var subtitleEl = document.getElementById('canga-pageheader-subtitle');
-
-        if (!titleEl || !subtitleEl) {
-            return;
-        }
-
-        var user = userName();
-
-        titleEl.textContent = title();
-        subtitleEl.textContent = user ? 'Bem-vindo de volta, ' + user + '!' : 'Bem-vindo de volta!';
-    }
-
     function listHeader() {
         var list = document.getElementById('layout-list');
 
@@ -164,25 +150,61 @@
         return !!(header && header.querySelector('.toolbar, .select, .toolbar-button, .toolbar-menu-button, .toolbar-list-button'));
     }
 
-    function moveListToolbar() {
-        var actions = document.getElementById('canga-pageheader-actions');
-        var moved = actions ? actions.querySelector('.canga-header-toolbar') : null;
-        var header = listHeader() || moved;
+    function listActionsHolder() {
+        var list = document.getElementById('layout-list');
+        var holder = document.getElementById('canga-list-actions');
 
-        if (!actions) {
-            return;
+        if (!list) {
+            return null;
         }
 
-        if (!hasHeaderActions(header)) {
-            if (!moved) {
-                actions.innerHTML = '';
+        if (!holder) {
+            holder = document.createElement('div');
+            holder.id = 'canga-list-actions';
+            holder.className = 'canga-list-actions';
+        }
+
+        // Keep the actions directly above the pagination footer.
+        var footer = null;
+        for (var i = list.children.length - 1; i >= 0; i--) {
+            if (list.children[i].classList.contains('footer')) {
+                footer = list.children[i];
+                break;
             }
+        }
+
+        if (footer) {
+            if (holder.nextElementSibling !== footer) {
+                list.insertBefore(holder, footer);
+            }
+        } else if (holder.parentNode !== list) {
+            list.appendChild(holder);
+        }
+
+        return holder;
+    }
+
+    function moveListToolbar() {
+        var holder = document.getElementById('canga-list-actions');
+        var bottom = holder ? holder.querySelector('.canga-header-toolbar') : null;
+        var header = listHeader() || bottom;
+
+        if (!hasHeaderActions(header)) {
             return;
         }
 
         header.classList.add('canga-header-toolbar');
-        if (header.parentNode !== actions) {
-            actions.appendChild(header);
+        holder = listActionsHolder();
+
+        if (!holder) {
+            return;
+        }
+
+        // Every list keeps its actions at the bottom of its own column,
+        // directly above the pagination.
+        header.classList.add('canga-list-actions-bar');
+        if (header.parentNode !== holder) {
+            holder.appendChild(header);
         }
     }
 
@@ -347,23 +369,19 @@
         initTopbar();
         initGroupsLink();
         applyGroupsView();
-        applyHeader();
         moveListToolbar();
         setActiveMenu();
         updateUnreadCounts();
         setTimeout(function () {
-            applyHeader();
-            moveListToolbar();
+                moveListToolbar();
             setActiveMenu();
         }, 0);
         setTimeout(function () {
-            applyHeader();
-            moveListToolbar();
+                moveListToolbar();
             setActiveMenu();
         }, 120);
         setTimeout(function () {
-            applyHeader();
-            moveListToolbar();
+                moveListToolbar();
             setActiveMenu();
         }, 350);
     }
@@ -406,7 +424,6 @@
             initTopbar();
             initGroupsLink();
             applyGroupsView();
-            applyHeader();
-        }, 50);
+            }, 50);
     });
 })();

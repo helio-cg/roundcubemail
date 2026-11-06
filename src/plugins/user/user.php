@@ -174,6 +174,22 @@ class user extends rcube_plugin
                 'selection' => '#374151',
             ],
         ],
+        'verde' => [
+            'light' => [
+                'accent' => '#1f8a5b',
+                'menu' => '#0f5132',
+                'background' => '#f1f6ee',
+                'text' => '#1b2b24',
+                'selection' => '#dfeee1',
+            ],
+            'dark' => [
+                'accent' => '#6fcf9b',
+                'menu' => '#0b3f27',
+                'background' => '#0d1411',
+                'text' => '#dce9df',
+                'selection' => '#1d3a2a',
+            ],
+        ],
         'marple' => [
             'light' => [
                 'accent' => '#b45309',
@@ -1979,6 +1995,13 @@ class user extends rcube_plugin
             $options[$skin] = $meta['name'] ?? $skin;
         }
 
+        // Canga is the default skin and appears first in the picker.
+        if (isset($options['canga'])) {
+            $canga = $options['canga'];
+            unset($options['canga']);
+            $options = ['canga' => $canga] + $options;
+        }
+
         return $options;
     }
 
@@ -2654,10 +2677,16 @@ class user extends rcube_plugin
                 $this->settings['preset'] = $decoded['preset'];
 
                 // The "atual" preset follows the active skin, so a palette
-                // saved on another skin must not leak into this one.
-                $this->settings['colors'] = $decoded['preset'] === 'atual'
-                    ? $defaults['colors']
-                    : $decoded['colors'];
+                // saved on another skin must not leak into this one. The green
+                // scheme is Canga-only for the same reason.
+                if ($decoded['preset'] === 'verde' && $this->current_skin() !== 'canga') {
+                    $this->settings['preset'] = 'atual';
+                    $this->settings['colors'] = $defaults['colors'];
+                } else {
+                    $this->settings['colors'] = $decoded['preset'] === 'atual'
+                        ? $defaults['colors']
+                        : $decoded['colors'];
+                }
             }
         }
 
@@ -2771,7 +2800,14 @@ class user extends rcube_plugin
      */
     private function sanitize_preset(string $preset): string
     {
-        if ($preset === 'atual' || $preset === 'custom' || isset(self::PRESETS[$preset])) {
+        if ($preset === 'atual' || $preset === 'custom') {
+            return $preset;
+        }
+
+        // "verde" is a Canga-only scheme.
+        if (isset(self::PRESETS[$preset])
+            && ($preset !== 'verde' || $this->current_skin() === 'canga')
+        ) {
             return $preset;
         }
 
@@ -2785,8 +2821,14 @@ class user extends rcube_plugin
     {
         $skin = $this->current_skin();
         $current = self::SKIN_PALETTES[$skin] ?? self::SKIN_PALETTES['elastic'];
+        $presets = self::PRESETS;
 
-        return ['atual' => $current] + self::PRESETS;
+        // "verde" is a Canga-only scheme; keep it out of the other skins.
+        if ($skin !== 'canga') {
+            unset($presets['verde']);
+        }
+
+        return ['atual' => $current] + $presets;
     }
 
     /**
@@ -2836,6 +2878,35 @@ class user extends rcube_plugin
     }
 
     /**
+     * Expose one palette as CSS variables, including contrast and surface
+     * values derived from the five editable colors.
+     */
+    private function palette_vars(array $colors, bool $dark): string
+    {
+        $menuText = $this->contrast_color($colors['menu']);
+        $accentText = $this->contrast_color($colors['accent']);
+        $selectionText = $this->contrast_color($colors['selection']);
+
+        // Cards use a surface lifted from the page background so the
+        // palette stays consistent without losing the card layout.
+        $surface = $this->mix_hex($colors['background'], '#ffffff', $dark ? .06 : .55);
+        $surfaceAlt = $this->mix_hex($colors['background'], '#ffffff', $dark ? .12 : .30);
+        $border = $this->mix_hex($colors['background'], $colors['text'], .14);
+
+        return '--user-accent:' . $colors['accent'] . ';'
+            . '--user-accent-text:' . $accentText . ';'
+            . '--user-menu:' . $colors['menu'] . ';'
+            . '--user-menu-text:' . $menuText . ';'
+            . '--user-background:' . $colors['background'] . ';'
+            . '--user-text:' . $colors['text'] . ';'
+            . '--user-selection:' . $colors['selection'] . ';'
+            . '--user-selection-text:' . $selectionText . ';'
+            . '--user-surface:' . $surface . ';'
+            . '--user-surface-alt:' . $surfaceAlt . ';'
+            . '--user-border:' . $border . ';';
+    }
+
+    /**
      * Build the CSS variables for one palette without overriding skin rules.
      */
     private function build_variable_style(array $colors): string
@@ -2844,12 +2915,8 @@ class user extends rcube_plugin
         $dark = $colors['dark'];
 
         return '<style id="user-skin-colors">'
-            . ':root{--user-accent:' . $light['accent'] . ';--user-menu:' . $light['menu'] . ';'
-            . '--user-background:' . $light['background'] . ';--user-text:' . $light['text'] . ';'
-            . '--user-selection:' . $light['selection'] . ';}'
-            . 'html.dark-mode{--user-accent:' . $dark['accent'] . ';--user-menu:' . $dark['menu'] . ';'
-            . '--user-background:' . $dark['background'] . ';--user-text:' . $dark['text'] . ';'
-            . '--user-selection:' . $dark['selection'] . ';}'
+            . ':root{' . $this->palette_vars($light, false) . '}'
+            . 'html.dark-mode{' . $this->palette_vars($dark, true) . '}'
             . '</style>';
     }
 
@@ -2862,12 +2929,8 @@ class user extends rcube_plugin
         $dark = $colors['dark'];
 
         $css = '<style id="user-skin-colors">'
-            . ':root{--user-accent:' . $light['accent'] . ';--user-menu:' . $light['menu'] . ';'
-            . '--user-background:' . $light['background'] . ';--user-text:' . $light['text'] . ';'
-            . '--user-selection:' . $light['selection'] . ';}'
-            . 'html.dark-mode{--user-accent:' . $dark['accent'] . ';--user-menu:' . $dark['menu'] . ';'
-            . '--user-background:' . $dark['background'] . ';--user-text:' . $dark['text'] . ';'
-            . '--user-selection:' . $dark['selection'] . ';'
+            . ':root{' . $this->palette_vars($light, false) . '}'
+            . 'html.dark-mode{' . $this->palette_vars($dark, true)
             . 'background-color:' . $dark['background'] . ' !important;}'
             . 'html{scrollbar-color:' . $light['accent'] . ' ' . $light['background'] . ';}'
             . 'html ::-webkit-scrollbar-track{background:' . $light['background'] . ' !important;}'
@@ -3189,6 +3252,8 @@ class user extends rcube_plugin
      */
     private function canga_rules(array $colors, string $prefix, string $menuText, string $selectionText): string
     {
+        $accentText = $this->contrast_color($colors['accent']);
+
         $topbar = $this->scoped_selectors([
             '#canga-topbar',
             '.canga-topbar',
@@ -3198,10 +3263,11 @@ class user extends rcube_plugin
             '#layout-menu.canga-menu',
         ], $prefix);
 
-        // Canga draws white cards on a tinted canvas, so surfaces cannot
-        // reuse the palette background directly. Keep it scoped to Canga:
-        // these selectors are generic and must not leak into other skins.
-        $surface = $prefix === '' ? '#ffffff' : '#1b1b23';
+        // Canga draws cards lifted from the page background, so surfaces
+        // cannot reuse the palette background directly. Keep it scoped to
+        // Canga: these selectors are generic and must not leak into other skins.
+        $surface = $this->mix_hex($colors['background'], '#ffffff', $prefix === '' ? .55 : .06);
+        $menuHover = $this->mix_hex($colors['selection'], $colors['text'], .10);
         $surfaceSelectors = $this->current_skin() === 'canga'
             ? $this->scoped_selectors([
                 '#layout-content',
@@ -3224,9 +3290,19 @@ class user extends rcube_plugin
             '#canga-topbar .canga-topbar-label',
             '#canga-topbar .canga-topbar-icon',
             '#canga-topbar .canga-topbar-caret:before',
+        ], $prefix);
+
+        $brandText = $this->scoped_selectors([
             '#layout-menu.canga-menu .canga-brand-name',
             '#layout-menu.canga-menu .canga-brand-user',
             '#layout-menu.canga-menu .canga-brand a.cancel',
+        ], $prefix);
+
+        $navText = $this->scoped_selectors([
+            '#layout-menu.canga-menu #taskmenu a',
+            '#layout-menu.canga-menu #taskmenu a:before',
+            '#layout-menu.canga-menu #taskmenu > a',
+            '#layout-menu.canga-menu #taskmenu > a:before',
         ], $prefix);
 
         $topbarHoverSelectors = [];
@@ -3299,12 +3375,14 @@ class user extends rcube_plugin
         $staticMenuActiveBackground = $this->scoped_selectors($staticMenuActiveBackground, $prefix);
         $staticMenuActiveContent = $this->scoped_selectors($staticMenuActiveContent, $prefix);
 
-        return $topbar . '{background:' . $colors['background'] . ' !important;}'
-            . $sidenav . '{background:' . $colors['menu'] . ' !important;}'
+        return $topbar . '{background:' . $colors['menu'] . ' !important;}'
+            . $sidenav . '{background:' . $colors['selection'] . ' !important;}'
             . ($surfaceSelectors !== ''
                 ? $surfaceSelectors . '{background-color:' . $surface . ' !important;}'
                 : '')
             . $topbarText . '{color:' . $menuText . ' !important;}'
+            . $brandText . '{color:' . $selectionText . ' !important;}'
+            . $navText . '{color:' . $selectionText . ' !important;}'
             . $topbarHover . '{background:' . $colors['selection'] . ' !important;'
             . 'color:' . $selectionText . ' !important;}'
             . $dropdown . '{background:' . $surface . ' !important;'
@@ -3319,13 +3397,13 @@ class user extends rcube_plugin
             . 'border-bottom-color:transparent !important;}'
             . $pageheaderTitle . '{color:' . $colors['text'] . ' !important;}'
             . $pageheaderSubtitle . '{color:' . $colors['text'] . ' !important;opacity:.72;}'
-            . $staticMenuHoverBackground . '{background:' . $colors['selection'] . ' !important;'
+            . $staticMenuHoverBackground . '{background:' . $menuHover . ' !important;'
             . 'color:' . $selectionText . ' !important;}'
             . $staticMenuHoverContent . '{color:' . $selectionText . ' !important;}'
-            . $staticMenuActiveBackground . '{background:' . $colors['selection'] . ' !important;'
-            . 'color:' . $selectionText . ' !important;'
-            . 'box-shadow: inset 3px 0 0 ' . $colors['accent'] . ' !important;}'
-            . $staticMenuActiveContent . '{color:' . $selectionText . ' !important;}';
+            . $staticMenuActiveBackground . '{background:' . $colors['accent'] . ' !important;'
+            . 'color:' . $accentText . ' !important;'
+            . 'box-shadow: none !important;}'
+            . $staticMenuActiveContent . '{color:' . $accentText . ' !important;}';
     }
 
     /**
@@ -3504,11 +3582,11 @@ class user extends rcube_plugin
             'body.task-mail #messagelist-header .toolbar.menu a:hover:before',
         ], $prefix);
 
-        // Canga keeps white cards on a tinted canvas, so plugin surfaces,
+        // Canga lifts cards from the page background, so plugin surfaces,
         // dialogs and the inbox must use the card colour, not the canvas.
         $canga = $this->current_skin() === 'canga';
-        $cangaSurface = $prefix === '' ? '#ffffff' : '#1b1b23';
-        $cangaInputSurface = $prefix === '' ? '#f5f4fa' : '#232331';
+        $cangaSurface = $this->mix_hex($colors['background'], '#ffffff', $prefix === '' ? .55 : .06);
+        $cangaInputSurface = $this->mix_hex($colors['background'], '#ffffff', $prefix === '' ? .30 : .12);
         $cangaContainers = $canga
             ? $this->scoped_selectors([
                 '.formcontainer',
@@ -3520,10 +3598,19 @@ class user extends rcube_plugin
                 '.ui-dialog',
                 '.ui-dialog-content',
                 '.ui-widget-content',
+                '#layout-content > .header',
+                '#message-header',
                 '#compose-content',
+                '#compose-content .formcontent.scroller',
                 '#composebody',
                 '.message-partheaders',
+                '.message-part',
+                '.message-htmlpart',
+                '#messagebody',
                 '.attachmentslist',
+                '.popupmenu',
+                '.popupmenu .menu',
+                '.popupmenu .menu.listing',
                 '.twofactor-2fa',
             ], $pluginPrefix)
             : '';
@@ -3558,6 +3645,10 @@ class user extends rcube_plugin
         $cangaInboxInputs = $canga
             ? $this->scoped_selectors([
                 'body.task-mail .searchbar input',
+                '#compose-content input',
+                '#compose-content select',
+                '#compose-content textarea',
+                '#composebody',
             ], $prefix)
             : '';
 
@@ -3661,6 +3752,30 @@ class user extends rcube_plugin
         $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
 
         return $luminance > 0.6 ? '#161b1d' : '#ffffff';
+    }
+
+    /**
+     * Mix two hex colors. $ratio is the weight of $mix (0..1).
+     */
+    private function mix_hex(string $base, string $mix, float $ratio): string
+    {
+        $base = ltrim($base, '#');
+        $mix = ltrim($mix, '#');
+
+        if (strlen($base) !== 6 || strlen($mix) !== 6) {
+            return '#' . $base;
+        }
+
+        $ratio = max(0.0, min(1.0, $ratio));
+        $out = '#';
+
+        for ($i = 0; $i < 6; $i += 2) {
+            $b = hexdec(substr($base, $i, 2));
+            $m = hexdec(substr($mix, $i, 2));
+            $out .= sprintf('%02x', (int) round($b * (1 - $ratio) + $m * $ratio));
+        }
+
+        return $out;
     }
 
     /**
